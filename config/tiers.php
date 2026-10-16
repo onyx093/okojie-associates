@@ -1,0 +1,58 @@
+<?php
+
+return [
+    'upload_and_go' => [
+        'slug' => 'upload_and_go',
+        'name' => 'Upload & Go',
+        'tagline' => 'Fully remote, start to finish',
+        'price_range' => 'starting at $150–$225',
+        'price_min' => 150,
+        'price_max' => 225,
+        'description' => 'Book online, upload your documents to the secure portal, and a credentialed preparer handles the rest. Review by video or phone, e-sign, and e-file — no office visit required.',
+        'features' => [
+            'Secure portal document upload',
+            'Preparer-prepared federal + state return',
+            'Review by video or phone',
+            'IRS-compliant e-signature (Form 8879)',
+            'E-file and online payment',
+        ],
+        'best_for' => 'W-2 households, students, gig workers, and out-of-area clients',
+        'cta' => 'Choose Upload & Go',
+    ],
+    'hybrid' => [
+        'slug' => 'hybrid',
+        'name' => 'Hybrid',
+        'tagline' => 'Drop off or upload — review in office or by video',
+        'price_range' => 'starting at $225–$350',
+        'price_min' => 225,
+        'price_max' => 350,
+        'description' => 'The best of both worlds. Bring your documents to a Philadelphia or Baltimore office, or upload them online. Sit down with your preparer in person or meet by video.',
+        'features' => [
+            'In-office drop-off or secure upload',
+            'In-person or video review',
+            'EITC and Child Tax Credit maximization',
+            'Prior-year comparison',
+            'IRS-compliant e-signature and e-file',
+        ],
+        'best_for' => 'Families, EITC/CTC filers, and first-time clients',
+        'cta' => 'Choose Hybrid',
+    ],
+    'premium_remote' => [
+        'slug' => 'premium_remote',
+        'name' => 'Premium Remote',
+        'tagline' => 'A dedicated preparer, year-round',
+        'price_range' => 'starting at $400–$900',
+        'price_min' => 400,
+        'price_max' => 900,
+        'description' => 'For complex returns and ongoing strategy. A dedicated preparer handles Schedule C/E, multi-state filings, and year-round planning so there are no surprises.',
+        'features' => [
+            'Dedicated preparer',
+            'Schedule C and Schedule E support',
+            'Multi-state (PA / MD / NJ / DE)',
+            'Quarterly estimates and year-round planning',
+            'Priority support',
+        ],
+        'best_for' => 'Self-employed, landlords, and small business owners',
+        'cta' => 'Choose Premium Remote',
+    ],
+];
