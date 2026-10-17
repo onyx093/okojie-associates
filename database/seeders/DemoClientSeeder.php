@@ -37,7 +37,7 @@ class DemoClientSeeder extends Seeder
         $taxReturn = TaxReturn::firstOrCreate(
             [
                 'user_id' => $user->id,
-                'tax_year' => 2024,
+                'tax_year' => (int) date('Y'),
             ],
             [
                 'tier' => null,

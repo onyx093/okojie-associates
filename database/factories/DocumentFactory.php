@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\DocType;
+use App\Enums\ScanStatus;
 use App\Models\Document;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,8 +26,22 @@ class DocumentFactory extends Factory
             'mime' => 'application/pdf',
             'size_bytes' => 102400,
             'storage_key' => 'documents/'.Str::random(40).'.pdf',
-            'scan_status' => 'clean',
+            'scan_status' => ScanStatus::Clean,
             'uploaded_by' => null,
         ];
+    }
+
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'scan_status' => ScanStatus::Pending,
+        ]);
+    }
+
+    public function infected(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'scan_status' => ScanStatus::Infected,
+        ]);
     }
 }

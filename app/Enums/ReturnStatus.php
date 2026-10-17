@@ -36,10 +36,18 @@ enum ReturnStatus: string
     {
         return match ($this) {
             self::IntakeReceived => "We're moving to: In preparation. We'll keep you posted here.",
-            self::InPreparation => 'A credentialed preparer is building your return. Next: Ready for review.',
-            self::ReadyForReview => 'Your return is ready for video/phone review and Form 8879 e-signature.',
-            self::ESigned => 'E-signature received. We are finalizing and submitting your return to the IRS.',
-            self::EFiled => 'Your return has been e-filed. We will notify you when accepted by the IRS.',
+            self::InPreparation => "We're moving to: Ready for review. We'll keep you posted here.",
+            self::ReadyForReview => "We're moving to: E-signed. Review your return and sign when ready.",
+            self::ESigned => "We're moving to: E-filed. We'll keep you posted here.",
+            self::EFiled => 'Your return has been e-filed. Thank you!',
+        };
+    }
+
+    public function isBeforeReadyForReview(): bool
+    {
+        return match ($this) {
+            self::IntakeReceived, self::InPreparation => true,
+            self::ReadyForReview, self::ESigned, self::EFiled => false,
         };
     }
 }

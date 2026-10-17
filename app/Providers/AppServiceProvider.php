@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\VirusScanner\ClamAvScanner;
+use App\Services\VirusScanner\FakeScanner;
+use App\Services\VirusScanner\ScannerInterface;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(ScannerInterface::class, function () {
+            if (app()->isProduction() && config('services.clamav.enabled', false)) {
+                return new ClamAvScanner;
+            }
+
+            return new FakeScanner;
+        });
     }
 
     /**

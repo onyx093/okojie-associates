@@ -5,7 +5,9 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\OverviewController;
+use App\Http\Controllers\Portal\SecurityController as PortalSecurityController;
 use App\Http\Controllers\Portal\TierController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\ServicesController;
@@ -31,10 +33,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::redirect('portal', '/portal/overview')->name('portal');
-    Route::get('portal/overview', [OverviewController::class, 'index'])->name('portal.overview');
-    Route::patch('portal/tier', [TierController::class, 'update'])->name('portal.tier.update');
+Route::redirect('portal', '/portal/overview')->name('portal');
+
+Route::middleware(['auth', 'verified', 'portal.2fa'])->prefix('portal')->name('portal.')->group(function () {
+    Route::get('overview', [OverviewController::class, 'index'])->name('overview');
+    Route::patch('tier', [TierController::class, 'update'])->name('tier.update');
+    Route::get('security', [PortalSecurityController::class, 'index'])->name('security');
+
+    // Documents
+    Route::get('documents', [DocumentController::class, 'index'])->name('documents');
+    Route::post('documents', [DocumentController::class, 'store'])->name('documents.store');
+    Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
+    Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+
+    // Tab routes (stubs for subsequent steps)
+    Route::get('appointments', fn () => redirect()->route('portal.overview'))->name('appointments');
+    Route::get('referrals', fn () => redirect()->route('portal.overview'))->name('referrals');
+    Route::get('messages', fn () => redirect()->route('portal.overview'))->name('messages');
 });
 
 if (app()->environment('local', 'testing')) {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DocType;
+use App\Enums\ScanStatus;
 use Database\Factories\DocumentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -21,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property string $mime
  * @property int $size_bytes
  * @property string $storage_key
- * @property string $scan_status
+ * @property ScanStatus $scan_status
  * @property int|null $uploaded_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -41,6 +42,7 @@ class Document extends Model
         return [
             'type' => DocType::class,
             'size_bytes' => 'integer',
+            'scan_status' => ScanStatus::class,
         ];
     }
 

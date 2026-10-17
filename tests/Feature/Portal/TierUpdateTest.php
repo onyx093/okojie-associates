@@ -12,7 +12,7 @@ test('guests cannot update service tier and are redirected to login', function (
 });
 
 test('authenticated user can update their service tier', function () {
-    $user = User::factory()->create([
+    $user = User::factory()->withTwoFactor()->create([
         'tier' => null,
     ]);
 
@@ -29,7 +29,7 @@ test('authenticated user can update their service tier', function () {
 });
 
 test('updating service tier requires a valid tier enum', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->withTwoFactor()->create();
 
     $this->actingAs($user);
 
