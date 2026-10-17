@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReferralStatus;
 use App\Enums\ReturnStatus;
 use App\Enums\Tier;
 use Database\Factories\TaxReturnFactory;
@@ -31,6 +32,23 @@ class TaxReturn extends Model
 {
     /** @use HasFactory<TaxReturnFactory> */
     use HasFactory, HasUlids;
+
+    protected static function booted(): void
+    {
+        static::updated(function (TaxReturn $return) {
+            if ($return->wasChanged('status') && $return->status === ReturnStatus::EFiled) {
+                $user = $return->user;
+                if ($user) {
+                    Referral::where(function ($query) use ($user) {
+                        $query->where('friend_user_id', $user->id)
+                            ->orWhere('friend_email', strtolower($user->email));
+                    })
+                        ->where('status', '!=', ReferralStatus::Rewarded)
+                        ->update(['status' => ReferralStatus::Filed]);
+                }
+            }
+        });
+    }
 
     /**
      * @return array<string, string>

@@ -8,6 +8,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\Portal\AppointmentController;
 use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\OverviewController;
+use App\Http\Controllers\Portal\ReferralController;
 use App\Http\Controllers\Portal\SecurityController as PortalSecurityController;
 use App\Http\Controllers\Portal\TierController;
 use App\Http\Controllers\PricingController;
@@ -52,8 +53,11 @@ Route::middleware(['auth', 'verified', 'portal.2fa'])->prefix('portal')->name('p
     Route::post('appointments', [AppointmentController::class, 'store'])->name('appointments.store');
     Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
+    // Referrals
+    Route::get('referrals', [ReferralController::class, 'index'])->name('referrals');
+    Route::post('referrals', [ReferralController::class, 'store'])->name('referrals.store');
+
     // Tab routes (stubs for subsequent steps)
-    Route::get('referrals', fn () => redirect()->route('portal.overview'))->name('referrals');
     Route::get('messages', fn () => redirect()->route('portal.overview'))->name('messages');
 });
 

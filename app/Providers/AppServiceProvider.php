@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Appointment;
 use App\Models\Document;
+use App\Models\Referral;
 use App\Policies\AppointmentPolicy;
 use App\Policies\DocumentPolicy;
+use App\Policies\ReferralPolicy;
 use App\Services\VirusScanner\ClamAvScanner;
 use App\Services\VirusScanner\FakeScanner;
 use App\Services\VirusScanner\ScannerInterface;
@@ -43,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(Document::class, DocumentPolicy::class);
+        Gate::policy(Referral::class, ReferralPolicy::class);
 
         $this->configureDefaults();
     }
