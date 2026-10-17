@@ -4,28 +4,28 @@ Confidence tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]** (see README).
 
 ## 1. Overview
 
-**Product:** A website for *Okojie & Associates, Inc.*, a 26+-year neighborhood tax-preparation firm with 4 offices (3 Philadelphia, 1 Baltimore). The site markets a remote/hybrid service called **Okojie Online** and gives clients a **secure portal** to upload documents, track return status, book appointments, pay, refer friends, and read messages from their preparer. **[OBSERVED]**
+**Product:** A website for _Okojie & Associates, Inc._, a 26+-year neighborhood tax-preparation firm with 4 offices (3 Philadelphia, 1 Baltimore). The site markets a remote/hybrid service called **Okojie Online** and gives clients a **secure portal** to upload documents, track return status, book appointments, pay, refer friends, and read messages from their preparer. **[OBSERVED]**
 
 **One-line pitch:** "The convenience of online filing, with a real tax professional who knows Philadelphia and Baltimore." **[OBSERVED]**
 
-**Positioning:** Not a DIY software product. The differentiator is a *credentialed human preparer* plus modern convenience (portal, e-sign, e-file, video review). Trust and security are central themes.
+**Positioning:** Not a DIY software product. The differentiator is a _credentialed human preparer_ plus modern convenience (portal, e-sign, e-file, video review). Trust and security are central themes.
 
 ## 2. Goals
 
-| # | Goal | How the site serves it |
-|---|---|---|
-| G1 | Convert visitors to leads | Two lead forms (free quote, free consultation) on Contact; quote form repeated on Home and Services |
-| G2 | Convert visitors to clients | Tier selection ("Choose X"), account creation, portal onboarding |
-| G3 | Deliver the service remotely | Portal: documents, status, messages, appointments, invoice/pay |
-| G4 | Build trust | Stats, credentials, security section, testimonials, videos, offices, compliance footer |
-| G5 | Grow via word of mouth | Referral program ($25–$50 reward) with unique link |
-| G6 | Retain / re-engage | Newsletter ("tax tips & deadlines"), year-round planning tier |
+| #   | Goal                         | How the site serves it                                                                              |
+| --- | ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| G1  | Convert visitors to leads    | Two lead forms (free quote, free consultation) on Contact; quote form repeated on Home and Services |
+| G2  | Convert visitors to clients  | Tier selection ("Choose X"), account creation, portal onboarding                                    |
+| G3  | Deliver the service remotely | Portal: documents, status, messages, appointments, invoice/pay                                      |
+| G4  | Build trust                  | Stats, credentials, security section, testimonials, videos, offices, compliance footer              |
+| G5  | Grow via word of mouth       | Referral program ($25–$50 reward) with unique link                                                  |
+| G6  | Retain / re-engage           | Newsletter ("tax tips & deadlines"), year-round planning tier                                       |
 
 ## 3. Target users
 
-1. **W-2 households, students, gig workers, out-of-area clients** → *Upload & Go*. Want fast, remote, cheap.
-2. **Families, EITC/CTC filers, first-time clients** → *Hybrid*. Want in-person reassurance and credit maximization.
-3. **Self-employed, landlords, small business owners** → *Premium Remote*. Complex returns (Sched C/E, multi-state PA/MD/NJ/DE), quarterly estimates.
+1. **W-2 households, students, gig workers, out-of-area clients** → _Upload & Go_. Want fast, remote, cheap.
+2. **Families, EITC/CTC filers, first-time clients** → _Hybrid_. Want in-person reassurance and credit maximization.
+3. **Self-employed, landlords, small business owners** → _Premium Remote_. Complex returns (Sched C/E, multi-state PA/MD/NJ/DE), quarterly estimates.
 4. **Returning neighborhood clients** moving online (e.g. a Germantown client who "did everything online from my phone").
 5. **People with IRS notices / back taxes / ITIN needs** → add-ons.
 6. **[INFERRED] Internal staff** (preparers, admins) who manage returns, post messages, confirm appointments, process leads. Not shown, but required.
@@ -33,6 +33,7 @@ Confidence tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]** (see README).
 ## 4. Scope
 
 ### In scope (v1) — matches the screenshots
+
 - Public pages: Home, Services, Pricing, About, Contact.
 - Auth: Sign in / Sign up on a single page with toggle.
 - Client portal with 5 tabs: Overview, Documents, Appointments, Referrals, Messages.
@@ -42,6 +43,7 @@ Confidence tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]** (see README).
 - **[INFERRED]** Minimum staff admin console to make the portal real (see below).
 
 ### In scope but not visible — build as sensible defaults **[INFERRED]**
+
 - Staff/admin console: leads inbox, client list, return status updates, post messages, confirm appointments, review documents, set invoice amount, mark referrals rewarded.
 - Transactional email (lead confirmation, appointment status, new message, referral invite).
 - Payment processing behind "Pay Now".
@@ -49,6 +51,7 @@ Confidence tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]** (see README).
 - MFA enrollment/verification **[CLAIMED]**.
 
 ### Out of scope (v1)
+
 - Actual tax calculation / return preparation software (the preparer uses their own tools; the portal only tracks status and exchanges files).
 - Actual IRS/state e-file transmission (needs EFIN, MeF integration, certified software). Portal marks "E-filed" manually.
 - Native mobile apps.
@@ -87,16 +90,16 @@ Full numbered list with acceptance criteria is in `FEATURES.md`. Summary:
 
 ## 6. Non-functional requirements
 
-| Area | Requirement |
-|---|---|
-| Security | Claims IRS Pub 4557 compliance, FTC Safeguards Rule WISP, MFA on every client account, IRS-compliant e-signature (Form 8879) with Form 7216 consent **[CLAIMED]**. Implementation must encrypt data in transit and at rest, enforce per-user access control (Laravel Policies), audit-log sensitive actions. See `SPEC.md` §8. |
-| Privacy | Uploaded documents visible only to owner and assigned staff. |
-| Performance | LCP < 2.5s on 4G for public pages; hero image optimized; lazy-load videos and below-fold images. |
-| Accessibility | WCAG 2.1 AA: contrast on dark theme, visible focus, labeled inputs, keyboard accordions/carousel, `aria-expanded` on FAQ, reduced-motion support for scroll reveals. |
-| SEO | **Inertia SSR** for all public pages. Title: "Okojie & Associates, Inc. — Okojie Online Tax Preparation". Meta description from the hero tagline. Local-business structured data for the 4 offices. (The original appears client-rendered, which hurts SEO; server-side rendering via Inertia SSR fixes this.) |
-| Responsiveness | Desktop-first screenshots; must collapse to mobile (nav, 3→1 column grids, 4→2→1 office cards). |
-| Reliability | Forms must not lose data on failure; show inline errors and success states. |
-| Browser support | Last 2 versions of Chrome, Safari, Firefox, Edge; iOS Safari. |
+| Area            | Requirement                                                                                                                                                                                                                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Security        | Claims IRS Pub 4557 compliance, FTC Safeguards Rule WISP, MFA on every client account, IRS-compliant e-signature (Form 8879) with Form 7216 consent **[CLAIMED]**. Implementation must encrypt data in transit and at rest, enforce per-user access control (Laravel Policies), audit-log sensitive actions. See `SPEC.md` §8. |
+| Privacy         | Uploaded documents visible only to owner and assigned staff.                                                                                                                                                                                                                                                                   |
+| Performance     | LCP < 2.5s on 4G for public pages; hero image optimized; lazy-load videos and below-fold images.                                                                                                                                                                                                                               |
+| Accessibility   | WCAG 2.1 AA: contrast on dark theme, visible focus, labeled inputs, keyboard accordions/carousel, `aria-expanded` on FAQ, reduced-motion support for scroll reveals.                                                                                                                                                           |
+| SEO             | **Inertia SSR** for all public pages. Title: "Okojie & Associates, Inc. — Okojie Online Tax Preparation". Meta description from the hero tagline. Local-business structured data for the 4 offices. (The original appears client-rendered, which hurts SEO; server-side rendering via Inertia SSR fixes this.)                 |
+| Responsiveness  | Desktop-first screenshots; must collapse to mobile (nav, 3→1 column grids, 4→2→1 office cards).                                                                                                                                                                                                                                |
+| Reliability     | Forms must not lose data on failure; show inline errors and success states.                                                                                                                                                                                                                                                    |
+| Browser support | Last 2 versions of Chrome, Safari, Firefox, Edge; iOS Safari.                                                                                                                                                                                                                                                                  |
 
 ## 7. Content strategy
 
@@ -107,15 +110,15 @@ Full numbered list with acceptance criteria is in `FEATURES.md`. Summary:
 
 ## 8. Success metrics
 
-| Metric | Target (suggested) |
-|---|---|
-| Visitor → lead conversion | ≥ 3% |
-| Lead → account creation | ≥ 35% |
-| Account → first document upload within 48h | ≥ 60% |
-| Median time Intake → E-filed | tracked per season |
-| Portal NPS | ≥ 50 |
-| Referral participation (clients who send ≥1 referral) | ≥ 10% |
-| Support contact rate per return | < 15% |
+| Metric                                                | Target (suggested) |
+| ----------------------------------------------------- | ------------------ |
+| Visitor → lead conversion                             | ≥ 3%               |
+| Lead → account creation                               | ≥ 35%              |
+| Account → first document upload within 48h            | ≥ 60%              |
+| Median time Intake → E-filed                          | tracked per season |
+| Portal NPS                                            | ≥ 50               |
+| Referral participation (clients who send ≥1 referral) | ≥ 10%              |
+| Support contact rate per return                       | < 15%              |
 
 ## 9. Risks and open questions
 
@@ -130,11 +133,11 @@ Full numbered list with acceptance criteria is in `FEATURES.md`. Summary:
 
 ## 10. Release plan
 
-| Phase | Contents |
-|---|---|
-| **M1 – Marketing site** | Home, Services, Pricing, About, Contact, footer, forms → DB + email |
-| **M2 – Auth + Portal shell** | Fortify sign up/in, sessions, portal tabs, tier badge |
-| **M3 – Portal features** | Documents, appointments, referrals, messages, status, invoice display |
-| **M4 – Staff console** | Leads, clients, status updates, messaging, appointment confirmation |
-| **M5 – Money + trust** | Payments, MFA, e-sign flow, audit log |
-| **M6 – Hardening** | A11y, SEO, perf, security review, backups, monitoring |
+| Phase                        | Contents                                                              |
+| ---------------------------- | --------------------------------------------------------------------- |
+| **M1 – Marketing site**      | Home, Services, Pricing, About, Contact, footer, forms → DB + email   |
+| **M2 – Auth + Portal shell** | Fortify sign up/in, sessions, portal tabs, tier badge                 |
+| **M3 – Portal features**     | Documents, appointments, referrals, messages, status, invoice display |
+| **M4 – Staff console**       | Leads, clients, status updates, messaging, appointment confirmation   |
+| **M5 – Money + trust**       | Payments, MFA, e-sign flow, audit log                                 |
+| **M6 – Hardening**           | A11y, SEO, perf, security review, backups, monitoring                 |

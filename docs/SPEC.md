@@ -7,24 +7,24 @@ Tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]**.
 
 ## 1. Stack
 
-| Layer | Choice | Notes |
-|---|---|---|
-| Backend framework | **Laravel 13** (PHP **8.3+**; 8.4/8.5 recommended) | Controllers, Form Requests, Policies, Eloquent, queues, scheduler, mail, filesystem |
-| Bridge | **Inertia v3** (`inertiajs/inertia-laravel` ^3, `@inertiajs/react` ^3) | No separate API for the site's own UI; controllers return `Inertia::render()` or redirects. **SSR enabled** for public pages |
-| Frontend | **React 19 + TypeScript** | Function components, hooks |
-| Styling | **Tailwind CSS v4** (CSS-first config via `@theme` in `resources/css/app.css`, `@tailwindcss/vite`) | **No `tailwind.config.js`** |
-| Components | **shadcn/ui** (installed into `resources/js/components/ui` via the shadcn CLI, `components.json`) + **lucide-react** | Radix-based, owned source code |
-| Build | **Vite** + `laravel-vite-plugin` | |
-| Typed routes | **Laravel Wayfinder** | Generates TS route/action helpers from Laravel routes/controllers |
-| Auth | **Laravel Fortify** (login, register, password reset, email verification, **two-factor auth with TOTP + recovery codes**) | Views rendered through Inertia |
-| DB | **PostgreSQL** (prod), **SQLite** (local/test) | Eloquent + migrations |
-| Files | Laravel **Filesystem** — private **S3-compatible** disk (`league/flysystem-aws-s3-v3`), local disk in dev | `temporaryUrl()` for downloads |
-| Mail | Laravel **Mailables/Notifications** (queued, Markdown mail); Resend/Postmark/SES transport; `log` driver in dev | |
-| Payments | **Laravel Cashier (Stripe)** — Checkout one-off charge | |
-| Queues/Jobs | `database` or `redis` driver; Horizon optional | Mail, virus scan |
-| Rate limiting | Laravel `RateLimiter` + `throttle` middleware | |
-| Spam protection | `spatie/laravel-honeypot` + Cloudflare Turnstile (custom validation rule) | |
-| Testing | **Pest 4** (+ Laravel plugin, **browser plugin** for E2E), Larastan, Pint | Frontend: `tsc --noEmit`, ESLint, Prettier (Vitest optional) |
+| Layer             | Choice                                                                                                                    | Notes                                                                                                                        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Backend framework | **Laravel 13** (PHP **8.3+**; 8.4/8.5 recommended)                                                                        | Controllers, Form Requests, Policies, Eloquent, queues, scheduler, mail, filesystem                                          |
+| Bridge            | **Inertia v3** (`inertiajs/inertia-laravel` ^3, `@inertiajs/react` ^3)                                                    | No separate API for the site's own UI; controllers return `Inertia::render()` or redirects. **SSR enabled** for public pages |
+| Frontend          | **React 19 + TypeScript**                                                                                                 | Function components, hooks                                                                                                   |
+| Styling           | **Tailwind CSS v4** (CSS-first config via `@theme` in `resources/css/app.css`, `@tailwindcss/vite`)                       | **No `tailwind.config.js`**                                                                                                  |
+| Components        | **shadcn/ui** (installed into `resources/js/components/ui` via the shadcn CLI, `components.json`) + **lucide-react**      | Radix-based, owned source code                                                                                               |
+| Build             | **Vite** + `laravel-vite-plugin`                                                                                          |                                                                                                                              |
+| Typed routes      | **Laravel Wayfinder**                                                                                                     | Generates TS route/action helpers from Laravel routes/controllers                                                            |
+| Auth              | **Laravel Fortify** (login, register, password reset, email verification, **two-factor auth with TOTP + recovery codes**) | Views rendered through Inertia                                                                                               |
+| DB                | **PostgreSQL** (prod), **SQLite** (local/test)                                                                            | Eloquent + migrations                                                                                                        |
+| Files             | Laravel **Filesystem** — private **S3-compatible** disk (`league/flysystem-aws-s3-v3`), local disk in dev                 | `temporaryUrl()` for downloads                                                                                               |
+| Mail              | Laravel **Mailables/Notifications** (queued, Markdown mail); Resend/Postmark/SES transport; `log` driver in dev           |                                                                                                                              |
+| Payments          | **Laravel Cashier (Stripe)** — Checkout one-off charge                                                                    |                                                                                                                              |
+| Queues/Jobs       | `database` or `redis` driver; Horizon optional                                                                            | Mail, virus scan                                                                                                             |
+| Rate limiting     | Laravel `RateLimiter` + `throttle` middleware                                                                             |                                                                                                                              |
+| Spam protection   | `spatie/laravel-honeypot` + Cloudflare Turnstile (custom validation rule)                                                 |                                                                                                                              |
+| Testing           | **Pest 4** (+ Laravel plugin, **browser plugin** for E2E), Larastan, Pint                                                 | Frontend: `tsc --noEmit`, ESLint, Prettier (Vitest optional)                                                                 |
 
 **Scaffolding recommendation:** start from the official Laravel **React starter kit** (installer → React → Laravel auth). It already wires Inertia, React 19, TypeScript, Tailwind v4, shadcn/ui, Fortify and Wayfinder. Then delete/replace its default dashboard and settings pages with the pages in this spec.
 
@@ -37,59 +37,65 @@ Tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]**.
 Page components live in `resources/js/pages/*` (lowercase/kebab paths, matching the starter kit convention).
 
 ### Public
-| Method | URI | Route name | Controller@action | Inertia page | Notes |
-|---|---|---|---|---|---|
-| GET | `/` | `home` | `HomeController` | `home` | props: tiers, steps, testimonials, videos, offices, faqs, stats |
-| GET | `/services` | `services` | `ServicesController` | `services` | tiers, addons (table), faqs |
-| GET | `/pricing` | `pricing` | `PricingController` | `pricing` | tiers, addons (cards), faqs |
-| GET | `/about` | `about` | `AboutController` | `about` | |
-| GET | `/contact` | `contact` | `ContactController` | `contact` | accepts `?ref=` `?tier=`; anchors `#start`, `#consult` |
-| POST | `/leads/quote` | `leads.quote` | `LeadController@quote` | redirect back + flash | `throttle:public-forms`, honeypot, Turnstile |
-| POST | `/leads/consult` | `leads.consult` | `LeadController@consult` | redirect back + flash | same |
-| POST | `/newsletter` | `newsletter.subscribe` | `NewsletterController@store` | redirect back + flash | idempotent |
-| GET | `/privacy` `/terms` `/security` | `legal.*` | `LegalController` | `legal/show` | **[INFERRED]** placeholders |
-| GET | `/sitemap.xml` | `sitemap` | `SitemapController` | XML | |
+
+| Method | URI                             | Route name             | Controller@action            | Inertia page          | Notes                                                           |
+| ------ | ------------------------------- | ---------------------- | ---------------------------- | --------------------- | --------------------------------------------------------------- |
+| GET    | `/`                             | `home`                 | `HomeController`             | `home`                | props: tiers, steps, testimonials, videos, offices, faqs, stats |
+| GET    | `/services`                     | `services`             | `ServicesController`         | `services`            | tiers, addons (table), faqs                                     |
+| GET    | `/pricing`                      | `pricing`              | `PricingController`          | `pricing`             | tiers, addons (cards), faqs                                     |
+| GET    | `/about`                        | `about`                | `AboutController`            | `about`               |                                                                 |
+| GET    | `/contact`                      | `contact`              | `ContactController`          | `contact`             | accepts `?ref=` `?tier=`; anchors `#start`, `#consult`          |
+| POST   | `/leads/quote`                  | `leads.quote`          | `LeadController@quote`       | redirect back + flash | `throttle:public-forms`, honeypot, Turnstile                    |
+| POST   | `/leads/consult`                | `leads.consult`        | `LeadController@consult`     | redirect back + flash | same                                                            |
+| POST   | `/newsletter`                   | `newsletter.subscribe` | `NewsletterController@store` | redirect back + flash | idempotent                                                      |
+| GET    | `/privacy` `/terms` `/security` | `legal.*`              | `LegalController`            | `legal/show`          | **[INFERRED]** placeholders                                     |
+| GET    | `/sitemap.xml`                  | `sitemap`              | `SitemapController`          | XML                   |                                                                 |
 
 ### Auth (Fortify, views via Inertia)
-| Method | URI | Notes |
-|---|---|---|
-| GET | `/login` | renders `auth/access` with `mode: 'signin'` |
-| GET | `/register` | renders **the same** `auth/access` page with `mode: 'signup'`. `/login?mode=signup` → 301 to `/register`. Carries `?tier=` and `?next=` |
-| POST | `/login`, `/register`, `/logout` | Fortify actions (custom `CreateNewUser` action, see §6) |
-| GET/POST | `/forgot-password`, `/reset-password/{token}` | pages `auth/forgot-password`, `auth/reset-password` |
-| GET | `/email/verify`, `/email/verify/{id}/{hash}` | page `auth/verify-email` |
-| GET | `/two-factor-challenge` | page `auth/two-factor-challenge` (uses shadcn `input-otp`) |
-| POST | `/user/two-factor-authentication` (+ confirm, recovery codes) | Fortify; managed from `/portal/security` |
+
+| Method   | URI                                                           | Notes                                                                                                                                   |
+| -------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| GET      | `/login`                                                      | renders `auth/access` with `mode: 'signin'`                                                                                             |
+| GET      | `/register`                                                   | renders **the same** `auth/access` page with `mode: 'signup'`. `/login?mode=signup` → 301 to `/register`. Carries `?tier=` and `?next=` |
+| POST     | `/login`, `/register`, `/logout`                              | Fortify actions (custom `CreateNewUser` action, see §6)                                                                                 |
+| GET/POST | `/forgot-password`, `/reset-password/{token}`                 | pages `auth/forgot-password`, `auth/reset-password`                                                                                     |
+| GET      | `/email/verify`, `/email/verify/{id}/{hash}`                  | page `auth/verify-email`                                                                                                                |
+| GET      | `/two-factor-challenge`                                       | page `auth/two-factor-challenge` (uses shadcn `input-otp`)                                                                              |
+| POST     | `/user/two-factor-authentication` (+ confirm, recovery codes) | Fortify; managed from `/portal/security`                                                                                                |
 
 ### Client portal (middleware: `auth`, `verified`, `portal.2fa`)
-| Method | URI | Route name | Controller@action | Page |
-|---|---|---|---|---|
-| GET | `/portal` | `portal` | redirect → `portal.overview` | |
-| GET | `/portal/overview` | `portal.overview` | `Portal\OverviewController` | `portal/overview` |
-| GET | `/portal/documents` | `portal.documents` | `Portal\DocumentController@index` | `portal/documents` |
-| POST | `/portal/documents` | `portal.documents.store` | `@store` | redirect back (multipart) |
-| GET | `/portal/documents/{document}/download` | `portal.documents.download` | `@download` | 302 to signed URL (plain `<a>`, not an Inertia link) |
-| DELETE | `/portal/documents/{document}` | `portal.documents.destroy` | `@destroy` | redirect back |
-| GET | `/portal/appointments` | `portal.appointments` | `Portal\AppointmentController@index` | `portal/appointments` |
-| POST | `/portal/appointments` | `portal.appointments.store` | `@store` | redirect back |
-| DELETE | `/portal/appointments/{appointment}` | `portal.appointments.destroy` | `@destroy` (cancel) | redirect back |
-| GET | `/portal/referrals` | `portal.referrals` | `Portal\ReferralController@index` | `portal/referrals` |
-| POST | `/portal/referrals` | `portal.referrals.store` | `@store` | redirect back |
-| GET | `/portal/messages` | `portal.messages` | `Portal\MessageController@index` | `portal/messages` |
-| POST | `/portal/messages/{message}/read` | `portal.messages.read` | `@read` | 204 |
-| PATCH | `/portal/tier` | `portal.tier.update` | `Portal\TierController@update` | redirect → overview (used by "Choose X" when authed) |
-| POST | `/portal/invoice/checkout` | `portal.invoice.checkout` | `Portal\InvoiceController@checkout` | `Inertia::location($stripeUrl)` |
-| GET | `/portal/sign/{taxReturn}` | `portal.sign` | `Portal\SignController@show` | `portal/sign` **[INFERRED]** |
-| POST | `/portal/sign/{taxReturn}` | `portal.sign.store` | `@store` | redirect → overview |
-| GET | `/portal/security` | `portal.security` | `Portal\SecurityController` | `portal/security` (2FA setup, password change) **[INFERRED]** |
+
+| Method | URI                                     | Route name                    | Controller@action                    | Page                                                          |
+| ------ | --------------------------------------- | ----------------------------- | ------------------------------------ | ------------------------------------------------------------- |
+| GET    | `/portal`                               | `portal`                      | redirect → `portal.overview`         |                                                               |
+| GET    | `/portal/overview`                      | `portal.overview`             | `Portal\OverviewController`          | `portal/overview`                                             |
+| GET    | `/portal/documents`                     | `portal.documents`            | `Portal\DocumentController@index`    | `portal/documents`                                            |
+| POST   | `/portal/documents`                     | `portal.documents.store`      | `@store`                             | redirect back (multipart)                                     |
+| GET    | `/portal/documents/{document}/download` | `portal.documents.download`   | `@download`                          | 302 to signed URL (plain `<a>`, not an Inertia link)          |
+| DELETE | `/portal/documents/{document}`          | `portal.documents.destroy`    | `@destroy`                           | redirect back                                                 |
+| GET    | `/portal/appointments`                  | `portal.appointments`         | `Portal\AppointmentController@index` | `portal/appointments`                                         |
+| POST   | `/portal/appointments`                  | `portal.appointments.store`   | `@store`                             | redirect back                                                 |
+| DELETE | `/portal/appointments/{appointment}`    | `portal.appointments.destroy` | `@destroy` (cancel)                  | redirect back                                                 |
+| GET    | `/portal/referrals`                     | `portal.referrals`            | `Portal\ReferralController@index`    | `portal/referrals`                                            |
+| POST   | `/portal/referrals`                     | `portal.referrals.store`      | `@store`                             | redirect back                                                 |
+| GET    | `/portal/messages`                      | `portal.messages`             | `Portal\MessageController@index`     | `portal/messages`                                             |
+| POST   | `/portal/messages/{message}/read`       | `portal.messages.read`        | `@read`                              | 204                                                           |
+| PATCH  | `/portal/tier`                          | `portal.tier.update`          | `Portal\TierController@update`       | redirect → overview (used by "Choose X" when authed)          |
+| POST   | `/portal/invoice/checkout`              | `portal.invoice.checkout`     | `Portal\InvoiceController@checkout`  | `Inertia::location($stripeUrl)`                               |
+| GET    | `/portal/sign/{taxReturn}`              | `portal.sign`                 | `Portal\SignController@show`         | `portal/sign` **[INFERRED]**                                  |
+| POST   | `/portal/sign/{taxReturn}`              | `portal.sign.store`           | `@store`                             | redirect → overview                                           |
+| GET    | `/portal/security`                      | `portal.security`             | `Portal\SecurityController`          | `portal/security` (2FA setup, password change) **[INFERRED]** |
 
 ### Staff console `/admin/*` **[INFERRED]** (middleware: `auth`, `verified`, `portal.2fa`, `can:access-admin`)
+
 `admin.leads.*`, `admin.clients.index|show`, `admin.returns.status` (PATCH), `admin.messages.store`, `admin.appointments.update`, `admin.invoices.update`, `admin.referrals.update`, `admin.documents.download`. Pages under `resources/js/pages/admin/*`.
 
 ### Webhooks
+
 `POST /stripe/webhook` (Cashier) — exclude from CSRF; handle via `WebhookReceived` listener.
 
 **Navigation rules**
+
 - Header "Start My Return Online" → `contact` with `#start`.
 - Hero "Book a Free Consultation" → `contact` with `#consult`.
 - Referral banner: authed → `portal.referrals`; guest → `register?next=/portal/referrals`.
@@ -134,6 +140,7 @@ All values: `CONTENT.md`.
 ## 4. Data model (Eloquent + migrations)
 
 ### 4.1 PHP backed enums (`app/Enums`)
+
 ```
 Role:           Client, Preparer, Admin
 Tier:           UploadAndGo='upload_and_go', Hybrid='hybrid', PremiumRemote='premium_remote'   (label(), priceRange())
@@ -149,24 +156,26 @@ InvoiceStatus:  Draft, Open, Paid, Refunded, Void
 ```
 
 ### 4.2 Tables
+
 All tables use ULIDs (`HasUlids`) except Laravel's own (sessions, jobs…). Timestamps on all.
 
-| Table / Model | Columns |
-|---|---|
-| `users` / `User` | `id`, `email` unique, `email_verified_at`, `password` (hashed cast), `name` null, `phone` null, `role` (Role, default client), `tier` null (Tier cast; null ⇒ "No tier selected"), `referral_code` unique (e.g. `OKJ-674SU5`), `referred_by_code` null, Fortify 2FA columns (`two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`), Cashier columns (`stripe_id`, `pm_type`, `pm_last_four`…). Uses `Billable`, `TwoFactorAuthenticatable`, `MustVerifyEmail` |
-| `tax_returns` / `TaxReturn` | `id`, `user_id` FK, `tax_year` int, `tier` null, `status` (ReturnStatus, default IntakeReceived), `preparer_id` null FK users, `signed_at`, `filed_at`; unique(`user_id`,`tax_year`) |
-| `status_events` / `StatusEvent` | `tax_return_id`, `from` null, `to`, `by_user_id` null, `reason` null |
-| `invoices` / `Invoice` | `tax_return_id` unique, `amount_cents` null (null ⇒ "Pending quote"), `currency` default usd, `status` (InvoiceStatus), `stripe_session_id` null, `paid_at` null |
-| `documents` / `Document` | `user_id`, `tax_return_id` null, `type` (DocType, default w2), `filename`, `mime`, `size_bytes`, `storage_key` (hidden attribute; never serialized), `scan_status` (pending/clean/infected), `uploaded_by` |
-| `appointments` / `Appointment` | `user_id`, `preferred_date` date, `time_window` (default morning), `format` (default video), `topic` null, `notes` null, `status` (default requested), `confirmed_at` null |
-| `messages` / `Message` | `to_user_id`, `from_user_id`, `body`, `read_at` null |
-| `referrals` / `Referral` | `referrer_id`, `friend_name`, `friend_email`, `status`, `reward_cents` null, `source` (email/link), `friend_user_id` null; unique(`referrer_id`,`friend_email`) |
-| `leads` / `Lead` | `kind`, `name`, `phone` null, `email`, `tier_interest` null, `situation` null, `preferred_date` null, `time_window` null, `format` null, `notes` null, `ref_code` null, `status` (default new) |
-| `newsletter_subscribers` | `email` unique, `confirmed_at`, `unsubscribed_at` |
-| `audit_logs` / `AuditLog` | `actor_id` null, `action`, `entity` null, `entity_id` null, `meta` json, `ip`, `created_at` |
-| `sessions` | Laravel `database` session driver |
+| Table / Model                   | Columns                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `users` / `User`                | `id`, `email` unique, `email_verified_at`, `password` (hashed cast), `name` null, `phone` null, `role` (Role, default client), `tier` null (Tier cast; null ⇒ "No tier selected"), `referral_code` unique (e.g. `OKJ-674SU5`), `referred_by_code` null, Fortify 2FA columns (`two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`), Cashier columns (`stripe_id`, `pm_type`, `pm_last_four`…). Uses `Billable`, `TwoFactorAuthenticatable`, `MustVerifyEmail` |
+| `tax_returns` / `TaxReturn`     | `id`, `user_id` FK, `tax_year` int, `tier` null, `status` (ReturnStatus, default IntakeReceived), `preparer_id` null FK users, `signed_at`, `filed_at`; unique(`user_id`,`tax_year`)                                                                                                                                                                                                                                                                                                 |
+| `status_events` / `StatusEvent` | `tax_return_id`, `from` null, `to`, `by_user_id` null, `reason` null                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `invoices` / `Invoice`          | `tax_return_id` unique, `amount_cents` null (null ⇒ "Pending quote"), `currency` default usd, `status` (InvoiceStatus), `stripe_session_id` null, `paid_at` null                                                                                                                                                                                                                                                                                                                     |
+| `documents` / `Document`        | `user_id`, `tax_return_id` null, `type` (DocType, default w2), `filename`, `mime`, `size_bytes`, `storage_key` (hidden attribute; never serialized), `scan_status` (pending/clean/infected), `uploaded_by`                                                                                                                                                                                                                                                                           |
+| `appointments` / `Appointment`  | `user_id`, `preferred_date` date, `time_window` (default morning), `format` (default video), `topic` null, `notes` null, `status` (default requested), `confirmed_at` null                                                                                                                                                                                                                                                                                                           |
+| `messages` / `Message`          | `to_user_id`, `from_user_id`, `body`, `read_at` null                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `referrals` / `Referral`        | `referrer_id`, `friend_name`, `friend_email`, `status`, `reward_cents` null, `source` (email/link), `friend_user_id` null; unique(`referrer_id`,`friend_email`)                                                                                                                                                                                                                                                                                                                      |
+| `leads` / `Lead`                | `kind`, `name`, `phone` null, `email`, `tier_interest` null, `situation` null, `preferred_date` null, `time_window` null, `format` null, `notes` null, `ref_code` null, `status` (default new)                                                                                                                                                                                                                                                                                       |
+| `newsletter_subscribers`        | `email` unique, `confirmed_at`, `unsubscribed_at`                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `audit_logs` / `AuditLog`       | `actor_id` null, `action`, `entity` null, `entity_id` null, `meta` json, `ip`, `created_at`                                                                                                                                                                                                                                                                                                                                                                                          |
+| `sessions`                      | Laravel `database` session driver                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### 4.3 Rules
+
 - On registration, `CreateNewUser` creates the current-year `TaxReturn` (status IntakeReceived) and an `Invoice` row (amount null). **[INFERRED from OBSERVED: stepper shows step 1 checked immediately]**
 - Referral code: `{prefix}-` + 6 chars from `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`, retried until unique.
 - Overview counts: `documents()->count()`, `referrals()->count()`.
@@ -180,45 +189,49 @@ All tables use ULIDs (`HasUlids`) except Laravel's own (sessions, jobs…). Time
 ```
 IntakeReceived → InPreparation → ReadyForReview → ESigned → EFiled
 ```
+
 Implement as methods on the `ReturnStatus` enum (`next()`, `nextStepText()`) plus an `AdvanceReturnStatus` action class that writes a `StatusEvent`, updates the return, fires `ReturnStatusChanged` (listener queues a client notification and an AuditLog entry).
+
 - Staff may advance/reverse (reverse requires `reason`). `ReadyForReview → ESigned` is triggered by the client's sign flow.
 - UI: stages ≤ current = completed (indigo check); later = pending ring. "Next step" box uses `nextStepText()`.
 
-| Current | Next-step text |
-|---|---|
+| Current        | Next-step text                                                              |
+| -------------- | --------------------------------------------------------------------------- |
 | IntakeReceived | We're moving to: In preparation. We'll keep you posted here. **[OBSERVED]** |
-| InPreparation | We're moving to: Ready for review. We'll keep you posted here. |
-| ReadyForReview | We're moving to: E-signed. Review your return and sign when ready. |
-| ESigned | We're moving to: E-filed. We'll keep you posted here. |
-| EFiled | Your return has been e-filed. Thank you! |
+| InPreparation  | We're moving to: Ready for review. We'll keep you posted here.              |
+| ReadyForReview | We're moving to: E-signed. Review your return and sign when ready.          |
+| ESigned        | We're moving to: E-filed. We'll keep you posted here.                       |
+| EFiled         | Your return has been e-filed. Thank you!                                    |
 
 ---
 
 ## 6. Backend implementation spec
 
 ### 6.1 Form Requests & validation (replaces zod)
+
 One Form Request per mutating route (`app/Http/Requests/...`). Rules:
 
-| Field | Rule |
-|---|---|
-| name | `required|string|min:2|max:100` (trim via `prepareForValidation`) |
-| email | `required|email:rfc|max:254` (lowercase in `prepareForValidation`) |
-| phone | `nullable|regex:/^[0-9 ()+\-.]{7,20}$/` |
-| password | `Password::min(12)->letters()->numbers()->uncompromised()` |
-| tier_interest | `nullable|in:upload_and_go,hybrid,premium_remote,not_sure` |
-| tier (portal/register) | `Rule::enum(Tier::class)` |
-| situation / notes | `nullable|string|max:2000`; strip tags |
-| preferred_date | `required|date|after_or_equal:today|before_or_equal:+180 days` (app timezone `America/New_York`) |
-| time_window | `Rule::enum(TimeWindow::class)` |
-| format | `Rule::enum(ApptFormat::class)` |
-| topic | `nullable|string|max:120` |
-| friend_email | `required|email|different:own email|unique per referrer` |
-| file | `required|file|max:25600|mimes:pdf,jpg,jpeg,png,heic,webp,xlsx,xls,csv` + magic-byte check rule (`SafeUpload`) |
-| cf-turnstile-response | custom `TurnstileRule` (public forms + register) |
+| Field                  | Rule                                                       |
+| ---------------------- | ---------------------------------------------------------- |
+| name                   | `required                                                  | string                                           | min:2                                        | max:100`(trim via`prepareForValidation`)                                              |
+| email                  | `required                                                  | email:rfc                                        | max:254`(lowercase in`prepareForValidation`) |
+| phone                  | `nullable                                                  | regex:/^[0-9 ()+\-.]{7,20}$/`                    |
+| password               | `Password::min(12)->letters()->numbers()->uncompromised()` |
+| tier_interest          | `nullable                                                  | in:upload_and_go,hybrid,premium_remote,not_sure` |
+| tier (portal/register) | `Rule::enum(Tier::class)`                                  |
+| situation / notes      | `nullable                                                  | string                                           | max:2000`; strip tags                        |
+| preferred_date         | `required                                                  | date                                             | after_or_equal:today                         | before_or_equal:+180 days`(app timezone`America/New_York`)                            |
+| time_window            | `Rule::enum(TimeWindow::class)`                            |
+| format                 | `Rule::enum(ApptFormat::class)`                            |
+| topic                  | `nullable                                                  | string                                           | max:120`                                     |
+| friend_email           | `required                                                  | email                                            | different:own email                          | unique per referrer`                                                                  |
+| file                   | `required                                                  | file                                             | max:25600                                    | mimes:pdf,jpg,jpeg,png,heic,webp,xlsx,xls,csv` + magic-byte check rule (`SafeUpload`) |
+| cf-turnstile-response  | custom `TurnstileRule` (public forms + register)           |
 
 Errors flow back to React via Inertia's `errors` bag (`useForm`).
 
 ### 6.2 Authentication (Fortify)
+
 - `FortifyServiceProvider`: `Fortify::loginView(fn () => Inertia::render('auth/access', ['mode' => 'signin']))`, `registerView(... 'signup')`, plus forgot/reset/verify/two-factor-challenge views.
 - Features: `registration()`, `resetPasswords()`, `emailVerification()`, `updatePasswords()`, `twoFactorAuthentication(['confirm' => true, 'confirmPassword' => true])`.
 - **Custom `CreateNewUser`**: validates (email unique, password rules, optional `tier`, `ref`), creates `User` (+ referral code), `TaxReturn`, `Invoice`; applies `tier`; if `ref` cookie/param matches a user's `referral_code`, sets `referred_by_code` and marks/creates the `Referral` as SignedUp; writes AuditLog.
@@ -227,25 +240,30 @@ Errors flow back to React via Inertia's `errors` bag (`useForm`).
 - Regenerate session on login (Fortify default).
 
 ### 6.3 MFA enforcement (CLAIMED: "Every client account is protected with MFA")
+
 Middleware `EnsureTwoFactorEnabled` (alias `portal.2fa`): if authenticated user lacks `two_factor_confirmed_at`, redirect to `portal.security` with a flash message — except on the security routes themselves. **Mandatory for staff immediately; for clients on first portal visit.** Challenge page uses shadcn `input-otp`; also accepts a recovery code.
 
 ### 6.4 Authorization
+
 - Policies: `DocumentPolicy`, `AppointmentPolicy`, `MessagePolicy`, `ReferralPolicy`, `TaxReturnPolicy` — `view/delete` only when `user_id === auth id` (staff: assigned clients only; admin: all).
 - Gate `access-admin` (role in preparer/admin).
 - Scope portal queries via `$request->user()->documents()` relations, never global lookups. Route-model binding + `authorize()` in every action.
 
 ### 6.5 Documents
+
 - `DocumentController@store`: validate → `Storage::disk('private')->putFile("documents/{$user->id}", $file)` with random hashed name (SSE configured on the S3 disk) → create row (`scan_status = pending`) → dispatch `ScanDocument` job (ClamAV via `clamd` socket/HTTP; stubbed interface in dev).
 - `@download`: authorize; refuse unless `scan_status = clean`; `Storage::disk('private')->temporaryUrl($key, now()->addSeconds(60), ['ResponseContentDisposition' => 'attachment; filename="..."'])`; `redirect()->away()`; write AuditLog.
 - `@destroy`: only while return status < ReadyForReview; deletes file + row; AuditLog.
 
 ### 6.6 Appointments / Referrals / Messages
+
 - Appointments: create → notify staff + client; cancel only while Requested.
 - Referrals: create → `ReferralInvite` mail to friend containing `route('contact', ['ref' => $code])`; reject self-referral (422) and duplicates (409 → validation error).
 - Referral attribution: `Contact` visit with `?ref=` sets a 30-day cookie via `AttributeReferral` middleware; leads and registrations read it. When a referred user's return reaches EFiled → Referral `Filed` (staff then marks `Rewarded`; reward from `config('site.referral.reward_cents')` by tier).
 - Messages: staff create via admin; client list ordered desc; `read` sets `read_at`. Observed UI is read-only for clients.
 
 ### 6.7 Payments (Cashier)
+
 - `Invoice.amount_cents` set by staff. If null → UI "Awaiting quote".
 - `InvoiceController@checkout`: authorize; abort 409 if amount null/paid; `return Inertia::location($request->user()->checkoutCharge($invoice->amount_cents, 'Tax preparation — '.$tier->label(), 1, ['success_url' => route('portal.overview', ['paid' => 1]), 'cancel_url' => route('portal.overview'), 'metadata' => ['invoice_id' => $invoice->id]])->url);`
 - Listener on `Laravel\Cashier\Events\WebhookReceived` for `checkout.session.completed` → mark invoice Paid (idempotent), queue receipt mail, AuditLog.
@@ -253,30 +271,38 @@ Middleware `EnsureTwoFactorEnabled` (alias `portal.2fa`): if authenticated user 
 - Currency formatting in React: `Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0})`.
 
 ### 6.8 E-sign (Form 8879 / Form 7216) **[CLAIMED/INFERRED]**
+
 `SignController`: only when status = ReadyForReview. Show return summary (PDF preview), Form 7216 consent checkbox (text in `lang/en/legal.php`, counsel-reviewed), typed-name signature, capture timestamp/IP/UA, render signed PDF (DomPDF/Browsershot), store on private disk, advance to ESigned. Add code comments that wording/PIN handling must be reviewed against IRS e-file rules (Pub 1345).
 
 ### 6.9 Mail & notifications (all queued)
+
 Mailables/Notifications (Markdown): `LeadReceived` (staff), `LeadConfirmation`, `WelcomeUser` + verify email (Fortify), `ReturnStatusChanged`, `MessagePosted` (no body in email), `AppointmentRequested`/`AppointmentConfirmed`, `ReferralInvite`, `ReferralRewarded`, `PaymentReceipt`, password reset, 2FA recovery codes notice. Never include SSNs, document contents, or return details in emails.
 
 ### 6.10 Rate limits & spam
+
 ```php
 RateLimiter::for('public-forms', fn (Request $r) => Limit::perHour(5)->by($r->ip()));
 ```
+
 Apply `throttle:public-forms` + Spatie honeypot + `TurnstileRule` to leads, newsletter, register.
 
 ### 6.11 Shared Inertia props (`HandleInertiaRequests`)
+
 ```
 site            from config/site.php (brand, contact, offices, compliance, referral display)
 auth.user       { id, email, name, tier, tierLabel, role, twoFactorEnabled } | null
 flash           { success?, error? }   → rendered as shadcn Sonner toasts
 ziggy/wayfinder not needed (Wayfinder is build-time)
 ```
+
 Use `Inertia::share` lazily; never share documents/messages globally.
 
 ### 6.12 Audit log
+
 `AuditLog::record($action, $entity, $meta)` helper + model observers. Events: sign-in/out, 2FA events, password change, document upload/download/delete, status change, message sent, invoice change, payment, e-sign, admin reads of client data.
 
 ### 6.13 Scheduler
+
 Daily: prune expired password-reset tokens/sessions; retention report; (optional) reminders for incomplete intake.
 
 ---
@@ -307,6 +333,7 @@ resources/
 ```
 
 **Behavioral details**
+
 - **Layouts via Inertia persistent layouts** (`Page.layout = ...`). `marketing-layout` = Header + Footer; `portal-layout` = Header + welcome block + tier badge + tabs + Footer; auth pages use `marketing-layout` (guest header variant).
 - **Header** reads `auth.user` from shared props: guest → "Client Login" + "Start My Return Online"; authed → "My Portal" + "Sign out" (`<Link method="post" as="button">` to `/logout`). Mobile nav uses shadcn **Sheet**.
 - **Forms** use Inertia `useForm` (or the `<Form>` component) with Wayfinder route helpers; field errors from `errors`; `processing` drives button pending text; success via flash → Sonner toast, or an inline success panel for public lead forms (read `flash`/`recentlySuccessful`).
@@ -368,11 +395,12 @@ These support the site's **[CLAIMED]** statements; they are not a certification.
 ## 11. Seed data & fixtures
 
 Seeders (`database/seeders`):
+
 - `DemoClientSeeder`: `client@example.com` / `Passw0rd!ChangeMe` — role client, no tier, TaxReturn IntakeReceived, Invoice $225 (22500 cents) to reproduce the observed screenshots exactly, 0 documents, 0 referrals, 2FA not yet enabled.
 - `StaffSeeder`: `preparer@example.com`, `admin@example.com`.
 - `DemoActivitySeeder` (optional flag): sample documents/messages/appointments/referrals.
 - Factories for all models.
-Marketing content is in `config/*.php` (no seeding needed).
+  Marketing content is in `config/*.php` (no seeding needed).
 
 ---
 

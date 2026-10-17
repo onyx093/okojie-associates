@@ -8,14 +8,14 @@ Source: 13 screenshots of the live site (public pages, auth screens, and all fiv
 
 ## Files
 
-| File | Purpose | Give to the LLM when… |
-|---|---|---|
-| `PRD.md` | Product goals, users, scope, success metrics | You want it to understand *why* |
-| `FEATURES.md` | Numbered feature inventory with acceptance criteria | You want a checklist to build/verify against |
-| `SPEC.md` | Laravel/Inertia architecture, routes, Eloquent data model, Form Requests, policies, security, testing | You want it to understand *how* |
-| `DESIGN_SYSTEM.md` | Colors, type, spacing, Tailwind v4 `@theme` + shadcn/ui variable mapping, components, motion, responsive rules | Building UI |
-| `CONTENT.md` | Every piece of copy, office data, pricing, FAQs, testimonials | Filling in pages (exact text) |
-| `PROMPTS.md` | Master prompt + 12 ordered build prompts (Laravel/Inertia/React/shadcn) + QA, rebrand, compliance prompts | Running the build |
+| File               | Purpose                                                                                                        | Give to the LLM when…                        |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `PRD.md`           | Product goals, users, scope, success metrics                                                                   | You want it to understand _why_              |
+| `FEATURES.md`      | Numbered feature inventory with acceptance criteria                                                            | You want a checklist to build/verify against |
+| `SPEC.md`          | Laravel/Inertia architecture, routes, Eloquent data model, Form Requests, policies, security, testing          | You want it to understand _how_              |
+| `DESIGN_SYSTEM.md` | Colors, type, spacing, Tailwind v4 `@theme` + shadcn/ui variable mapping, components, motion, responsive rules | Building UI                                  |
+| `CONTENT.md`       | Every piece of copy, office data, pricing, FAQs, testimonials                                                  | Filling in pages (exact text)                |
+| `PROMPTS.md`       | Master prompt + 12 ordered build prompts (Laravel/Inertia/React/shadcn) + QA, rebrand, compliance prompts      | Running the build                            |
 
 ## Recommended workflow
 

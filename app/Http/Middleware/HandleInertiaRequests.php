@@ -37,6 +37,13 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
+        $role = $user?->role;
+        $tier = $user?->tier;
+
+        $roleValue = $role ? $role->value : 'client';
+        $tierValue = $tier?->value;
+        $tierLabel = $tier?->label();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -46,9 +53,9 @@ class HandleInertiaRequests extends Middleware
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'role' => isset($user->role) ? (is_object($user->role) ? $user->role->value : $user->role) : 'client',
-                    'tier' => isset($user->tier) ? (is_object($user->tier) ? $user->tier->value : $user->tier) : null,
-                    'tierLabel' => isset($user->tier) && $user->tier ? (is_object($user->tier) && method_exists($user->tier, 'label') ? $user->tier->label() : config("tiers.{$user->tier}.name", '')) : null,
+                    'role' => $roleValue,
+                    'tier' => $tierValue,
+                    'tierLabel' => $tierLabel,
                     'twoFactorEnabled' => ! is_null($user->two_factor_confirmed_at),
                 ] : null,
             ],
