@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'okojie_referral']);
 
+        $middleware->redirectGuestsTo('/login');
+        $middleware->redirectUsersTo('/portal/overview');
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

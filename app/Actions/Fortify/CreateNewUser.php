@@ -2,8 +2,6 @@
 
 namespace App\Actions\Fortify;
 
-use App\Concerns\PasswordValidationRules;
-use App\Concerns\ProfileValidationRules;
 use App\Enums\InvoiceStatus;
 use App\Enums\ReferralStatus;
 use App\Enums\ReturnStatus;
@@ -14,12 +12,12 @@ use App\Models\Referral;
 use App\Models\TaxReturn;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
 {
-    use PasswordValidationRules, ProfileValidationRules;
-
     /**
      * Validate and create a newly registered user.
      *
@@ -28,10 +26,14 @@ class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         Validator::make($input, [
-            ...$this->profileRules(),
-            'password' => $this->passwordRules(),
+            'name' => ['nullable', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email:rfc', 'max:254', Rule::unique(User::class)],
+            'password' => ['required', 'string', Password::min(12)->letters()->numbers()->uncompromised()],
             'tier' => ['nullable', 'string'],
             'ref' => ['nullable', 'string', 'max:30'],
+        ], [
+            'email.unique' => 'An account may already exist for this email. Try signing in.',
+            'password.min' => 'Password must be at least 12 characters.',
         ])->validate();
 
         $tierInput = isset($input['tier']) && is_string($input['tier']) ? $input['tier'] : null;
@@ -43,19 +45,24 @@ class CreateNewUser implements CreatesNewUsers
             ? $input['ref']
             : $cookieRef;
 
-        /** @var string $name */
-        $name = $input['name'];
+        /** @var string|null $name */
+        $name = isset($input['name']) && is_string($input['name']) && trim($input['name']) !== ''
+            ? trim($input['name'])
+            : null;
         /** @var string $email */
         $email = $input['email'];
         /** @var string $password */
         $password = $input['password'];
+
+        $referrer = $refCode ? User::where('referral_code', $refCode)->first() : null;
+        $referredByCode = $referrer ? $referrer->referral_code : ($refCode && strlen($refCode) <= 32 ? $refCode : null);
 
         $user = User::create([
             'name' => $name,
             'email' => $email,
             'password' => $password,
             'tier' => $tier,
-            'referred_by_code' => $refCode,
+            'referred_by_code' => $referredByCode,
         ]);
 
         $taxReturn = TaxReturn::create([

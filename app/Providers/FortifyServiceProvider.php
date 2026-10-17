@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Actions\Fortify\UpdateUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -41,6 +42,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
     }
 
     /**
@@ -48,10 +50,23 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::loginView(function (Request $request) {
+            if ($request->query('mode') === 'signup') {
+                $params = $request->query();
+                unset($params['mode']);
+                $query = ! empty($params) ? ('?'.http_build_query($params)) : '';
+
+                return redirect('/register'.$query, 301);
+            }
+
+            return Inertia::render('auth/access', [
+                'mode' => 'signin',
+                'status' => $request->session()->get('status'),
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'tier' => $request->query('tier'),
+                'next' => $request->query('next'),
+            ]);
+        });
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
             'email' => $request->email,
@@ -67,9 +82,16 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn () => Inertia::render('auth/register', [
-            'passwordRules' => Password::defaults()->toPasswordRulesString(),
-        ]));
+        Fortify::registerView(function (Request $request) {
+            return Inertia::render('auth/access', [
+                'mode' => 'signup',
+                'status' => $request->session()->get('status'),
+                'passwordRules' => Password::defaults()->toPasswordRulesString(),
+                'tier' => $request->query('tier'),
+                'next' => $request->query('next'),
+                'ref' => $request->query('ref'),
+            ]);
+        });
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
 
@@ -88,7 +110,16 @@ class FortifyServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
-            return Limit::perMinute(5)->by($throttleKey);
+            return Limit::perMinute(5)->by($throttleKey)->response(function (Request $request, array $headers) {
+                $seconds = $headers['Retry-After'] ?? 60;
+
+                return back()->withErrors([
+                    Fortify::username() => trans('auth.throttle', [
+                        'seconds' => $seconds,
+                        'minutes' => (int) ceil($seconds / 60),
+                    ]),
+                ]);
+            });
         });
 
         RateLimiter::for('passkeys', function (Request $request) {

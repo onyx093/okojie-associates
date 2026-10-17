@@ -1,4 +1,4 @@
-import { Link, usePage, router } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Menu, LogOut, LayoutDashboard, ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
@@ -47,11 +47,6 @@ export function SiteHeader() {
         return url.startsWith(href);
     };
 
-    const handleSignOut = () => {
-        setMobileOpen(false);
-        router.post('/logout');
-    };
-
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-md">
             <div className="mx-auto flex h-20 max-w-[1160px] items-center justify-between px-6">
@@ -95,11 +90,18 @@ export function SiteHeader() {
                             <Button
                                 variant="outline"
                                 size="default"
-                                onClick={handleSignOut}
+                                asChild
                                 className="rounded-full"
                             >
-                                <LogOut className="mr-1 size-4 text-muted-foreground" />
-                                Sign out
+                                <Link
+                                    method="post"
+                                    as="button"
+                                    href="/logout"
+                                    className="inline-flex items-center"
+                                >
+                                    <LogOut className="mr-1 size-4 text-muted-foreground" />
+                                    Sign out
+                                </Link>
                             </Button>
                         </>
                     ) : (
@@ -202,11 +204,19 @@ export function SiteHeader() {
                                         <Button
                                             variant="ghost"
                                             fullWidth
-                                            onClick={handleSignOut}
+                                            asChild
+                                            onClick={() => setMobileOpen(false)}
                                             className="text-muted-foreground hover:text-destructive"
                                         >
-                                            <LogOut className="mr-2 size-4" />
-                                            Sign out
+                                            <Link
+                                                method="post"
+                                                as="button"
+                                                href="/logout"
+                                                className="inline-flex w-full items-center justify-center"
+                                            >
+                                                <LogOut className="mr-2 size-4" />
+                                                Sign out
+                                            </Link>
                                         </Button>
                                     </>
                                 ) : (
