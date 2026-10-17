@@ -29,7 +29,10 @@ export function StatsStrip({
             <div className="mx-auto max-w-[1160px] px-6">
                 <div
                     className={cn(
-                        'grid grid-cols-2 gap-8 md:grid-cols-4',
+                        'grid gap-8',
+                        stats.length === 3
+                            ? 'grid-cols-1 sm:grid-cols-3'
+                            : 'grid-cols-2 md:grid-cols-4',
                         align === 'center' ? 'text-center' : 'text-left',
                     )}
                 >

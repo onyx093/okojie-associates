@@ -1,0 +1,93 @@
+<?php
+
+use Inertia\Testing\AssertableInertia as Assert;
+
+test('home page renders successfully with all required props', function () {
+    $response = $this->get('/');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('home')
+        ->has('tiers', 3)
+        ->has('steps', 5)
+        ->has('testimonials', 5)
+        ->has('videos', 3)
+        ->has('offices', 4)
+        ->has('faqs', 8)
+        ->has('stats', 4)
+    );
+});
+
+test('services page renders successfully with tiers, addons, and faqs', function () {
+    $response = $this->get('/services');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('services')
+        ->has('tiers', 3)
+        ->has('addons', 5)
+        ->has('faqs', 8)
+    );
+});
+
+test('pricing page renders successfully with tiers, addons, and faqs', function () {
+    $response = $this->get('/pricing');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('pricing')
+        ->has('tiers', 3)
+        ->has('addons', 5)
+        ->has('faqs', 8)
+    );
+});
+
+test('about page renders successfully with stats and offices', function () {
+    $response = $this->get('/about');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('about')
+        ->has('stats', 3)
+        ->has('offices', 4)
+    );
+});
+
+test('contact page renders successfully with offices and tiers', function () {
+    $response = $this->get('/contact');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('contact')
+        ->has('offices', 4)
+        ->has('tiers', 3)
+        ->where('initialTier', null)
+        ->where('referralCode', null)
+    );
+});
+
+test('contact page honors tier and referral code query parameters', function () {
+    $response = $this->get('/contact?tier=hybrid&ref=OKJ-674SU5');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('contact')
+        ->where('initialTier', 'hybrid')
+        ->where('referralCode', 'OKJ-674SU5')
+    );
+});
+
+test('sitemap xml endpoint returns valid xml with all public pages', function () {
+    $response = $this->get('/sitemap.xml');
+
+    $response->assertOk();
+    $response->assertHeader('Content-Type', 'application/xml');
+    $content = $response->getContent();
+
+    expect($content)
+        ->toContain('<urlset')
+        ->toContain('/services')
+        ->toContain('/pricing')
+        ->toContain('/about')
+        ->toContain('/contact');
+});

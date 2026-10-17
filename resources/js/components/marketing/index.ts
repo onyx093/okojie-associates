@@ -11,3 +11,5 @@ export * from './testimonial-carousel';
 export * from './video-card';
 export * from './video-library';
 export * from './referral-banner';
+export * from './quote-form-panel';
+export * from './consult-form-card';
