@@ -1,10 +1,12 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import * as React from 'react';
+import { toast } from 'sonner';
 
 import { BrandLogo } from '@/components/brand-logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { subscribe } from '@/routes/newsletter';
 
 interface Office {
     city: string;
@@ -70,27 +72,31 @@ export function SiteFooter() {
             : defaultOffices;
     const currentYear = new Date().getFullYear();
 
-    const [newsletterEmail, setNewsletterEmail] = React.useState('');
-    const [newsletterStatus, setNewsletterStatus] = React.useState<
-        'idle' | 'submitting' | 'success' | 'error'
-    >('idle');
-    const [newsletterMessage, setNewsletterMessage] = React.useState('');
+    const {
+        data: newsletterData,
+        setData: setNewsletterData,
+        post: postNewsletter,
+        processing: newsletterProcessing,
+        errors: newsletterErrors,
+        wasSuccessful: newsletterWasSuccessful,
+        reset: resetNewsletter,
+    } = useForm({
+        email: '',
+        my_name: '', // honeypot
+    });
 
     const handleSubscribe = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newsletterEmail || !newsletterEmail.includes('@')) {
-            setNewsletterStatus('error');
-            setNewsletterMessage('Please enter a valid email address.');
-            return;
-        }
-
-        setNewsletterStatus('submitting');
-        // Client-side shell handling for newsletter subscription
-        setTimeout(() => {
-            setNewsletterStatus('success');
-            setNewsletterMessage("Thanks — you're subscribed!");
-            setNewsletterEmail('');
-        }, 400);
+        postNewsletter(subscribe.url(), {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success('Thank you for subscribing to tax updates.');
+                resetNewsletter('email');
+            },
+            onError: () => {
+                toast.error('Enter a valid email address.');
+            },
+        });
     };
 
     return (
@@ -105,53 +111,69 @@ export function SiteFooter() {
                                 'The convenience of online filing, with a real tax professional who knows Philadelphia and Baltimore. Serving individuals, families, and small businesses for 26+ years.'}
                         </p>
 
-                        {/* Newsletter Form Shell */}
+                        {/* Newsletter Form */}
                         <div className="mt-2 flex max-w-[420px] flex-col gap-2">
                             <form
                                 onSubmit={handleSubscribe}
                                 className="relative flex items-center"
+                                noValidate
                             >
+                                <div className="hidden" aria-hidden="true">
+                                    <input
+                                        type="text"
+                                        name="my_name"
+                                        value={newsletterData.my_name}
+                                        onChange={(e) =>
+                                            setNewsletterData(
+                                                'my_name',
+                                                e.target.value,
+                                            )
+                                        }
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                    />
+                                </div>
                                 <Input
                                     type="email"
-                                    value={newsletterEmail}
-                                    onChange={(e) => {
-                                        setNewsletterEmail(e.target.value);
-                                        if (newsletterStatus !== 'idle')
-                                            setNewsletterStatus('idle');
-                                    }}
+                                    value={newsletterData.email}
+                                    onChange={(e) =>
+                                        setNewsletterData(
+                                            'email',
+                                            e.target.value,
+                                        )
+                                    }
                                     placeholder="Email for tax tips & deadlines"
                                     className="h-11 rounded-full border-border bg-secondary pr-28 pl-4 text-xs placeholder:text-muted-foreground focus-visible:border-primary sm:text-sm"
                                     aria-label="Email for tax tips & deadlines"
-                                    disabled={
-                                        newsletterStatus === 'submitting' ||
-                                        newsletterStatus === 'success'
-                                    }
+                                    disabled={newsletterProcessing}
                                 />
                                 <Button
                                     type="submit"
                                     size="compact"
                                     variant="primary"
-                                    disabled={
-                                        newsletterStatus === 'submitting' ||
-                                        newsletterStatus === 'success'
-                                    }
+                                    disabled={newsletterProcessing}
                                     className="absolute right-1.5 h-8 rounded-full px-3.5 text-xs font-semibold shadow-xs"
                                 >
                                     <Send className="mr-1 size-3" />
-                                    Subscribe
+                                    {newsletterProcessing
+                                        ? 'Sending…'
+                                        : 'Subscribe'}
                                 </Button>
                             </form>
 
-                            {newsletterStatus === 'success' && (
+                            {newsletterWasSuccessful && (
                                 <div className="flex items-center gap-1.5 text-xs text-success">
                                     <CheckCircle2 className="size-3.5 shrink-0" />
-                                    <span>{newsletterMessage}</span>
+                                    <span>
+                                        Thank you for subscribing to tax
+                                        updates.
+                                    </span>
                                 </div>
                             )}
-                            {newsletterStatus === 'error' && (
+                            {newsletterErrors.email && (
                                 <div className="flex items-center gap-1.5 text-xs text-destructive">
                                     <AlertCircle className="size-3.5 shrink-0" />
-                                    <span>{newsletterMessage}</span>
+                                    <span>{newsletterErrors.email}</span>
                                 </div>
                             )}
                         </div>

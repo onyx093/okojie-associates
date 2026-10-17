@@ -132,7 +132,7 @@ export default function Contact({
                 className="border-b border-border bg-[#181925]/30 py-20 sm:py-28"
             >
                 <div className="mx-auto max-w-[1160px] px-6">
-                    <ConsultFormCard id="consult" />
+                    <ConsultFormCard id="consult" referralCode={referralCode} />
                 </div>
             </section>
 

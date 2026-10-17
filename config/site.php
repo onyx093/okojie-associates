@@ -11,6 +11,7 @@ return [
     'contact' => [
         'phone' => '(215) 555-0142',
         'email' => 'hello@okojieonline.com',
+        'staff_email' => env('STAFF_NOTIFY_EMAIL', 'staff@okojieonline.com'),
         'hours' => 'Mon–Fri 9am–6pm',
     ],
     'stats' => [

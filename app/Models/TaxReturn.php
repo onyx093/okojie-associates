@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\ReturnStatus;
+use App\Enums\Tier;
+use Database\Factories\TaxReturnFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
+
+/**
+ * @property string $id
+ * @property int $user_id
+ * @property int $tax_year
+ * @property Tier|null $tier
+ * @property ReturnStatus $status
+ * @property int|null $preparer_id
+ * @property Carbon|null $signed_at
+ * @property Carbon|null $filed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
+#[Fillable(['user_id', 'tax_year', 'tier', 'status', 'preparer_id', 'signed_at', 'filed_at'])]
+class TaxReturn extends Model
+{
+    /** @use HasFactory<TaxReturnFactory> */
+    use HasFactory, HasUlids;
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'tax_year' => 'integer',
+            'tier' => Tier::class,
+            'status' => ReturnStatus::class,
+            'signed_at' => 'datetime',
+            'filed_at' => 'datetime',
+        ];
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function preparer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'preparer_id');
+    }
+
+    /**
+     * @return HasMany<StatusEvent, $this>
+     */
+    public function statusEvents(): HasMany
+    {
+        return $this->hasMany(StatusEvent::class);
+    }
+
+    /**
+     * @return HasOne<Invoice, $this>
+     */
+    public function invoice(): HasOne
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
+    /**
+     * @return HasMany<Document, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+}

@@ -1,3 +1,4 @@
+import { useForm } from '@inertiajs/react';
 import { CheckCircle2, ShieldCheck, UserCheck, ArrowRight } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { quote } from '@/routes/leads';
 import type { TierItem } from '@/types/marketing';
 
 interface QuoteFormPanelProps {
@@ -36,57 +38,63 @@ export function QuoteFormPanel({
 }: QuoteFormPanelProps) {
     const isServicesVariant = variant === 'services';
 
-    const [fullName, setFullName] = React.useState('');
-    const [phone, setPhone] = React.useState('');
-    const [email, setEmail] = React.useState('');
-    const [selectedTier, setSelectedTier] = React.useState(initialTier || '');
-    const [situation, setSituation] = React.useState('');
-    const [errors, setErrors] = React.useState<{
-        name?: string;
-        email?: string;
-    }>({});
-    const [isSubmitted, setIsSubmitted] = React.useState(false);
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const { data, setData, post, processing, errors, reset, wasSuccessful } =
+        useForm({
+            name: '',
+            phone: '',
+            email: '',
+            tier_interest: initialTier || '',
+            situation: '',
+            ref: referralCode || '',
+            my_name: '', // honeypot
+        });
+
+    const [activeRef, setActiveRef] = React.useState(referralCode || '');
+
+    // Read ?ref= and ?tier= from query on mount
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const queryTier = params.get('tier');
+            const queryRef = params.get('ref');
+
+            if (queryTier && !data.tier_interest) {
+                setData('tier_interest', queryTier);
+            }
+            if (queryRef && !data.ref) {
+                setData('ref', queryRef);
+                setActiveRef(queryRef);
+            }
+        }
+    }, []);
 
     // Update if initialTier prop changes
     React.useEffect(() => {
         if (initialTier) {
-            setSelectedTier(initialTier);
+            setData('tier_interest', initialTier);
         }
     }, [initialTier]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const newErrors: { name?: string; email?: string } = {};
 
-        if (!fullName.trim()) {
-            newErrors.name = 'Please enter your name.';
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.trim() || !emailRegex.test(email.trim())) {
-            newErrors.email = 'Enter a valid email address.';
-        }
-
-        setErrors(newErrors);
-
-        if (Object.keys(newErrors).length > 0) {
-            return;
-        }
-
-        setIsSubmitting(true);
-        // Visual-only simulation per spec
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setIsSubmitted(true);
-            const firstName = fullName.trim().split(' ')[0] || 'there';
-            toast.success(
-                `Thanks, ${firstName}! A preparer will follow up within one business day.`,
-            );
-        }, 500);
+        post(quote.url(), {
+            preserveScroll: true,
+            onSuccess: () => {
+                const firstName = data.name.trim().split(' ')[0] || 'there';
+                toast.success(
+                    `Thanks, ${firstName}! A preparer will follow up within one business day.`,
+                );
+            },
+            onError: () => {
+                toast.error(
+                    'Something went wrong. Please try again or call (215) 555-0142.',
+                );
+            },
+        });
     };
 
-    const firstName = fullName.trim().split(' ')[0] || 'there';
+    const firstName = data.name.trim().split(' ')[0] || 'there';
 
     return (
         <section id={id} className={cn('scroll-mt-24', className)}>
@@ -139,11 +147,11 @@ export function QuoteFormPanel({
                                 </li>
                             </ul>
 
-                            {referralCode && (
+                            {activeRef && (
                                 <div className="mt-6 rounded-lg border border-border bg-[#14151f] p-3 text-xs text-muted-foreground">
                                     Applying referral code:{' '}
                                     <span className="font-mono font-semibold text-primary">
-                                        {referralCode}
+                                        {activeRef}
                                     </span>
                                 </div>
                             )}
@@ -153,7 +161,7 @@ export function QuoteFormPanel({
                     {/* Right Column: Interactive Form */}
                     <div className="lg:col-span-7">
                         <Reveal direction="up" delay={80}>
-                            {isSubmitted ? (
+                            {wasSuccessful ? (
                                 <div className="rounded-xl border border-primary/30 bg-primary/5 p-8 text-center sm:p-10">
                                     <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/20 text-primary">
                                         <CheckCircle2 className="size-6" />
@@ -162,22 +170,14 @@ export function QuoteFormPanel({
                                         Quote Request Received!
                                     </h3>
                                     <p className="mt-2 text-sm leading-relaxed text-body">
-                                        Thanks, {firstName}! A credentialed
-                                        preparer will follow up within one
-                                        business day to review your return
-                                        options.
+                                        Thanks, {firstName}! A preparer will
+                                        follow up within one business day.
                                     </p>
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         className="mt-6"
-                                        onClick={() => {
-                                            setIsSubmitted(false);
-                                            setFullName('');
-                                            setPhone('');
-                                            setEmail('');
-                                            setSituation('');
-                                        }}
+                                        onClick={() => reset()}
                                     >
                                         Submit another request
                                     </Button>
@@ -188,6 +188,23 @@ export function QuoteFormPanel({
                                     noValidate
                                     className="flex flex-col gap-4 rounded-xl border border-border bg-[#14151f] p-6 sm:p-8"
                                 >
+                                    {/* Honeypot field */}
+                                    <div className="hidden" aria-hidden="true">
+                                        <input
+                                            type="text"
+                                            name="my_name"
+                                            value={data.my_name}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'my_name',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            tabIndex={-1}
+                                            autoComplete="off"
+                                        />
+                                    </div>
+
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         <div className="flex flex-col gap-1.5">
                                             <Label htmlFor="quote-name">
@@ -198,17 +215,15 @@ export function QuoteFormPanel({
                                             </Label>
                                             <Input
                                                 id="quote-name"
+                                                name="name"
                                                 placeholder="Marcus Taylor"
-                                                value={fullName}
-                                                onChange={(e) => {
-                                                    setFullName(e.target.value);
-                                                    if (errors.name) {
-                                                        setErrors((prev) => ({
-                                                            ...prev,
-                                                            name: undefined,
-                                                        }));
-                                                    }
-                                                }}
+                                                value={data.name}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'name',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 aria-invalid={!!errors.name}
                                                 className={cn(
                                                     errors.name &&
@@ -228,13 +243,27 @@ export function QuoteFormPanel({
                                             </Label>
                                             <Input
                                                 id="quote-phone"
+                                                name="phone"
                                                 type="tel"
                                                 placeholder="(215) 555-0142"
-                                                value={phone}
+                                                value={data.phone}
                                                 onChange={(e) =>
-                                                    setPhone(e.target.value)
+                                                    setData(
+                                                        'phone',
+                                                        e.target.value,
+                                                    )
                                                 }
+                                                aria-invalid={!!errors.phone}
+                                                className={cn(
+                                                    errors.phone &&
+                                                        'border-destructive focus-visible:ring-destructive',
+                                                )}
                                             />
+                                            {errors.phone && (
+                                                <span className="text-xs text-destructive">
+                                                    {errors.phone}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
@@ -248,18 +277,16 @@ export function QuoteFormPanel({
                                             </Label>
                                             <Input
                                                 id="quote-email"
+                                                name="email"
                                                 type="email"
                                                 placeholder="marcus@example.com"
-                                                value={email}
-                                                onChange={(e) => {
-                                                    setEmail(e.target.value);
-                                                    if (errors.email) {
-                                                        setErrors((prev) => ({
-                                                            ...prev,
-                                                            email: undefined,
-                                                        }));
-                                                    }
-                                                }}
+                                                value={data.email}
+                                                onChange={(e) =>
+                                                    setData(
+                                                        'email',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 aria-invalid={!!errors.email}
                                                 className={cn(
                                                     errors.email &&
@@ -278,8 +305,13 @@ export function QuoteFormPanel({
                                                 Service tier interest
                                             </Label>
                                             <Select
-                                                value={selectedTier}
-                                                onValueChange={setSelectedTier}
+                                                value={data.tier_interest}
+                                                onValueChange={(val) =>
+                                                    setData(
+                                                        'tier_interest',
+                                                        val,
+                                                    )
+                                                }
                                             >
                                                 <SelectTrigger id="quote-tier">
                                                     <SelectValue placeholder="Select a tier" />
@@ -316,6 +348,11 @@ export function QuoteFormPanel({
                                                     </SelectItem>
                                                 </SelectContent>
                                             </Select>
+                                            {errors.tier_interest && (
+                                                <span className="text-xs text-destructive">
+                                                    {errors.tier_interest}
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
@@ -325,25 +362,39 @@ export function QuoteFormPanel({
                                         </Label>
                                         <Textarea
                                             id="quote-situation"
+                                            name="situation"
                                             rows={3}
                                             placeholder="W-2 employee, self-employed, back taxes, etc."
-                                            value={situation}
+                                            value={data.situation}
                                             onChange={(e) =>
-                                                setSituation(e.target.value)
+                                                setData(
+                                                    'situation',
+                                                    e.target.value,
+                                                )
                                             }
+                                            aria-invalid={!!errors.situation}
+                                            className={cn(
+                                                errors.situation &&
+                                                    'border-destructive focus-visible:ring-destructive',
+                                            )}
                                         />
+                                        {errors.situation && (
+                                            <span className="text-xs text-destructive">
+                                                {errors.situation}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <Button
                                         type="submit"
                                         variant="primary"
                                         size="lg"
-                                        disabled={isSubmitting}
+                                        disabled={processing}
                                         fullWidth
                                         className="mt-2"
                                     >
-                                        {isSubmitting ? (
-                                            'Submitting...'
+                                        {processing ? (
+                                            'Sending…'
                                         ) : (
                                             <>
                                                 Request my free quote

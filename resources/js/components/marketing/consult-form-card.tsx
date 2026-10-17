@@ -1,3 +1,4 @@
+import { useForm } from '@inertiajs/react';
 import { Calendar, CheckCircle2, Clock, Video } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -22,64 +23,60 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { consult } from '@/routes/leads';
 
 interface ConsultFormCardProps {
     id?: string;
+    referralCode?: string;
     className?: string;
 }
 
 export function ConsultFormCard({
     id = 'consult',
+    referralCode = '',
     className,
 }: ConsultFormCardProps) {
     const today = new Date().toISOString().split('T')[0];
 
-    const [name, setName] = React.useState('');
-    const [phone, setPhone] = React.useState('');
-    const [email, setEmail] = React.useState('');
-    const [date, setDate] = React.useState('');
-    const [timeWindow, setTimeWindow] = React.useState('Any');
-    const [format, setFormat] = React.useState('Video call');
-    const [notes, setNotes] = React.useState('');
-    const [errors, setErrors] = React.useState<{
-        name?: string;
-        email?: string;
-        date?: string;
-    }>({});
-    const [isSubmitted, setIsSubmitted] = React.useState(false);
-    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const { data, setData, post, processing, errors, reset, wasSuccessful } =
+        useForm({
+            name: '',
+            phone: '',
+            email: '',
+            preferred_date: '',
+            time_window: 'morning',
+            format: 'video',
+            notes: '',
+            ref: referralCode || '',
+            my_name: '', // honeypot
+        });
+
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const queryRef = params.get('ref');
+            if (queryRef && !data.ref) {
+                setData('ref', queryRef);
+            }
+        }
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const newErrors: { name?: string; email?: string; date?: string } = {};
 
-        if (!name.trim()) {
-            newErrors.name = 'Please enter your name.';
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email.trim() || !emailRegex.test(email.trim())) {
-            newErrors.email = 'Enter a valid email address.';
-        }
-
-        if (date && date < today) {
-            newErrors.date = 'Choose a date today or later.';
-        }
-
-        setErrors(newErrors);
-
-        if (Object.keys(newErrors).length > 0) {
-            return;
-        }
-
-        setIsSubmitting(true);
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setIsSubmitted(true);
-            toast.success(
-                "Request received. We'll confirm your consultation by email shortly.",
-            );
-        }, 500);
+        post(consult.url(), {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success(
+                    "Request received. We'll confirm your consultation by email shortly.",
+                );
+            },
+            onError: () => {
+                toast.error(
+                    'Something went wrong. Please try again or call (215) 555-0142.',
+                );
+            },
+        });
     };
 
     return (
@@ -106,7 +103,7 @@ export function ConsultFormCard({
                     </CardHeader>
 
                     <CardContent className="pt-4">
-                        {isSubmitted ? (
+                        {wasSuccessful ? (
                             <div className="rounded-xl border border-primary/30 bg-primary/5 p-8 text-center">
                                 <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/20 text-primary">
                                     <CheckCircle2 className="size-6" />
@@ -122,14 +119,7 @@ export function ConsultFormCard({
                                     variant="outline"
                                     size="sm"
                                     className="mt-6"
-                                    onClick={() => {
-                                        setIsSubmitted(false);
-                                        setName('');
-                                        setPhone('');
-                                        setEmail('');
-                                        setDate('');
-                                        setNotes('');
-                                    }}
+                                    onClick={() => reset()}
                                 >
                                     Book another consultation
                                 </Button>
@@ -140,6 +130,20 @@ export function ConsultFormCard({
                                 noValidate
                                 className="flex flex-col gap-4"
                             >
+                                {/* Honeypot field */}
+                                <div className="hidden" aria-hidden="true">
+                                    <input
+                                        type="text"
+                                        name="my_name"
+                                        value={data.my_name}
+                                        onChange={(e) =>
+                                            setData('my_name', e.target.value)
+                                        }
+                                        tabIndex={-1}
+                                        autoComplete="off"
+                                    />
+                                </div>
+
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="flex flex-col gap-1.5">
                                         <Label htmlFor="consult-name">
@@ -150,17 +154,12 @@ export function ConsultFormCard({
                                         </Label>
                                         <Input
                                             id="consult-name"
+                                            name="name"
                                             placeholder="Marcus Taylor"
-                                            value={name}
-                                            onChange={(e) => {
-                                                setName(e.target.value);
-                                                if (errors.name) {
-                                                    setErrors((prev) => ({
-                                                        ...prev,
-                                                        name: undefined,
-                                                    }));
-                                                }
-                                            }}
+                                            value={data.name}
+                                            onChange={(e) =>
+                                                setData('name', e.target.value)
+                                            }
                                             aria-invalid={!!errors.name}
                                             className={cn(
                                                 errors.name &&
@@ -180,13 +179,24 @@ export function ConsultFormCard({
                                         </Label>
                                         <Input
                                             id="consult-phone"
+                                            name="phone"
                                             type="tel"
                                             placeholder="(215) 555-0142"
-                                            value={phone}
+                                            value={data.phone}
                                             onChange={(e) =>
-                                                setPhone(e.target.value)
+                                                setData('phone', e.target.value)
                                             }
+                                            aria-invalid={!!errors.phone}
+                                            className={cn(
+                                                errors.phone &&
+                                                    'border-destructive focus-visible:ring-destructive',
+                                            )}
                                         />
+                                        {errors.phone && (
+                                            <span className="text-xs text-destructive">
+                                                {errors.phone}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -200,18 +210,13 @@ export function ConsultFormCard({
                                         </Label>
                                         <Input
                                             id="consult-email"
+                                            name="email"
                                             type="email"
                                             placeholder="marcus@example.com"
-                                            value={email}
-                                            onChange={(e) => {
-                                                setEmail(e.target.value);
-                                                if (errors.email) {
-                                                    setErrors((prev) => ({
-                                                        ...prev,
-                                                        email: undefined,
-                                                    }));
-                                                }
-                                            }}
+                                            value={data.email}
+                                            onChange={(e) =>
+                                                setData('email', e.target.value)
+                                            }
                                             aria-invalid={!!errors.email}
                                             className={cn(
                                                 errors.email &&
@@ -227,31 +232,34 @@ export function ConsultFormCard({
 
                                     <div className="flex flex-col gap-1.5">
                                         <Label htmlFor="consult-date">
-                                            Preferred date
+                                            Preferred date{' '}
+                                            <span className="text-primary">
+                                                *
+                                            </span>
                                         </Label>
                                         <Input
                                             id="consult-date"
+                                            name="preferred_date"
                                             type="date"
                                             min={today}
-                                            value={date}
-                                            onChange={(e) => {
-                                                setDate(e.target.value);
-                                                if (errors.date) {
-                                                    setErrors((prev) => ({
-                                                        ...prev,
-                                                        date: undefined,
-                                                    }));
-                                                }
-                                            }}
-                                            aria-invalid={!!errors.date}
+                                            value={data.preferred_date}
+                                            onChange={(e) =>
+                                                setData(
+                                                    'preferred_date',
+                                                    e.target.value,
+                                                )
+                                            }
+                                            aria-invalid={
+                                                !!errors.preferred_date
+                                            }
                                             className={cn(
-                                                errors.date &&
+                                                errors.preferred_date &&
                                                     'border-destructive focus-visible:ring-destructive',
                                             )}
                                         />
-                                        {errors.date && (
+                                        {errors.preferred_date && (
                                             <span className="text-xs text-destructive">
-                                                {errors.date}
+                                                {errors.preferred_date}
                                             </span>
                                         )}
                                     </div>
@@ -263,8 +271,10 @@ export function ConsultFormCard({
                                             Time window
                                         </Label>
                                         <Select
-                                            value={timeWindow}
-                                            onValueChange={setTimeWindow}
+                                            value={data.time_window}
+                                            onValueChange={(val) =>
+                                                setData('time_window', val)
+                                            }
                                         >
                                             <SelectTrigger id="consult-time">
                                                 <div className="flex items-center gap-2">
@@ -273,20 +283,25 @@ export function ConsultFormCard({
                                                 </div>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Any">
+                                                <SelectItem value="any">
                                                     Any time
                                                 </SelectItem>
-                                                <SelectItem value="Morning">
+                                                <SelectItem value="morning">
                                                     Morning (9am–12pm)
                                                 </SelectItem>
-                                                <SelectItem value="Afternoon">
+                                                <SelectItem value="afternoon">
                                                     Afternoon (12pm–4pm)
                                                 </SelectItem>
-                                                <SelectItem value="Evening">
+                                                <SelectItem value="evening">
                                                     Evening (4pm–6pm)
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {errors.time_window && (
+                                            <span className="text-xs text-destructive">
+                                                {errors.time_window}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <div className="flex flex-col gap-1.5">
@@ -294,8 +309,10 @@ export function ConsultFormCard({
                                             Format
                                         </Label>
                                         <Select
-                                            value={format}
-                                            onValueChange={setFormat}
+                                            value={data.format}
+                                            onValueChange={(val) =>
+                                                setData('format', val)
+                                            }
                                         >
                                             <SelectTrigger id="consult-format">
                                                 <div className="flex items-center gap-2">
@@ -304,17 +321,22 @@ export function ConsultFormCard({
                                                 </div>
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Video call">
+                                                <SelectItem value="video">
                                                     Video call
                                                 </SelectItem>
-                                                <SelectItem value="Phone call">
+                                                <SelectItem value="phone">
                                                     Phone call
                                                 </SelectItem>
-                                                <SelectItem value="In person">
+                                                <SelectItem value="in_person">
                                                     In person (Office)
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {errors.format && (
+                                            <span className="text-xs text-destructive">
+                                                {errors.format}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 
@@ -322,25 +344,36 @@ export function ConsultFormCard({
                                     <Label htmlFor="consult-notes">Notes</Label>
                                     <Textarea
                                         id="consult-notes"
+                                        name="notes"
                                         rows={3}
                                         placeholder="Any specific tax questions, notice details, or situation..."
-                                        value={notes}
+                                        value={data.notes}
                                         onChange={(e) =>
-                                            setNotes(e.target.value)
+                                            setData('notes', e.target.value)
                                         }
+                                        aria-invalid={!!errors.notes}
+                                        className={cn(
+                                            errors.notes &&
+                                                'border-destructive focus-visible:ring-destructive',
+                                        )}
                                     />
+                                    {errors.notes && (
+                                        <span className="text-xs text-destructive">
+                                            {errors.notes}
+                                        </span>
+                                    )}
                                 </div>
 
                                 <Button
                                     type="submit"
                                     variant="primary"
                                     size="lg"
-                                    disabled={isSubmitting}
+                                    disabled={processing}
                                     fullWidth
                                     className="mt-2"
                                 >
-                                    {isSubmitting
-                                        ? 'Requesting...'
+                                    {processing
+                                        ? 'Sending…'
                                         : 'Request consultation'}
                                 </Button>
                             </form>
