@@ -148,4 +148,12 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return $this->belongsTo(self::class, 'referred_by_code', 'referral_code');
     }
+
+    /**
+     * Determine if the user is a staff member (Admin or Preparer).
+     */
+    public function isStaff(): bool
+    {
+        return $this->role === Role::Admin || $this->role === Role::Preparer;
+    }
 }

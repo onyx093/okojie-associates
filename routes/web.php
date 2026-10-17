@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\Portal\AppointmentController;
 use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\OverviewController;
 use App\Http\Controllers\Portal\SecurityController as PortalSecurityController;
@@ -46,8 +47,12 @@ Route::middleware(['auth', 'verified', 'portal.2fa'])->prefix('portal')->name('p
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::delete('documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
 
+    // Appointments
+    Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments');
+    Route::post('appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+    Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->name('appointments.destroy');
+
     // Tab routes (stubs for subsequent steps)
-    Route::get('appointments', fn () => redirect()->route('portal.overview'))->name('appointments');
     Route::get('referrals', fn () => redirect()->route('portal.overview'))->name('referrals');
     Route::get('messages', fn () => redirect()->route('portal.overview'))->name('messages');
 });

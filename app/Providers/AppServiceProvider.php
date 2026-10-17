@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Appointment;
+use App\Models\Document;
+use App\Policies\AppointmentPolicy;
+use App\Policies\DocumentPolicy;
 use App\Services\VirusScanner\ClamAvScanner;
 use App\Services\VirusScanner\FakeScanner;
 use App\Services\VirusScanner\ScannerInterface;
@@ -11,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -36,6 +41,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(Appointment::class, AppointmentPolicy::class);
+        Gate::policy(Document::class, DocumentPolicy::class);
+
         $this->configureDefaults();
     }
 

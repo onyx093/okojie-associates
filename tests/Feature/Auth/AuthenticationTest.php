@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
@@ -124,4 +125,28 @@ test('users can logout', function () {
 
     $response->assertRedirect(route('home'));
     $this->assertGuest();
+});
+
+test('users with legacy bcrypt password can authenticate and are seamlessly rehashed to argon2id', function () {
+    $user = User::factory()->create();
+
+    // Directly set legacy bcrypt hash in DB
+    $bcryptHash = password_hash('Passw0rd!ChangeMe', PASSWORD_BCRYPT);
+    DB::table('users')
+        ->where('id', $user->id)
+        ->update(['password' => $bcryptHash]);
+
+    $user->refresh();
+    expect(password_get_info($user->password)['algoName'])->toBe('bcrypt');
+
+    $response = $this->post(route('login.store'), [
+        'email' => $user->email,
+        'password' => 'Passw0rd!ChangeMe',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect('/portal/overview');
+
+    $user->refresh();
+    expect(password_get_info($user->password)['algoName'])->toBe('argon2id');
 });
