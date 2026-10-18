@@ -54,9 +54,8 @@ class FortifyServiceProvider extends ServiceProvider
             if ($request->query('mode') === 'signup') {
                 $params = $request->query();
                 unset($params['mode']);
-                $query = ! empty($params) ? ('?'.http_build_query($params)) : '';
 
-                return redirect('/register'.$query, 301);
+                return redirect(route('register', $params), 301);
             }
 
             return Inertia::render('auth/access', [

@@ -3,7 +3,6 @@ import {
     AlertCircle,
     ArrowLeft,
     Check,
-    CheckCircle2,
     FileCheck,
     FileText,
     Lock,
@@ -14,11 +13,19 @@ import {
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PortalLayout } from '@/layouts/portal-layout';
+import { overview } from '@/routes/portal';
+import { submit as signSubmit } from '@/routes/portal/sign';
 
 /**
  * NOTE FOR COMPLIANCE & LEGAL COUNSEL:
@@ -47,7 +54,7 @@ interface SignProps {
 export default function Sign({
     taxReturn,
     clientName,
-    clientEmail,
+    clientEmail: _clientEmail,
     form7216ConsentText,
     form8879DeclarationText,
 }: SignProps) {
@@ -58,7 +65,7 @@ export default function Sign({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(`/portal/sign/${taxReturn.id}`);
+        post(signSubmit.url({ taxReturn: taxReturn.id }));
     };
 
     return (
@@ -68,8 +75,13 @@ export default function Sign({
             <div className="mx-auto max-w-4xl space-y-8">
                 {/* Back button & header */}
                 <div>
-                    <Button variant="ghost" size="sm" asChild className="mb-4 -ml-2 text-xs text-muted-foreground">
-                        <Link href="/portal/overview">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        className="mb-4 -ml-2 text-xs text-muted-foreground"
+                    >
+                        <Link href={overview.url()}>
                             <ArrowLeft className="mr-1.5 size-3.5" />
                             Back to Portal Overview
                         </Link>
@@ -89,7 +101,7 @@ export default function Sign({
                                 Review & Electronic Signature
                             </h1>
                         </div>
-                        <div className="flex items-center gap-1.5 text-xs text-emerald-500 font-medium">
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-500">
                             <ShieldCheck className="size-4" />
                             IRS Pub 4557 & 1345 Protected
                         </div>
@@ -109,7 +121,8 @@ export default function Sign({
                                         Prepared Return Summary
                                     </CardTitle>
                                     <CardDescription className="text-xs">
-                                        Prepared by {taxReturn.preparerName} ({taxReturn.tierLabel})
+                                        Prepared by {taxReturn.preparerName} (
+                                        {taxReturn.tierLabel})
                                     </CardDescription>
                                 </div>
                             </div>
@@ -127,31 +140,46 @@ export default function Sign({
                                     <FileCheck className="size-7" />
                                 </div>
                                 <h3 className="text-sm font-bold text-foreground">
-                                    Form 1040 U.S. Individual Income Tax Return ({taxReturn.taxYear})
+                                    Form 1040 U.S. Individual Income Tax Return
+                                    ({taxReturn.taxYear})
                                 </h3>
                                 <p className="mt-1 text-xs text-muted-foreground">
-                                    Your tax preparer has assembled and verified your federal Form 1040, state schedules, and attachments.
+                                    Your tax preparer has assembled and verified
+                                    your federal Form 1040, state schedules, and
+                                    attachments.
                                 </p>
 
                                 <div className="mt-4 grid w-full grid-cols-2 gap-3 text-left sm:grid-cols-3">
                                     <div className="rounded-lg border border-border/60 bg-background/80 p-3">
-                                        <span className="text-[10px] text-muted-foreground block">Taxpayer</span>
-                                        <span className="text-xs font-semibold text-foreground truncate block">{clientName}</span>
+                                        <span className="block text-[10px] text-muted-foreground">
+                                            Taxpayer
+                                        </span>
+                                        <span className="block truncate text-xs font-semibold text-foreground">
+                                            {clientName}
+                                        </span>
                                     </div>
                                     <div className="rounded-lg border border-border/60 bg-background/80 p-3">
-                                        <span className="text-[10px] text-muted-foreground block">Tax Year</span>
-                                        <span className="text-xs font-semibold text-foreground block">{taxReturn.taxYear}</span>
+                                        <span className="block text-[10px] text-muted-foreground">
+                                            Tax Year
+                                        </span>
+                                        <span className="block text-xs font-semibold text-foreground">
+                                            {taxReturn.taxYear}
+                                        </span>
                                     </div>
-                                    <div className="rounded-lg border border-border/60 bg-background/80 p-3 col-span-2 sm:col-span-1">
-                                        <span className="text-[10px] text-muted-foreground block">Filing Method</span>
-                                        <span className="text-xs font-semibold text-primary block">IRS E-File</span>
+                                    <div className="col-span-2 rounded-lg border border-border/60 bg-background/80 p-3 sm:col-span-1">
+                                        <span className="block text-[10px] text-muted-foreground">
+                                            Filing Method
+                                        </span>
+                                        <span className="block text-xs font-semibold text-primary">
+                                            IRS E-File
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Statutory Disclosure: Form 8879 declaration */}
-                        <div className="rounded-xl border border-border/80 bg-background p-4.5 space-y-2">
+                        <div className="space-y-2 rounded-xl border border-border/80 bg-background p-4.5">
                             <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                                 <Shield className="size-4 text-primary" />
                                 Form 8879 E-File Signature Declaration
@@ -173,7 +201,8 @@ export default function Sign({
                                     Affirmative Consent & Signature
                                 </CardTitle>
                                 <CardDescription className="text-xs">
-                                    Complete the consent acknowledgment and type your name below.
+                                    Complete the consent acknowledgment and type
+                                    your name below.
                                 </CardDescription>
                             </div>
                         </div>
@@ -182,20 +211,26 @@ export default function Sign({
                     <CardContent className="p-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Form 7216 Consent Checkbox */}
-                            <div className="rounded-xl border border-primary/20 bg-primary/[0.02] p-4.5 space-y-3">
+                            <div className="space-y-3 rounded-xl border border-primary/20 bg-primary/[0.02] p-4.5">
                                 <div className="flex items-start gap-3">
                                     <Checkbox
                                         id="consent_7216"
                                         checked={data.consent_7216}
-                                        onCheckedChange={(checked) => setData('consent_7216', !!checked)}
+                                        onCheckedChange={(checked) =>
+                                            setData('consent_7216', !!checked)
+                                        }
                                         className="mt-1"
                                     />
                                     <div className="space-y-1">
                                         <Label
                                             htmlFor="consent_7216"
-                                            className="text-xs font-semibold text-foreground cursor-pointer"
+                                            className="cursor-pointer text-xs font-semibold text-foreground"
                                         >
-                                            IRC Section 7216 Disclosure & Use Consent <span className="text-destructive">*</span>
+                                            IRC Section 7216 Disclosure & Use
+                                            Consent{' '}
+                                            <span className="text-destructive">
+                                                *
+                                            </span>
                                         </Label>
                                         <p className="text-xs leading-relaxed text-muted-foreground">
                                             {form7216ConsentText}
@@ -203,7 +238,7 @@ export default function Sign({
                                     </div>
                                 </div>
                                 {errors.consent_7216 && (
-                                    <p className="text-xs text-destructive font-medium pl-7 flex items-center gap-1">
+                                    <p className="flex items-center gap-1 pl-7 text-xs font-medium text-destructive">
                                         <AlertCircle className="size-3.5" />
                                         {errors.consent_7216}
                                     </p>
@@ -212,8 +247,13 @@ export default function Sign({
 
                             {/* Typed Signature Input */}
                             <div className="space-y-2">
-                                <Label htmlFor="typed_signature" className="text-xs font-semibold">
-                                    Type your full legal name as your electronic signature <span className="text-destructive">*</span>
+                                <Label
+                                    htmlFor="typed_signature"
+                                    className="text-xs font-semibold"
+                                >
+                                    Type your full legal name as your electronic
+                                    signature{' '}
+                                    <span className="text-destructive">*</span>
                                 </Label>
                                 <div className="relative">
                                     <PenLine className="absolute top-3 left-3 size-4 text-muted-foreground" />
@@ -222,16 +262,25 @@ export default function Sign({
                                         type="text"
                                         placeholder={clientName}
                                         value={data.typed_signature}
-                                        onChange={(e) => setData('typed_signature', e.target.value)}
-                                        className="pl-9 text-sm font-serif"
+                                        onChange={(e) =>
+                                            setData(
+                                                'typed_signature',
+                                                e.target.value,
+                                            )
+                                        }
+                                        className="pl-9 font-serif text-sm"
                                         required
                                     />
                                 </div>
                                 <p className="text-[11px] text-muted-foreground">
-                                    By typing your legal name, you declare under penalties of perjury that you have examined this tax return and authorize Okojie & Associates, Inc. to transmit your return electronically.
+                                    By typing your legal name, you declare under
+                                    penalties of perjury that you have examined
+                                    this tax return and authorize Okojie &
+                                    Associates, Inc. to transmit your return
+                                    electronically.
                                 </p>
                                 {errors.typed_signature && (
-                                    <p className="text-xs text-destructive font-medium flex items-center gap-1">
+                                    <p className="flex items-center gap-1 text-xs font-medium text-destructive">
                                         <AlertCircle className="size-3.5" />
                                         {errors.typed_signature}
                                     </p>
@@ -239,19 +288,26 @@ export default function Sign({
                             </div>
 
                             {/* Notice & Submit */}
-                            <div className="flex flex-col gap-3 pt-4 border-t border-border sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
                                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                                     <Lock className="size-3 text-muted-foreground" />
-                                    Captures timestamp, verified IP address, and browser signature.
+                                    Captures timestamp, verified IP address, and
+                                    browser signature.
                                 </span>
 
                                 <Button
                                     type="submit"
-                                    disabled={processing || !data.consent_7216 || !data.typed_signature.trim()}
+                                    disabled={
+                                        processing ||
+                                        !data.consent_7216 ||
+                                        !data.typed_signature.trim()
+                                    }
                                     className="rounded-full px-6 py-5 text-sm font-semibold shadow-xs"
                                 >
                                     <Check className="mr-2 size-4" />
-                                    {processing ? 'Signing & Storing Record...' : 'Sign & Authorize E-File'}
+                                    {processing
+                                        ? 'Signing & Storing Record...'
+                                        : 'Sign & Authorize E-File'}
                                 </Button>
                             </div>
                         </form>

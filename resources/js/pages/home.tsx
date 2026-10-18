@@ -18,6 +18,7 @@ import { SeoHead } from '@/components/seo-head';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MarketingLayout } from '@/layouts/marketing-layout';
+import { contact, pricing } from '@/routes';
 import type {
     FaqItem,
     OfficeItem,
@@ -107,7 +108,7 @@ export default function Home({
                                     size="lg"
                                     className="w-full sm:w-auto"
                                 >
-                                    <Link href="/contact#start">
+                                    <Link href={`${contact.url()}#start`}>
                                         Start My Return Online
                                     </Link>
                                 </Button>
@@ -117,7 +118,7 @@ export default function Home({
                                     size="lg"
                                     className="w-full sm:w-auto"
                                 >
-                                    <Link href="/contact#consult">
+                                    <Link href={`${contact.url()}#consult`}>
                                         Book a Free Consultation
                                     </Link>
                                 </Button>
@@ -171,7 +172,7 @@ export default function Home({
                     <div className="mt-12 text-center">
                         <Reveal direction="up" delay={100}>
                             <Link
-                                href="/pricing"
+                                href={pricing.url()}
                                 className="inline-flex items-center text-sm font-semibold text-primary hover:underline"
                             >
                                 See full pricing and what's included

@@ -29,6 +29,9 @@ Route::get('/pricing', PricingController::class)->name('pricing');
 Route::get('/about', AboutController::class)->name('about');
 Route::get('/contact', ContactController::class)->name('contact');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::inertia('/security', 'legal/security')->name('security');
+Route::inertia('/privacy', 'legal/privacy')->name('privacy');
+Route::inertia('/terms', 'legal/terms')->name('terms');
 
 Route::middleware(['throttle:public-forms', ProtectAgainstSpam::class])->group(function () {
     Route::post('/leads/quote', [LeadController::class, 'quote'])->name('leads.quote');

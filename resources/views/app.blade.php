@@ -5,12 +5,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         {{-- Force dark theme background color --}}
-        <style>
+        <style nonce="{{ Vite::cspNonce() }}">
             html, body {
                 background-color: #14151f;
                 color: #f4f5fa;
             }
         </style>
+
+        <link rel="preconnect" href="https://js.stripe.com" crossorigin>
+        <link rel="dns-prefetch" href="https://challenges.cloudflare.com">
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ReferralStatus;
 use App\Enums\ReturnStatus;
 use App\Enums\Tier;
+use Carbon\CarbonInterface as Carbon;
 use Database\Factories\TaxReturnFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -13,7 +14,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
@@ -26,6 +26,9 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $filed_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property User|null $preparer
+ * @property User $user
+ * @property Invoice|null $invoice
  */
 #[Fillable(['user_id', 'tax_year', 'tier', 'status', 'preparer_id', 'signed_at', 'filed_at'])]
 class TaxReturn extends Model
@@ -38,14 +41,12 @@ class TaxReturn extends Model
         static::updated(function (TaxReturn $return) {
             if ($return->wasChanged('status') && $return->status === ReturnStatus::EFiled) {
                 $user = $return->user;
-                if ($user) {
-                    Referral::where(function ($query) use ($user) {
-                        $query->where('friend_user_id', $user->id)
-                            ->orWhere('friend_email', strtolower($user->email));
-                    })
-                        ->where('status', '!=', ReferralStatus::Rewarded)
-                        ->update(['status' => ReferralStatus::Filed]);
-                }
+                Referral::where(function ($query) use ($user) {
+                    $query->where('friend_user_id', $user->id)
+                        ->orWhere('friend_email', strtolower($user->email));
+                })
+                    ->where('status', '!=', ReferralStatus::Rewarded)
+                    ->update(['status' => ReferralStatus::Filed]);
             }
         });
     }

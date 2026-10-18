@@ -9,6 +9,10 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 class TurnstileRule implements ValidationRule
 {
+    public function __construct(
+        public bool $forceValidate = false,
+    ) {}
+
     /**
      * Run the validation rule.
      *
@@ -16,10 +20,10 @@ class TurnstileRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $secretKey = config('services.turnstile.secret_key');
+        $secretKey = config('services.turnstile.secret_key', 'test_secret_key');
 
-        // Skip validation in local/testing environments or when secret key is not configured.
-        if (app()->environment('local', 'testing') || empty($secretKey)) {
+        // Skip validation in local/testing environments or when secret key is not configured, unless forced for testing.
+        if (! $this->forceValidate && (app()->environment('local', 'testing') || empty($secretKey))) {
             return;
         }
 

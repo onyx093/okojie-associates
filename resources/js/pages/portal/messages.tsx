@@ -1,9 +1,21 @@
 import { Head, router } from '@inertiajs/react';
-import { Mail, MessageSquare, ShieldCheck, User as UserIcon } from 'lucide-react';
+import {
+    Mail,
+    MessageSquare,
+    ShieldCheck,
+    User as UserIcon,
+} from 'lucide-react';
 import * as React from 'react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { PortalLayout } from '@/layouts/portal-layout';
+import { read as messageRead } from '@/routes/portal/messages';
 
 export interface PortalMessageItem {
     id: string;
@@ -22,12 +34,12 @@ interface MessagesProps {
     messages: PortalMessageItem[];
 }
 
-export default function Messages({ messages = [] }: MessagesProps) {
+export default function Messages({ messages }: MessagesProps) {
     // Post to mark-read endpoint on view if any unread messages exist
     React.useEffect(() => {
         const hasUnread = messages.some((m) => m.isUnread);
         if (hasUnread) {
-            router.post('/portal/messages/read', {}, { preserveScroll: true });
+            router.post(messageRead.url(), {}, { preserveScroll: true });
         }
     }, [messages]);
 
@@ -51,7 +63,8 @@ export default function Messages({ messages = [] }: MessagesProps) {
                                         Messages from your preparer
                                     </CardTitle>
                                     <CardDescription className="text-xs text-muted-foreground">
-                                        Secure, end-to-end updates regarding your tax return.
+                                        Secure, end-to-end updates regarding
+                                        your tax return.
                                     </CardDescription>
                                 </div>
                             </div>
@@ -72,7 +85,8 @@ export default function Messages({ messages = [] }: MessagesProps) {
                                     No messages yet
                                 </h3>
                                 <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                                    No messages yet. Your preparer will post updates here as your return progresses.
+                                    No messages yet. Your preparer will post
+                                    updates here as your return progresses.
                                 </p>
                             </div>
                         ) : (

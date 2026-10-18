@@ -6,6 +6,18 @@ import { toast } from 'sonner';
 import { BrandLogo } from '@/components/brand-logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+    about,
+    contact,
+    home,
+    login,
+    portal,
+    pricing,
+    privacy,
+    security,
+    services,
+    terms,
+} from '@/routes';
 import { subscribe } from '@/routes/newsletter';
 
 interface Office {
@@ -105,7 +117,7 @@ export function SiteFooter() {
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
                     {/* Column 1: Brand & Newsletter Shell (5 cols) */}
                     <div className="flex flex-col gap-6 lg:col-span-5">
-                        <BrandLogo showSublabel={false} href="/" />
+                        <BrandLogo showSublabel={false} href={home.url()} />
                         <p className="max-w-[420px] text-sm leading-relaxed text-body">
                             {site?.footer_blurb ||
                                 'The convenience of online filing, with a real tax professional who knows Philadelphia and Baltimore. Serving individuals, families, and small businesses for 26+ years.'}
@@ -187,7 +199,7 @@ export function SiteFooter() {
                         <ul className="flex flex-col gap-2.5 text-sm">
                             <li>
                                 <Link
-                                    href="/"
+                                    href={home.url()}
                                     className="text-muted-foreground transition-colors hover:text-white"
                                 >
                                     Home
@@ -195,7 +207,7 @@ export function SiteFooter() {
                             </li>
                             <li>
                                 <Link
-                                    href="/services"
+                                    href={services.url()}
                                     className="text-muted-foreground transition-colors hover:text-white"
                                 >
                                     Services
@@ -203,7 +215,7 @@ export function SiteFooter() {
                             </li>
                             <li>
                                 <Link
-                                    href="/pricing"
+                                    href={pricing.url()}
                                     className="text-muted-foreground transition-colors hover:text-white"
                                 >
                                     Pricing
@@ -211,7 +223,7 @@ export function SiteFooter() {
                             </li>
                             <li>
                                 <Link
-                                    href="/about"
+                                    href={about.url()}
                                     className="text-muted-foreground transition-colors hover:text-white"
                                 >
                                     About
@@ -219,7 +231,7 @@ export function SiteFooter() {
                             </li>
                             <li>
                                 <Link
-                                    href="/contact"
+                                    href={contact.url()}
                                     className="text-muted-foreground transition-colors hover:text-white"
                                 >
                                     Contact
@@ -228,14 +240,14 @@ export function SiteFooter() {
                             <li>
                                 {user ? (
                                     <Link
-                                        href="/portal"
+                                        href={portal.url()}
                                         className="text-muted-foreground transition-colors hover:text-white"
                                     >
                                         My Portal
                                     </Link>
                                 ) : (
                                     <Link
-                                        href="/login"
+                                        href={login.url()}
                                         className="text-muted-foreground transition-colors hover:text-white"
                                     >
                                         Client Login
@@ -267,10 +279,32 @@ export function SiteFooter() {
 
                 {/* Bottom Bar */}
                 <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row">
-                    <p>
-                        © {currentYear} Okojie & Associates, Inc. All rights
-                        reserved.
-                    </p>
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                        <p>
+                            © {currentYear} Okojie & Associates, Inc. All rights
+                            reserved.
+                        </p>
+                        <div className="flex items-center gap-4">
+                            <Link
+                                href={privacy.url()}
+                                className="transition-colors hover:text-white"
+                            >
+                                Privacy Policy
+                            </Link>
+                            <Link
+                                href={terms.url()}
+                                className="transition-colors hover:text-white"
+                            >
+                                Terms of Service
+                            </Link>
+                            <Link
+                                href={security.url()}
+                                className="transition-colors hover:text-white"
+                            >
+                                Security (WISP)
+                            </Link>
+                        </div>
+                    </div>
                     <p className="text-center sm:text-right">
                         {site?.compliance ||
                             'IRS Publication 4557 & FTC Safeguards compliant · Written Information Security Plan (WISP)'}

@@ -52,18 +52,21 @@ Also: tax software handles highly sensitive data (SSNs, income). Before taking r
 To test Stripe Checkout payments and webhooks locally during development:
 
 1. **Install and authenticate the Stripe CLI:**
-   ```bash
-   stripe login
-   ```
+
+    ```bash
+    stripe login
+    ```
 
 2. **Forward webhook events to your local application:**
-   ```bash
-   stripe listen --forward-to localhost/stripe/webhook
-   ```
-   Copy the temporary signing secret output by the CLI (`whsec_...`) into your `.env` file as `STRIPE_WEBHOOK_SECRET`.
+
+    ```bash
+    stripe listen --forward-to localhost/stripe/webhook
+    ```
+
+    Copy the temporary signing secret output by the CLI (`whsec_...`) into your `.env` file as `STRIPE_WEBHOOK_SECRET`.
 
 3. **Complete checkout in Stripe test mode:**
-   - In the client portal Overview tab, click **Pay Now** on an invoice with an active quote.
-   - You will be redirected to the Stripe Checkout page. Use any Stripe test card (e.g. `4242 4242 4242 4242`, any future expiration date, and CVC `123`).
-   - Upon successful payment, Stripe redirects back to `/portal/overview?payment=success`.
-   - The `checkout.session.completed` webhook fires, which marks the invoice as **Paid** idempotently, queues a `PaymentReceipt` confirmation email to the client, and records an `AuditLog` entry.
+    - In the client portal Overview tab, click **Pay Now** on an invoice with an active quote.
+    - You will be redirected to the Stripe Checkout page. Use any Stripe test card (e.g. `4242 4242 4242 4242`, any future expiration date, and CVC `123`).
+    - Upon successful payment, Stripe redirects back to `/portal/overview?payment=success`.
+    - The `checkout.session.completed` webhook fires, which marks the invoice as **Paid** idempotently, queues a `PaymentReceipt` confirmation email to the client, and records an `AuditLog` entry.

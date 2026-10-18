@@ -6,12 +6,12 @@ use App\Enums\ApptFormat;
 use App\Enums\LeadKind;
 use App\Enums\LeadStatus;
 use App\Enums\TimeWindow;
+use Carbon\CarbonInterface as Carbon;
 use Database\Factories\LeadFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * @property string $id

@@ -26,7 +26,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH, useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
 import { PortalLayout } from '@/layouts/portal-layout';
-import { cn } from '@/lib/utils';
+import {
+    confirm as confirmTwoFactor,
+    disable as disableTwoFactor,
+    enable as enableTwoFactor,
+    regenerateRecoveryCodes,
+} from '@/routes/two-factor';
+import { update as updatePassword } from '@/routes/user-password';
 
 interface SecurityProps {
     twoFactorEnabled: boolean;
@@ -38,10 +44,10 @@ interface SecurityProps {
 }
 
 export default function PortalSecurity({
-    twoFactorEnabled,
+    twoFactorEnabled: _twoFactorEnabled,
     twoFactorConfirmed,
     hasSecret,
-    passwordRules,
+    passwordRules: _passwordRules,
 }: SecurityProps) {
     const {
         qrCodeSvg,
@@ -62,7 +68,7 @@ export default function PortalSecurity({
     // Fetch QR code & secret key when setup is active but unconfirmed
     React.useEffect(() => {
         if (hasSecret && !twoFactorConfirmed) {
-            fetchSetupData();
+            void fetchSetupData();
         }
     }, [hasSecret, twoFactorConfirmed, fetchSetupData]);
 
@@ -80,28 +86,32 @@ export default function PortalSecurity({
 
     const handleEnable2FA = () => {
         router.post(
-            '/user/two-factor-authentication',
+            enableTwoFactor.url(),
             {},
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success('Two-factor authentication initiated. Scan your QR code.');
-                    fetchSetupData();
+                    toast.success(
+                        'Two-factor authentication initiated. Scan your QR code.',
+                    );
+                    void fetchSetupData();
                 },
                 onError: () => {
                     toast.error('Failed to initiate two-factor setup.');
                 },
-            }
+            },
         );
     };
 
     const handleConfirmOTP = (e: React.FormEvent) => {
         e.preventDefault();
-        otpForm.post('/user/confirmed-two-factor-authentication', {
+        otpForm.post(confirmTwoFactor.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 otpForm.reset();
-                toast.success('Two-factor authentication confirmed and enabled!');
+                toast.success(
+                    'Two-factor authentication confirmed and enabled!',
+                );
                 clearTwoFactorAuthData();
             },
             onError: (errs) => {
@@ -113,7 +123,7 @@ export default function PortalSecurity({
     };
 
     const handleCancelSetup = () => {
-        router.delete('/user/two-factor-authentication', {
+        router.delete(disableTwoFactor.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 clearTwoFactorAuthData();
@@ -126,10 +136,10 @@ export default function PortalSecurity({
     const handleDisable2FA = () => {
         if (
             window.confirm(
-                'Are you sure you want to disable two-factor authentication? Client accounts require MFA for portal access.'
+                'Are you sure you want to disable two-factor authentication? Client accounts require MFA for portal access.',
             )
         ) {
-            router.delete('/user/two-factor-authentication', {
+            router.delete(disableTwoFactor.url(), {
                 preserveScroll: true,
                 onSuccess: () => {
                     clearTwoFactorAuthData();
@@ -152,21 +162,21 @@ export default function PortalSecurity({
 
     const handleRegenerateRecoveryCodes = () => {
         router.post(
-            '/user/two-factor-recovery-codes',
+            regenerateRecoveryCodes.url(),
             {},
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    fetchRecoveryCodes();
+                    void fetchRecoveryCodes();
                     toast.success('Recovery codes regenerated.');
                 },
-            }
+            },
         );
     };
 
     const handleUpdatePassword = (e: React.FormEvent) => {
         e.preventDefault();
-        passwordForm.put('/user/password', {
+        passwordForm.put(updatePassword.url(), {
             preserveScroll: true,
             onSuccess: () => {
                 passwordForm.reset();
@@ -182,14 +192,18 @@ export default function PortalSecurity({
             <div className="mx-auto max-w-3xl space-y-8">
                 {/* Notice banner if 2FA is not yet active */}
                 {!twoFactorConfirmed && (
-                    <div className="flex items-start gap-3 rounded-[18px] border border-warning/40 bg-warning/10 p-5 text-warning-foreground">
+                    <div className="text-warning-foreground flex items-start gap-3 rounded-[18px] border border-warning/40 bg-warning/10 p-5">
                         <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
                         <div>
                             <h3 className="font-semibold text-foreground">
                                 Two-factor authentication required
                             </h3>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                To protect your sensitive tax documents, IRS guidance requires every client account to enable multi-factor authentication (MFA). Please complete enrollment below to access the full portal.
+                                To protect your sensitive tax documents, IRS
+                                guidance requires every client account to enable
+                                multi-factor authentication (MFA). Please
+                                complete enrollment below to access the full
+                                portal.
                             </p>
                         </div>
                     </div>
@@ -211,7 +225,8 @@ export default function PortalSecurity({
                                     Two-Factor Authentication
                                 </h2>
                                 <p className="text-sm text-muted-foreground">
-                                    Secure your account using a time-based one-time password (TOTP).
+                                    Secure your account using a time-based
+                                    one-time password (TOTP).
                                 </p>
                             </div>
                         </div>
@@ -233,7 +248,10 @@ export default function PortalSecurity({
                             /* State 1: 2FA is active */
                             <div className="space-y-6">
                                 <p className="text-sm text-muted-foreground">
-                                    Two-factor authentication is active on your account. You will be prompted for a 6-digit code from your authenticator app whenever you sign in.
+                                    Two-factor authentication is active on your
+                                    account. You will be prompted for a 6-digit
+                                    code from your authenticator app whenever
+                                    you sign in.
                                 </p>
 
                                 {/* Recovery Codes Section */}
@@ -247,20 +265,26 @@ export default function PortalSecurity({
                                         </div>
                                     </div>
                                     <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                                        Keep these recovery codes in a secure password manager. If you lose access to your authenticator app, each code can be used once to sign in.
+                                        Keep these recovery codes in a secure
+                                        password manager. If you lose access to
+                                        your authenticator app, each code can be
+                                        used once to sign in.
                                     </p>
 
-                                    {showingRecoveryCodes && recoveryCodesList.length > 0 ? (
+                                    {showingRecoveryCodes &&
+                                    recoveryCodesList.length > 0 ? (
                                         <div className="mt-4 space-y-4">
                                             <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-background p-4 sm:grid-cols-4">
-                                                {recoveryCodesList.map((code) => (
-                                                    <span
-                                                        key={code}
-                                                        className="font-mono text-xs text-foreground select-all"
-                                                    >
-                                                        {code}
-                                                    </span>
-                                                ))}
+                                                {recoveryCodesList.map(
+                                                    (code) => (
+                                                        <span
+                                                            key={code}
+                                                            className="font-mono text-xs text-foreground select-all"
+                                                        >
+                                                            {code}
+                                                        </span>
+                                                    ),
+                                                )}
                                             </div>
 
                                             <div className="flex flex-wrap items-center gap-3">
@@ -269,11 +293,18 @@ export default function PortalSecurity({
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() =>
-                                                        copyCodes(recoveryCodesList.join('\n'))
+                                                        copyCodes(
+                                                            recoveryCodesList.join(
+                                                                '\n',
+                                                            ),
+                                                        )
                                                     }
                                                     className="rounded-full text-xs"
                                                 >
-                                                    {copiedCodes === recoveryCodesList.join('\n') ? (
+                                                    {copiedCodes ===
+                                                    recoveryCodesList.join(
+                                                        '\n',
+                                                    ) ? (
                                                         <>
                                                             <Check className="mr-1.5 h-3.5 w-3.5 text-success" />
                                                             Copied!
@@ -290,7 +321,9 @@ export default function PortalSecurity({
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={handleRegenerateRecoveryCodes}
+                                                    onClick={
+                                                        handleRegenerateRecoveryCodes
+                                                    }
                                                     className="rounded-full text-xs text-muted-foreground hover:text-foreground"
                                                 >
                                                     <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
@@ -305,7 +338,9 @@ export default function PortalSecurity({
                                                 variant="outline"
                                                 size="sm"
                                                 disabled={isFetchingCodes}
-                                                onClick={handleViewRecoveryCodes}
+                                                onClick={
+                                                    handleViewRecoveryCodes
+                                                }
                                                 className="rounded-full text-xs"
                                             >
                                                 {isFetchingCodes ? (
@@ -335,7 +370,11 @@ export default function PortalSecurity({
                             /* State 2: 2FA not yet initiated */
                             <div className="space-y-4">
                                 <p className="text-sm text-muted-foreground">
-                                    When you enable two-factor authentication, you will scan a QR code using an authenticator app (such as Google Authenticator, Microsoft Authenticator, 1Password, or Apple Passwords).
+                                    When you enable two-factor authentication,
+                                    you will scan a QR code using an
+                                    authenticator app (such as Google
+                                    Authenticator, Microsoft Authenticator,
+                                    1Password, or Apple Passwords).
                                 </p>
                                 <div>
                                     <Button
@@ -356,7 +395,9 @@ export default function PortalSecurity({
                                         Step 1: Scan QR code
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Open your authenticator app and scan the QR code below, or manually enter the setup key.
+                                        Open your authenticator app and scan the
+                                        QR code below, or manually enter the
+                                        setup key.
                                     </p>
                                 </div>
 
@@ -366,7 +407,9 @@ export default function PortalSecurity({
                                         {qrCodeSvg ? (
                                             <div
                                                 className="h-full w-full [&_svg]:h-full [&_svg]:w-full"
-                                                dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: qrCodeSvg,
+                                                }}
                                             />
                                         ) : (
                                             <Spinner />
@@ -379,17 +422,21 @@ export default function PortalSecurity({
                                         </p>
                                         <div className="flex items-center gap-2">
                                             <code className="rounded-md border border-border bg-secondary px-3 py-1.5 font-mono text-xs text-foreground select-all">
-                                                {manualSetupKey || 'Loading setup key...'}
+                                                {manualSetupKey ||
+                                                    'Loading setup key...'}
                                             </code>
                                             {manualSetupKey && (
                                                 <Button
                                                     type="button"
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => copyKey(manualSetupKey)}
+                                                    onClick={() =>
+                                                        copyKey(manualSetupKey)
+                                                    }
                                                     className="h-8 rounded-full px-2.5 text-xs"
                                                 >
-                                                    {copiedKey === manualSetupKey ? (
+                                                    {copiedKey ===
+                                                    manualSetupKey ? (
                                                         <Check className="h-3.5 w-3.5 text-success" />
                                                     ) : (
                                                         <Copy className="h-3.5 w-3.5" />
@@ -398,7 +445,9 @@ export default function PortalSecurity({
                                             )}
                                         </div>
                                         <p className="text-xs text-muted-foreground">
-                                            If your device cannot scan the code, enter this key manually into your authenticator app.
+                                            If your device cannot scan the code,
+                                            enter this key manually into your
+                                            authenticator app.
                                         </p>
                                     </div>
                                 </div>
@@ -408,36 +457,53 @@ export default function PortalSecurity({
                                         Step 2: Enter 6-digit confirmation code
                                     </h3>
                                     <p className="text-sm text-muted-foreground">
-                                        Enter the 6-digit code shown in your authenticator app to complete setup.
+                                        Enter the 6-digit code shown in your
+                                        authenticator app to complete setup.
                                     </p>
 
-                                    <form onSubmit={handleConfirmOTP} className="space-y-4">
+                                    <form
+                                        onSubmit={handleConfirmOTP}
+                                        className="space-y-4"
+                                    >
                                         <div className="flex justify-center sm:justify-start">
                                             <InputOTP
                                                 name="code"
                                                 maxLength={OTP_MAX_LENGTH}
                                                 value={otpForm.data.code}
-                                                onChange={(val) => otpForm.setData('code', val)}
+                                                onChange={(val) =>
+                                                    otpForm.setData('code', val)
+                                                }
                                                 disabled={otpForm.processing}
                                                 pattern={REGEXP_ONLY_DIGITS}
                                                 autoFocus
                                             >
                                                 <InputOTPGroup>
-                                                    {Array.from({ length: OTP_MAX_LENGTH }, (_, i) => (
-                                                        <InputOTPSlot key={i} index={i} />
-                                                    ))}
+                                                    {Array.from(
+                                                        {
+                                                            length: OTP_MAX_LENGTH,
+                                                        },
+                                                        (_, i) => (
+                                                            <InputOTPSlot
+                                                                key={i}
+                                                                index={i}
+                                                            />
+                                                        ),
+                                                    )}
                                                 </InputOTPGroup>
                                             </InputOTP>
                                         </div>
 
-                                        <InputError message={otpForm.errors.code} />
+                                        <InputError
+                                            message={otpForm.errors.code}
+                                        />
 
                                         <div className="flex items-center gap-3 pt-2">
                                             <Button
                                                 type="submit"
                                                 disabled={
                                                     otpForm.processing ||
-                                                    otpForm.data.code.length !== OTP_MAX_LENGTH
+                                                    otpForm.data.code.length !==
+                                                        OTP_MAX_LENGTH
                                                 }
                                                 className="rounded-full px-6 py-2.5 font-semibold"
                                             >
@@ -473,25 +539,36 @@ export default function PortalSecurity({
                             Update Password
                         </h2>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Ensure your account is using a long, random password (at least 12 characters) to stay secure.
+                            Ensure your account is using a long, random password
+                            (at least 12 characters) to stay secure.
                         </p>
                     </div>
 
-                    <form onSubmit={handleUpdatePassword} className="mt-6 space-y-4">
+                    <form
+                        onSubmit={handleUpdatePassword}
+                        className="mt-6 space-y-4"
+                    >
                         <div className="space-y-1.5">
-                            <Label htmlFor="current_password">Current password</Label>
+                            <Label htmlFor="current_password">
+                                Current password
+                            </Label>
                             <PasswordInput
                                 id="current_password"
                                 name="current_password"
                                 value={passwordForm.data.current_password}
                                 onChange={(e) =>
-                                    passwordForm.setData('current_password', e.target.value)
+                                    passwordForm.setData(
+                                        'current_password',
+                                        e.target.value,
+                                    )
                                 }
                                 autoComplete="current-password"
                                 placeholder="Current password"
                                 className="bg-secondary/50"
                             />
-                            <InputError message={passwordForm.errors.current_password} />
+                            <InputError
+                                message={passwordForm.errors.current_password}
+                            />
                         </div>
 
                         <div className="space-y-1.5">
@@ -501,17 +578,24 @@ export default function PortalSecurity({
                                 name="password"
                                 value={passwordForm.data.password}
                                 onChange={(e) =>
-                                    passwordForm.setData('password', e.target.value)
+                                    passwordForm.setData(
+                                        'password',
+                                        e.target.value,
+                                    )
                                 }
                                 autoComplete="new-password"
                                 placeholder="New password (min 12 characters)"
                                 className="bg-secondary/50"
                             />
-                            <InputError message={passwordForm.errors.password} />
+                            <InputError
+                                message={passwordForm.errors.password}
+                            />
                         </div>
 
                         <div className="space-y-1.5">
-                            <Label htmlFor="password_confirmation">Confirm password</Label>
+                            <Label htmlFor="password_confirmation">
+                                Confirm password
+                            </Label>
                             <PasswordInput
                                 id="password_confirmation"
                                 name="password_confirmation"
@@ -519,14 +603,18 @@ export default function PortalSecurity({
                                 onChange={(e) =>
                                     passwordForm.setData(
                                         'password_confirmation',
-                                        e.target.value
+                                        e.target.value,
                                     )
                                 }
                                 autoComplete="new-password"
                                 placeholder="Confirm new password"
                                 className="bg-secondary/50"
                             />
-                            <InputError message={passwordForm.errors.password_confirmation} />
+                            <InputError
+                                message={
+                                    passwordForm.errors.password_confirmation
+                                }
+                            />
                         </div>
 
                         <div className="pt-2">

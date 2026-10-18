@@ -1,5 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowRight, Mail, Phone, Search, Shield, User as UserIcon } from 'lucide-react';
+import { ArrowRight, Mail, Phone, Search, Shield } from 'lucide-react';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,10 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { AdminLayout } from '@/layouts/admin-layout';
+import {
+    index as adminClients,
+    show as clientShow,
+} from '@/routes/admin/clients';
 
 interface ClientItem {
     id: number;
@@ -44,12 +48,20 @@ interface ClientsProps {
     isPreparer: boolean;
 }
 
-export default function Clients({ clients, filters, isPreparer }: ClientsProps) {
+export default function Clients({
+    clients,
+    filters,
+    isPreparer,
+}: ClientsProps) {
     const [searchTerm, setSearchTerm] = React.useState(filters.search || '');
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        router.get('/admin/clients', { search: searchTerm }, { preserveState: true });
+        router.get(
+            adminClients.url(),
+            { search: searchTerm },
+            { preserveState: true },
+        );
     };
 
     const getStatusVariant = (status: string | null) => {
@@ -75,24 +87,37 @@ export default function Clients({ clients, filters, isPreparer }: ClientsProps) 
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <CardTitle className="text-sm font-semibold">
-                                    {isPreparer ? 'Your Assigned Clients' : 'All Clients'}
+                                    {isPreparer
+                                        ? 'Your Assigned Clients'
+                                        : 'All Clients'}
                                 </CardTitle>
                                 <p className="text-xs text-muted-foreground">
-                                    {clients.total} registered taxpayer account{clients.total === 1 ? '' : 's'}
+                                    {clients.total} registered taxpayer account
+                                    {clients.total === 1 ? '' : 's'}
                                 </p>
                             </div>
 
-                            <form onSubmit={handleSearch} className="flex items-center gap-2">
+                            <form
+                                onSubmit={handleSearch}
+                                className="flex items-center gap-2"
+                            >
                                 <div className="relative w-64">
                                     <Search className="absolute top-2.5 left-2.5 size-3.5 text-muted-foreground" />
                                     <Input
                                         placeholder="Search name, email, phone..."
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.target.value)
+                                        }
                                         className="h-8 pl-8 text-xs"
                                     />
                                 </div>
-                                <Button type="submit" size="sm" variant="secondary" className="h-8 text-xs">
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-8 text-xs"
+                                >
                                     Search
                                 </Button>
                             </form>
@@ -112,39 +137,60 @@ export default function Clients({ clients, filters, isPreparer }: ClientsProps) 
                                         <TableHead>Return Status</TableHead>
                                         <TableHead>Preparer</TableHead>
                                         <TableHead>Invoice</TableHead>
-                                        <TableHead className="text-right">Action</TableHead>
+                                        <TableHead className="text-right">
+                                            Action
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {clients.data.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
+                                            <TableCell
+                                                colSpan={6}
+                                                className="py-12 text-center text-sm text-muted-foreground"
+                                            >
                                                 No clients found.
                                             </TableCell>
                                         </TableRow>
                                     ) : (
                                         clients.data.map((client) => {
                                             return (
-                                                <TableRow key={client.id} className="border-border">
+                                                <TableRow
+                                                    key={client.id}
+                                                    className="border-border"
+                                                >
                                                     <TableCell>
                                                         <div className="flex items-center gap-2.5">
                                                             <div className="flex size-8 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-foreground">
                                                                 {client.name
-                                                                    ? client.name.charAt(0).toUpperCase()
-                                                                    : client.email.charAt(0).toUpperCase()}
+                                                                    ? client.name
+                                                                          .charAt(
+                                                                              0,
+                                                                          )
+                                                                          .toUpperCase()
+                                                                    : client.email
+                                                                          .charAt(
+                                                                              0,
+                                                                          )
+                                                                          .toUpperCase()}
                                                             </div>
                                                             <div>
                                                                 <div className="font-semibold text-foreground">
-                                                                    {client.name || 'Unnamed Client'}
+                                                                    {client.name ||
+                                                                        'Unnamed Client'}
                                                                 </div>
                                                                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                                     <Mail className="size-3" />
-                                                                    {client.email}
+                                                                    {
+                                                                        client.email
+                                                                    }
                                                                 </div>
                                                                 {client.phone && (
                                                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                                         <Phone className="size-3" />
-                                                                        {client.phone}
+                                                                        {
+                                                                            client.phone
+                                                                        }
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -152,41 +198,65 @@ export default function Clients({ clients, filters, isPreparer }: ClientsProps) 
                                                     </TableCell>
 
                                                     <TableCell>
-                                                        <Badge variant="outline" className="text-xs">
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="text-xs"
+                                                        >
                                                             {client.tierLabel}
                                                         </Badge>
                                                     </TableCell>
 
                                                     <TableCell>
                                                         <Badge
-                                                            variant={getStatusVariant(client.returnStatus)}
+                                                            variant={getStatusVariant(
+                                                                client.returnStatus,
+                                                            )}
                                                             className="text-xs font-medium"
                                                         >
-                                                            {client.returnStatusLabel}
+                                                            {
+                                                                client.returnStatusLabel
+                                                            }
                                                         </Badge>
                                                     </TableCell>
 
                                                     <TableCell>
                                                         <span className="flex items-center gap-1.5 text-xs text-foreground">
                                                             <Shield className="size-3 text-muted-foreground" />
-                                                            {client.preparerName}
+                                                            {
+                                                                client.preparerName
+                                                            }
                                                         </span>
                                                     </TableCell>
 
                                                     <TableCell>
                                                         <div className="text-xs font-medium text-foreground">
-                                                            {client.invoiceAmount}
+                                                            {
+                                                                client.invoiceAmount
+                                                            }
                                                         </div>
                                                         {client.invoiceStatus && (
                                                             <div className="text-[10px] text-muted-foreground capitalize">
-                                                                {client.invoiceStatus}
+                                                                {
+                                                                    client.invoiceStatus
+                                                                }
                                                             </div>
                                                         )}
                                                     </TableCell>
 
                                                     <TableCell className="text-right">
-                                                        <Button size="sm" variant="outline" asChild className="h-8 text-xs">
-                                                            <Link href={`/admin/clients/${client.id}`}>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            asChild
+                                                            className="h-8 text-xs"
+                                                        >
+                                                            <Link
+                                                                href={clientShow.url(
+                                                                    {
+                                                                        client: client.id,
+                                                                    },
+                                                                )}
+                                                            >
                                                                 Manage
                                                                 <ArrowRight className="ml-1.5 size-3.5" />
                                                             </Link>

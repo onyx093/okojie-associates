@@ -1,7 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import {
     AlertCircle,
-    CheckCircle2,
     CloudUpload,
     Download,
     FileSpreadsheet,
@@ -27,6 +26,10 @@ import {
 } from '@/components/ui/select';
 import { PortalLayout } from '@/layouts/portal-layout';
 import { cn } from '@/lib/utils';
+import {
+    destroy as documentDestroy,
+    store as documentStore,
+} from '@/routes/portal/documents';
 
 interface DocumentItem {
     id: string;
@@ -58,21 +61,29 @@ const DOC_TYPES = [
 ];
 
 export default function PortalDocuments({
-    documents = [],
-    canDelete = true,
+    documents,
+    canDelete,
 }: DocumentsPageProps) {
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
-    const { data, setData, post, processing, progress, errors, reset, clearErrors } =
-        useForm<{
-            type: string;
-            file: File | null;
-        }>({
-            type: 'w2',
-            file: null,
-        });
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        progress,
+        errors,
+        reset,
+        clearErrors,
+    } = useForm<{
+        type: string;
+        file: File | null;
+    }>({
+        type: 'w2',
+        file: null,
+    });
 
     const handleFileSelect = (file: File | null) => {
         clearErrors('file');
@@ -110,7 +121,7 @@ export default function PortalDocuments({
             return;
         }
 
-        post('/portal/documents', {
+        post(documentStore.url(), {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
@@ -122,19 +133,25 @@ export default function PortalDocuments({
                 toast.success('Document uploaded successfully.');
             },
             onError: () => {
-                toast.error('Failed to upload document. Please check the file and try again.');
+                toast.error(
+                    'Failed to upload document. Please check the file and try again.',
+                );
             },
         });
     };
 
     const handleDelete = (doc: DocumentItem) => {
         if (!canDelete) {
-            toast.error('Documents cannot be deleted once your return is ready for review.');
+            toast.error(
+                'Documents cannot be deleted once your return is ready for review.',
+            );
             return;
         }
 
-        if (window.confirm(`Are you sure you want to delete ${doc.filename}?`)) {
-            router.delete(`/portal/documents/${doc.id}`, {
+        if (
+            window.confirm(`Are you sure you want to delete ${doc.filename}?`)
+        ) {
+            router.delete(documentDestroy.url({ document: doc.id }), {
                 preserveScroll: true,
                 onSuccess: () => {
                     toast.success('Document deleted.');
@@ -148,10 +165,22 @@ export default function PortalDocuments({
 
     const getFileIcon = (mime: string, filename: string) => {
         const lower = filename.toLowerCase();
-        if (mime.includes('image') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.png') || lower.endsWith('.webp') || lower.endsWith('.heic')) {
+        if (
+            mime.includes('image') ||
+            lower.endsWith('.jpg') ||
+            lower.endsWith('.jpeg') ||
+            lower.endsWith('.png') ||
+            lower.endsWith('.webp') ||
+            lower.endsWith('.heic')
+        ) {
             return <ImageIcon className="h-5 w-5 text-primary" />;
         }
-        if (mime.includes('spreadsheet') || lower.endsWith('.xlsx') || lower.endsWith('.xls') || lower.endsWith('.csv')) {
+        if (
+            mime.includes('spreadsheet') ||
+            lower.endsWith('.xlsx') ||
+            lower.endsWith('.xls') ||
+            lower.endsWith('.csv')
+        ) {
             return <FileSpreadsheet className="h-5 w-5 text-emerald-500" />;
         }
         return <FileText className="h-5 w-5 text-primary" />;
@@ -174,7 +203,10 @@ export default function PortalDocuments({
                             </p>
                         </div>
 
-                        <form onSubmit={handleUploadSubmit} className="mt-6 space-y-5">
+                        <form
+                            onSubmit={handleUploadSubmit}
+                            className="mt-6 space-y-5"
+                        >
                             {/* Document type select */}
                             <div className="space-y-1.5">
                                 <label className="text-sm font-semibold text-foreground">
@@ -182,14 +214,19 @@ export default function PortalDocuments({
                                 </label>
                                 <Select
                                     value={data.type}
-                                    onValueChange={(val) => setData('type', val)}
+                                    onValueChange={(val) =>
+                                        setData('type', val)
+                                    }
                                 >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {DOC_TYPES.map((t) => (
-                                            <SelectItem key={t.value} value={t.value}>
+                                            <SelectItem
+                                                key={t.value}
+                                                value={t.value}
+                                            >
                                                 {t.label}
                                             </SelectItem>
                                         ))}
@@ -221,7 +258,7 @@ export default function PortalDocuments({
                                     'flex cursor-pointer flex-col items-center justify-center rounded-[14px] border-2 border-dashed p-6 text-center transition-colors',
                                     isDragging
                                         ? 'border-primary bg-primary/10'
-                                        : 'border-border-strong bg-secondary/30 hover:border-primary/60 hover:bg-secondary/60'
+                                        : 'border-border-strong bg-secondary/30 hover:border-primary/60 hover:bg-secondary/60',
                                 )}
                             >
                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -231,7 +268,8 @@ export default function PortalDocuments({
                                     Drag & drop or click to upload
                                 </p>
                                 <p className="mt-1 max-w-[260px] text-xs text-muted-foreground">
-                                    W-2, 1099, ID, prior return — PDF, image, or spreadsheet
+                                    W-2, 1099, ID, prior return — PDF, image, or
+                                    spreadsheet
                                 </p>
 
                                 <div className="mt-4">
@@ -260,7 +298,10 @@ export default function PortalDocuments({
                                                 {selectedFile.name}
                                             </p>
                                             <p className="text-muted-foreground">
-                                                {(selectedFile.size / 1024).toFixed(0)} KB
+                                                {(
+                                                    selectedFile.size / 1024
+                                                ).toFixed(0)}{' '}
+                                                KB
                                             </p>
                                         </div>
                                     </div>
@@ -323,7 +364,8 @@ export default function PortalDocuments({
                                 </h2>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     {documents.length}{' '}
-                                    {documents.length === 1 ? 'file' : 'files'} uploaded
+                                    {documents.length === 1 ? 'file' : 'files'}{' '}
+                                    uploaded
                                 </p>
                             </div>
                         </div>
@@ -333,15 +375,19 @@ export default function PortalDocuments({
                                 <div className="rounded-xl border border-dashed border-border py-12 text-center">
                                     <FileText className="mx-auto h-10 w-10 text-muted-foreground/40" />
                                     <p className="mt-3 text-sm text-muted-foreground">
-                                        No documents yet. Upload your first one to get started.
+                                        No documents yet. Upload your first one
+                                        to get started.
                                     </p>
                                 </div>
                             ) : (
                                 <div className="divide-y divide-border">
                                     {documents.map((doc) => {
-                                        const isClean = doc.scan_status === 'clean';
-                                        const isPending = doc.scan_status === 'pending';
-                                        const isInfected = doc.scan_status === 'infected';
+                                        const isClean =
+                                            doc.scan_status === 'clean';
+                                        const isPending =
+                                            doc.scan_status === 'pending';
+                                        const isInfected =
+                                            doc.scan_status === 'infected';
 
                                         return (
                                             <div
@@ -350,7 +396,10 @@ export default function PortalDocuments({
                                             >
                                                 <div className="flex items-start gap-3 truncate">
                                                     <div className="mt-0.5 rounded-lg border border-border bg-secondary/50 p-2">
-                                                        {getFileIcon(doc.mime, doc.filename)}
+                                                        {getFileIcon(
+                                                            doc.mime,
+                                                            doc.filename,
+                                                        )}
                                                     </div>
                                                     <div className="truncate">
                                                         <p className="truncate text-sm font-semibold text-foreground">
@@ -364,22 +413,37 @@ export default function PortalDocuments({
                                                                 {doc.type_label}
                                                             </Badge>
                                                             <span>•</span>
-                                                            <span>{doc.size_formatted}</span>
+                                                            <span>
+                                                                {
+                                                                    doc.size_formatted
+                                                                }
+                                                            </span>
                                                             <span>•</span>
-                                                            <span>{doc.created_at_formatted}</span>
+                                                            <span>
+                                                                {
+                                                                    doc.created_at_formatted
+                                                                }
+                                                            </span>
                                                         </div>
 
                                                         {/* Scan status notice */}
                                                         {isPending && (
                                                             <div className="mt-1.5 flex items-center gap-1.5 text-xs text-warning">
                                                                 <Loader2 className="h-3 w-3 animate-spin" />
-                                                                <span>Scanning for viruses...</span>
+                                                                <span>
+                                                                    Scanning for
+                                                                    viruses...
+                                                                </span>
                                                             </div>
                                                         )}
                                                         {isInfected && (
                                                             <div className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
                                                                 <AlertCircle className="h-3 w-3" />
-                                                                <span>File infected — blocked</span>
+                                                                <span>
+                                                                    File
+                                                                    infected —
+                                                                    blocked
+                                                                </span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -389,13 +453,17 @@ export default function PortalDocuments({
                                                     {/* Download link: plain <a> per spec */}
                                                     {isClean ? (
                                                         <a
-                                                            href={doc.download_url}
+                                                            href={
+                                                                doc.download_url
+                                                            }
                                                             download
                                                             className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary/60 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary hover:text-foreground"
                                                             title="Download file"
                                                         >
                                                             <Download className="h-3.5 w-3.5" />
-                                                            <span>Download</span>
+                                                            <span>
+                                                                Download
+                                                            </span>
                                                         </a>
                                                     ) : (
                                                         <Button
@@ -416,12 +484,18 @@ export default function PortalDocuments({
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
-                                                            onClick={() => handleDelete(doc)}
+                                                            onClick={() =>
+                                                                handleDelete(
+                                                                    doc,
+                                                                )
+                                                            }
                                                             className="h-8 w-8 rounded-full p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                                             title="Delete file"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
-                                                            <span className="sr-only">Delete</span>
+                                                            <span className="sr-only">
+                                                                Delete
+                                                            </span>
                                                         </Button>
                                                     )}
                                                 </div>

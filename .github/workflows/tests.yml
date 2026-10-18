@@ -34,5 +34,26 @@ jobs:
       - name: Setup Application
         run: composer setup
 
-      - name: Run CI Checks
-        run: composer ci:check
+      - name: Check PHP Code Style (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Run Static Analysis (Larastan)
+        run: ./vendor/bin/phpstan analyse
+
+      - name: Check TypeScript Types
+        run: npm run types:check
+
+      - name: Run Linter Checks
+        run: npm run check
+
+      - name: Build Frontend Assets
+        run: npm run build
+
+      - name: Run Test Suite (Pest)
+        run: composer test
+
+      - name: Audit Composer Dependencies
+        run: composer audit
+
+      - name: Audit NPM Dependencies
+        run: npm audit --omit=dev

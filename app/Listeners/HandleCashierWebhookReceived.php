@@ -24,7 +24,8 @@ class HandleCashierWebhookReceived
                 return;
             }
 
-            $invoice = Invoice::with('taxReturn.user')->find($invoiceId);
+            /** @var Invoice|null $invoice */
+            $invoice = Invoice::query()->with('taxReturn.user')->whereKey($invoiceId)->first();
 
             if (! $invoice) {
                 return;

@@ -13,6 +13,8 @@ import {
     CardBestFor,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { register } from '@/routes';
+import { update as updateTier } from '@/routes/portal/tier';
 import type { TierItem } from '@/types/marketing';
 
 interface TierCardProps {
@@ -39,7 +41,7 @@ export function TierCard({ tier, featured = false, className }: TierCardProps) {
         if (!user) return;
         setIsUpdating(true);
         router.patch(
-            '/portal/tier',
+            updateTier.url(),
             { tier: tier.slug },
             {
                 onFinish: () => setIsUpdating(false),
@@ -143,7 +145,9 @@ export function TierCard({ tier, featured = false, className }: TierCardProps) {
                         className="rounded-full shadow-sm"
                     >
                         <Link
-                            href={`/register?tier=${encodeURIComponent(tier.slug)}`}
+                            href={register.url({
+                                query: { tier: tier.slug },
+                            })}
                         >
                             {tier.cta || `Choose ${tier.name}`}
                         </Link>

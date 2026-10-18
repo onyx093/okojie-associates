@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { home } from '@/routes';
 import { cn } from '@/lib/utils';
 
 interface BrandLogoProps {
@@ -10,7 +11,7 @@ interface BrandLogoProps {
 export function BrandLogo({
     className,
     showSublabel = true,
-    href = '/',
+    href = home.url(),
 }: BrandLogoProps) {
     const content = (
         <div

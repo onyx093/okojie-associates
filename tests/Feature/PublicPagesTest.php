@@ -3,7 +3,7 @@
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('home page renders successfully with all required props', function () {
-    $response = $this->get('/');
+    $response = $this->get(route('home'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
@@ -19,7 +19,7 @@ test('home page renders successfully with all required props', function () {
 });
 
 test('services page renders successfully with tiers, addons, and faqs', function () {
-    $response = $this->get('/services');
+    $response = $this->get(route('services'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
@@ -31,7 +31,7 @@ test('services page renders successfully with tiers, addons, and faqs', function
 });
 
 test('pricing page renders successfully with tiers, addons, and faqs', function () {
-    $response = $this->get('/pricing');
+    $response = $this->get(route('pricing'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
@@ -43,7 +43,7 @@ test('pricing page renders successfully with tiers, addons, and faqs', function 
 });
 
 test('about page renders successfully with stats and offices', function () {
-    $response = $this->get('/about');
+    $response = $this->get(route('about'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
@@ -54,7 +54,7 @@ test('about page renders successfully with stats and offices', function () {
 });
 
 test('contact page renders successfully with offices and tiers', function () {
-    $response = $this->get('/contact');
+    $response = $this->get(route('contact'));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
@@ -67,7 +67,7 @@ test('contact page renders successfully with offices and tiers', function () {
 });
 
 test('contact page honors tier and referral code query parameters', function () {
-    $response = $this->get('/contact?tier=hybrid&ref=OKJ-674SU5');
+    $response = $this->get(route('contact', ['tier' => 'hybrid', 'ref' => 'OKJ-674SU5']));
 
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
@@ -78,7 +78,7 @@ test('contact page honors tier and referral code query parameters', function () 
 });
 
 test('sitemap xml endpoint returns valid xml with all public pages', function () {
-    $response = $this->get('/sitemap.xml');
+    $response = $this->get(route('sitemap'));
 
     $response->assertOk();
     $response->assertHeader('Content-Type', 'application/xml');
@@ -89,5 +89,8 @@ test('sitemap xml endpoint returns valid xml with all public pages', function ()
         ->toContain('/services')
         ->toContain('/pricing')
         ->toContain('/about')
-        ->toContain('/contact');
+        ->toContain('/contact')
+        ->toContain('/security')
+        ->toContain('/privacy')
+        ->toContain('/terms');
 });

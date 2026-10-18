@@ -23,7 +23,7 @@ A new lead has submitted a request through Okojie Online.
 - **Notes:** {{ $lead->notes ?? 'None provided' }}
 @endif
 
-<x-mail::button :url="config('app.url') . '/admin/leads'">
+<x-mail::button :url="route('admin.leads.index')">
 View in Admin
 </x-mail::button>
 

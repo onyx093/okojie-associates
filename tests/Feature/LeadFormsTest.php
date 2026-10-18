@@ -13,7 +13,7 @@ beforeEach(function () {
 });
 
 test('guest can submit quote lead and receives confirmation', function () {
-    $response = $this->post('/leads/quote', [
+    $response = $this->post(route('leads.quote'), [
         'name' => 'Marcus Taylor',
         'phone' => '(215) 555-0142',
         'email' => 'marcus@example.com',
@@ -47,12 +47,12 @@ test('guest can submit quote lead and receives confirmation', function () {
 });
 
 test('quote form requires name and valid email', function () {
-    $response = $this->from('/contact')->post('/leads/quote', [
+    $response = $this->from(route('contact'))->post(route('leads.quote'), [
         'name' => '',
         'email' => 'not-an-email',
     ]);
 
-    $response->assertRedirect('/contact');
+    $response->assertRedirect(route('contact'));
     $response->assertSessionHasErrors([
         'name' => 'Please enter your name.',
         'email' => 'Enter a valid email address.',
@@ -65,7 +65,7 @@ test('quote form requires name and valid email', function () {
 test('guest can submit consultation lead and receives confirmation', function () {
     $futureDate = now()->addDays(3)->toDateString();
 
-    $response = $this->post('/leads/consult', [
+    $response = $this->post(route('leads.consult'), [
         'name' => 'Sarah Jenkins',
         'phone' => '(410) 555-0166',
         'email' => 'sarah@example.com',
@@ -94,7 +94,7 @@ test('guest can submit consultation lead and receives confirmation', function ()
 test('consultation form validates required fields and future date', function () {
     $pastDate = now()->subDays(2)->toDateString();
 
-    $response = $this->post('/leads/consult', [
+    $response = $this->post(route('leads.consult'), [
         'name' => '',
         'email' => '',
         'preferred_date' => $pastDate,
@@ -115,13 +115,13 @@ test('consultation form validates required fields and future date', function () 
 
 test('visiting contact page with ref attaches 30-day cookie and stores ref on lead', function () {
     // 1. Visit with ?ref=
-    $visit = $this->get('/contact?ref=OKJ-674SU5');
+    $visit = $this->get(route('contact', ['ref' => 'OKJ-674SU5']));
     $visit->assertOk();
     $visit->assertPlainCookie('okojie_referral', 'OKJ-674SU5');
 
     // 2. Submit lead with unencrypted cookie (since okojie_referral is exempted from encryption)
     $response = $this->withUnencryptedCookie('okojie_referral', 'OKJ-674SU5')
-        ->post('/leads/quote', [
+        ->post(route('leads.quote'), [
             'name' => 'Referred Client',
             'email' => 'referred@example.com',
         ]);
@@ -135,7 +135,7 @@ test('visiting contact page with ref attaches 30-day cookie and stores ref on le
 });
 
 test('honeypot rejects spam bot submissions', function () {
-    $response = $this->post('/leads/quote', [
+    $response = $this->post(route('leads.quote'), [
         'name' => 'Bot Spammer',
         'email' => 'bot@spammer.com',
         'my_name' => 'I am a spam bot',
@@ -148,7 +148,7 @@ test('honeypot rejects spam bot submissions', function () {
 
 test('public forms are throttled to 5 requests per hour', function () {
     for ($i = 1; $i <= 5; $i++) {
-        $res = $this->post('/leads/quote', [
+        $res = $this->post(route('leads.quote'), [
             'name' => "User {$i}",
             'email' => "user{$i}@example.com",
         ]);
@@ -156,7 +156,7 @@ test('public forms are throttled to 5 requests per hour', function () {
     }
 
     // 6th request from same IP should be blocked with 429
-    $sixth = $this->post('/leads/quote', [
+    $sixth = $this->post(route('leads.quote'), [
         'name' => 'User 6',
         'email' => 'user6@example.com',
     ]);

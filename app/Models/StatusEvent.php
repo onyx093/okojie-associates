@@ -3,23 +3,24 @@
 namespace App\Models;
 
 use App\Enums\ReturnStatus;
+use Carbon\CarbonInterface as Carbon;
 use Database\Factories\StatusEventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
  * @property string $tax_return_id
- * @property ReturnStatus|string|null $from
- * @property ReturnStatus|string $to
+ * @property ReturnStatus|null $from
+ * @property ReturnStatus $to
  * @property int|null $by_user_id
  * @property string|null $reason
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property User|null $byUser
  */
 #[Fillable(['tax_return_id', 'from', 'to', 'by_user_id', 'reason'])]
 class StatusEvent extends Model

@@ -41,7 +41,7 @@ interface ReferralsPageProps {
 }
 
 export default function ReferralsPage({
-    referrals = [],
+    referrals,
     referralCode,
     referralLink,
     rewardRange = '$25–$50',
@@ -63,7 +63,9 @@ export default function ReferralsPage({
             toast.success('Referral link copied to clipboard.');
             setTimeout(() => setCopied(false), 2000);
         } catch {
-            toast.error('Failed to copy link. Please select and copy manually.');
+            toast.error(
+                'Failed to copy link. Please select and copy manually.',
+            );
         }
     };
 
@@ -79,7 +81,9 @@ export default function ReferralsPage({
             preserveScroll: true,
             onSuccess: () => {
                 reset();
-                toast.success("Referral sent! We've emailed your friend an invitation.");
+                toast.success(
+                    "Referral sent! We've emailed your friend an invitation.",
+                );
             },
             onError: () => {
                 toast.error('Please check the form for errors.');
@@ -142,7 +146,8 @@ export default function ReferralsPage({
                                 Refer a friend
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Share your link — you earn {rewardRange} when they file.
+                                Share your link — you earn {rewardRange} when
+                                they file.
                             </p>
                         </div>
 
@@ -157,7 +162,11 @@ export default function ReferralsPage({
                                         type="text"
                                         readOnly
                                         value={fullLink}
-                                        onClick={(e) => (e.target as HTMLInputElement).select()}
+                                        onClick={(e) =>
+                                            (
+                                                e.target as HTMLInputElement
+                                            ).select()
+                                        }
                                         className="w-full rounded-md border border-input bg-muted/50 px-3 py-2 font-mono text-xs text-foreground select-all focus:outline-none"
                                         aria-label="Your personal referral link"
                                     />
@@ -210,7 +219,9 @@ export default function ReferralsPage({
                                     type="text"
                                     placeholder="First and last name"
                                     value={data.friend_name}
-                                    onChange={(e) => setData('friend_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('friend_name', e.target.value)
+                                    }
                                     required
                                     className="w-full"
                                 />
@@ -229,7 +240,9 @@ export default function ReferralsPage({
                                     type="email"
                                     placeholder="friend@example.com"
                                     value={data.friend_email}
-                                    onChange={(e) => setData('friend_email', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('friend_email', e.target.value)
+                                    }
                                     required
                                     className="w-full"
                                 />
@@ -269,7 +282,9 @@ export default function ReferralsPage({
                                 </h2>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     {referrals.length}{' '}
-                                    {referrals.length === 1 ? 'referral' : 'referrals'}
+                                    {referrals.length === 1
+                                        ? 'referral'
+                                        : 'referrals'}
                                 </p>
                             </div>
                         </div>
@@ -281,11 +296,13 @@ export default function ReferralsPage({
                                     <Gift className="h-6 w-6" />
                                 </div>
                                 <h3 className="mt-4 text-base font-semibold text-foreground">
-                                    No referrals yet. Share your link to get started.
+                                    No referrals yet. Share your link to get
+                                    started.
                                 </h3>
                                 <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                                    When friends or family file with Okojie Online using your referral
-                                    link, you'll earn {rewardRange} per return.
+                                    When friends or family file with Okojie
+                                    Online using your referral link, you'll earn{' '}
+                                    {rewardRange} per return.
                                 </p>
                             </div>
                         ) : (
@@ -305,7 +322,10 @@ export default function ReferralsPage({
                                                     <span className="text-sm font-semibold text-foreground">
                                                         {ref.friend_name}
                                                     </span>
-                                                    {getStatusBadge(ref.status, ref.status_label)}
+                                                    {getStatusBadge(
+                                                        ref.status,
+                                                        ref.status_label,
+                                                    )}
                                                 </div>
                                                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                                     <span className="flex items-center gap-1">
@@ -315,7 +335,12 @@ export default function ReferralsPage({
                                                     {ref.created_at_formatted && (
                                                         <>
                                                             <span>•</span>
-                                                            <span>Sent {ref.created_at_formatted}</span>
+                                                            <span>
+                                                                Sent{' '}
+                                                                {
+                                                                    ref.created_at_formatted
+                                                                }
+                                                            </span>
                                                         </>
                                                     )}
                                                 </div>
@@ -332,13 +357,16 @@ export default function ReferralsPage({
                                                     'flex items-center text-sm font-semibold',
                                                     ref.reward_cents
                                                         ? 'text-emerald-600'
-                                                        : 'text-muted-foreground'
+                                                        : 'text-muted-foreground',
                                                 )}
                                             >
                                                 {ref.reward_cents ? (
                                                     <>
                                                         <DollarSign className="h-3.5 w-3.5" />
-                                                        {ref.reward_formatted.replace('$', '')}
+                                                        {ref.reward_formatted.replace(
+                                                            '$',
+                                                            '',
+                                                        )}
                                                     </>
                                                 ) : (
                                                     '—'

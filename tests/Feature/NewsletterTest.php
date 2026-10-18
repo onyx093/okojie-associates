@@ -3,7 +3,7 @@
 use App\Models\NewsletterSubscriber;
 
 test('guest can subscribe to newsletter and submission is idempotent', function () {
-    $response = $this->post('/newsletter/subscribe', [
+    $response = $this->post(route('newsletter.subscribe'), [
         'email' => 'subscriber@example.com',
     ]);
 
@@ -20,7 +20,7 @@ test('guest can subscribe to newsletter and submission is idempotent', function 
     ]);
 
     // Resubscribing same email is idempotent
-    $repeat = $this->post('/newsletter/subscribe', [
+    $repeat = $this->post(route('newsletter.subscribe'), [
         'email' => 'subscriber@example.com',
     ]);
 
@@ -29,7 +29,7 @@ test('guest can subscribe to newsletter and submission is idempotent', function 
 });
 
 test('newsletter subscription requires valid email', function () {
-    $response = $this->post('/newsletter/subscribe', [
+    $response = $this->post(route('newsletter.subscribe'), [
         'email' => 'invalid-email',
     ]);
 
@@ -41,7 +41,7 @@ test('newsletter subscription requires valid email', function () {
 });
 
 test('newsletter honeypot rejects spam bots', function () {
-    $response = $this->post('/newsletter/subscribe', [
+    $response = $this->post(route('newsletter.subscribe'), [
         'email' => 'bot@spammer.com',
         'my_name' => 'bot-value',
     ]);

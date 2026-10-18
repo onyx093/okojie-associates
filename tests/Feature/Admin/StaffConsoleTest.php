@@ -27,7 +27,7 @@ test('regular client is forbidden from staff console', function () {
 });
 
 test('guest is redirected to login from admin routes', function () {
-    $this->get(route('admin.clients.index'))->assertRedirect('/login');
+    $this->get(route('admin.clients.index'))->assertRedirect(route('login'));
 });
 
 test('staff scoping: preparer sees only assigned clients while admin sees all', function () {

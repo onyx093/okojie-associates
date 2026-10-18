@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\Referral;
 use App\Models\TaxReturn;
 use App\Models\User;
+use App\Rules\TurnstileRule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -31,6 +32,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => ['required', 'string', Password::min(12)->letters()->numbers()->uncompromised()],
             'tier' => ['nullable', 'string'],
             'ref' => ['nullable', 'string', 'max:30'],
+            'cf-turnstile-response' => ['nullable', new TurnstileRule],
         ], [
             'email.unique' => 'An account may already exist for this email. Try signing in.',
             'password.min' => 'Password must be at least 12 characters.',

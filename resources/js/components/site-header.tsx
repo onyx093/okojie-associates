@@ -12,6 +12,16 @@ import {
     SheetTrigger,
 } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import {
+    about,
+    contact,
+    home,
+    login,
+    logout,
+    portal,
+    pricing,
+    services,
+} from '@/routes';
 
 interface NavItem {
     label: string;
@@ -19,11 +29,11 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-    { label: 'Home', href: '/' },
-    { label: 'Services', href: '/services' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'About', href: '/about' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Home', href: home.url() },
+    { label: 'Services', href: services.url() },
+    { label: 'Pricing', href: pricing.url() },
+    { label: 'About', href: about.url() },
+    { label: 'Contact', href: contact.url() },
 ];
 
 export function SiteHeader() {
@@ -41,8 +51,8 @@ export function SiteHeader() {
     const [mobileOpen, setMobileOpen] = React.useState(false);
 
     const isActive = (href: string) => {
-        if (href === '/') {
-            return url === '/';
+        if (href === home.url()) {
+            return url === home.url();
         }
         return url.startsWith(href);
     };
@@ -51,7 +61,7 @@ export function SiteHeader() {
         <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-md">
             <div className="mx-auto flex h-20 max-w-[1160px] items-center justify-between px-6">
                 {/* Left: Brand Logo */}
-                <BrandLogo showSublabel={true} href="/" />
+                <BrandLogo showSublabel={true} href={home.url()} />
 
                 {/* Center: Desktop Navigation */}
                 <nav
@@ -82,7 +92,7 @@ export function SiteHeader() {
                     {user ? (
                         <>
                             <Link
-                                href="/portal"
+                                href={portal.url()}
                                 className="px-2 py-1.5 text-sm font-medium text-body transition-colors hover:text-white"
                             >
                                 My Portal
@@ -96,7 +106,7 @@ export function SiteHeader() {
                                 <Link
                                     method="post"
                                     as="button"
-                                    href="/logout"
+                                    href={logout.url()}
                                     className="inline-flex items-center"
                                 >
                                     <LogOut className="mr-1 size-4 text-muted-foreground" />
@@ -107,7 +117,7 @@ export function SiteHeader() {
                     ) : (
                         <>
                             <Link
-                                href="/login"
+                                href={login.url()}
                                 className="px-2 py-1.5 text-sm font-medium text-body transition-colors hover:text-white"
                             >
                                 Client Login
@@ -118,7 +128,7 @@ export function SiteHeader() {
                                 asChild
                                 className="rounded-full shadow-sm"
                             >
-                                <Link href="/contact#start">
+                                <Link href={`${contact.url()}#start`}>
                                     Start My Return Online
                                 </Link>
                             </Button>
@@ -148,7 +158,10 @@ export function SiteHeader() {
                                     <SheetTitle className="sr-only">
                                         Navigation Menu
                                     </SheetTitle>
-                                    <BrandLogo showSublabel={true} href="/" />
+                                    <BrandLogo
+                                        showSublabel={true}
+                                        href={home.url()}
+                                    />
                                 </SheetHeader>
 
                                 {/* Mobile Links */}
@@ -196,7 +209,7 @@ export function SiteHeader() {
                                             asChild
                                             onClick={() => setMobileOpen(false)}
                                         >
-                                            <Link href="/portal">
+                                            <Link href={portal.url()}>
                                                 <LayoutDashboard className="mr-2 size-4" />
                                                 My Portal
                                             </Link>
@@ -211,7 +224,7 @@ export function SiteHeader() {
                                             <Link
                                                 method="post"
                                                 as="button"
-                                                href="/logout"
+                                                href={logout.url()}
                                                 className="inline-flex w-full items-center justify-center"
                                             >
                                                 <LogOut className="mr-2 size-4" />
@@ -227,7 +240,9 @@ export function SiteHeader() {
                                             asChild
                                             onClick={() => setMobileOpen(false)}
                                         >
-                                            <Link href="/contact#start">
+                                            <Link
+                                                href={`${contact.url()}#start`}
+                                            >
                                                 Start My Return Online
                                             </Link>
                                         </Button>
@@ -237,7 +252,7 @@ export function SiteHeader() {
                                             asChild
                                             onClick={() => setMobileOpen(false)}
                                         >
-                                            <Link href="/login">
+                                            <Link href={login.url()}>
                                                 Client Login
                                             </Link>
                                         </Button>

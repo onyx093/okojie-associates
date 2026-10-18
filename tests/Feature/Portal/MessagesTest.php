@@ -63,8 +63,8 @@ test('client can mark messages as read via post endpoint', function () {
 });
 
 test('unauthenticated or unverified user cannot view messages', function () {
-    $this->get(route('portal.messages'))->assertRedirect('/login');
+    $this->get(route('portal.messages'))->assertRedirect(route('login'));
 
     $unverified = User::factory()->unverified()->create();
-    $this->actingAs($unverified)->get(route('portal.messages'))->assertRedirect('/email/verify');
+    $this->actingAs($unverified)->get(route('portal.messages'))->assertRedirect(route('verification.notice'));
 });

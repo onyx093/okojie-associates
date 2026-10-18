@@ -13,6 +13,7 @@ use App\Models\TaxReturn;
 use App\Services\Signature\SignedPdfGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -33,12 +34,9 @@ class SignController extends Controller
      */
     public function show(Request $request, TaxReturn $taxReturn): Response|RedirectResponse
     {
-        $user = $request->user();
+        Gate::authorize('view', $taxReturn);
 
-        // Must belong to user
-        if ($taxReturn->user_id !== $user->id) {
-            abort(403);
-        }
+        $user = $request->user();
 
         // Available ONLY at ReadyForReview
         if ($taxReturn->status !== ReturnStatus::ReadyForReview) {
@@ -53,7 +51,7 @@ class SignController extends Controller
                 'tierLabel' => $taxReturn->tier?->label() ?? 'Standard Filing',
                 'status' => $taxReturn->status->value,
                 'statusLabel' => $taxReturn->status->label(),
-                'preparerName' => $taxReturn->preparer?->name ?? 'Okojie & Associates Preparer',
+                'preparerName' => $taxReturn->preparer ? ($taxReturn->preparer->name ?? 'Okojie & Associates Preparer') : 'Okojie & Associates Preparer',
             ],
             'clientName' => $user->name ?: $user->email,
             'clientEmail' => $user->email,
@@ -71,12 +69,9 @@ class SignController extends Controller
         AdvanceReturnStatus $advanceAction,
         SignedPdfGenerator $pdfGenerator,
     ): RedirectResponse {
-        $user = $request->user();
+        Gate::authorize('sign', $taxReturn);
 
-        // Must belong to user
-        if ($taxReturn->user_id !== $user->id) {
-            abort(403);
-        }
+        $user = $request->user();
 
         // Available ONLY at ReadyForReview
         if ($taxReturn->status !== ReturnStatus::ReadyForReview) {

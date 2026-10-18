@@ -6,6 +6,7 @@ use App\Enums\InvoiceStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,12 +17,9 @@ class InvoiceController extends Controller
      */
     public function checkout(Request $request, Invoice $invoice): Response
     {
-        $user = $request->user();
+        Gate::authorize('checkout', $invoice);
 
-        // Authorize: client owns the tax return associated with this invoice
-        if ($invoice->taxReturn?->user_id !== $user->id) {
-            abort(403, 'Unauthorized access to invoice.');
-        }
+        $user = $request->user();
 
         // Guard rails: 409 Conflict if amount is null or already paid
         if ($invoice->amount_cents === null || $invoice->status === InvoiceStatus::Paid) {
@@ -46,7 +44,7 @@ class InvoiceController extends Controller
             ]
         );
 
-        return Inertia::location($checkout->url);
+        return Inertia::location((string) $checkout->asStripeCheckoutSession()->url);
     }
 
     /**
@@ -54,11 +52,7 @@ class InvoiceController extends Controller
      */
     public function receipt(Request $request, Invoice $invoice): \Inertia\Response
     {
-        $user = $request->user();
-
-        if ($invoice->taxReturn?->user_id !== $user->id && ! $user->isStaff()) {
-            abort(403);
-        }
+        Gate::authorize('view', $invoice);
 
         if ($invoice->status !== InvoiceStatus::Paid) {
             abort(404, 'Receipt is only available for paid invoices.');
@@ -73,8 +67,8 @@ class InvoiceController extends Controller
                 'amountFormatted' => '$'.number_format(($invoice->amount_cents ?? 0) / 100, 2),
                 'paidAt' => $invoice->paid_at?->format('M j, Y g:i A') ?? 'Paid',
                 'taxYear' => $taxReturn->tax_year,
-                'clientName' => $taxReturn->user?->name ?: $taxReturn->user?->email,
-                'clientEmail' => $taxReturn->user?->email,
+                'clientName' => $taxReturn->user->name ?: $taxReturn->user->email,
+                'clientEmail' => $taxReturn->user->email,
                 'stripeSessionId' => $invoice->stripe_session_id,
             ],
         ]);

@@ -12,6 +12,8 @@ import {
     CardDescription,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { register } from '@/routes';
+import { referrals } from '@/routes/portal';
 
 interface ReferralBannerProps {
     className?: string;
@@ -26,8 +28,8 @@ export function ReferralBanner({ className }: ReferralBannerProps) {
 
     const user = pageProps.auth?.user;
     const targetHref = user
-        ? '/portal/referrals'
-        : '/register?next=/portal/referrals';
+        ? referrals.url()
+        : register.url({ query: { next: referrals.url() } });
 
     return (
         <div

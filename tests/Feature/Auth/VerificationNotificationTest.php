@@ -28,7 +28,7 @@ test('does not send verification notification if email is verified', function ()
 
     $this->actingAs($user)
         ->post(route('verification.send'))
-        ->assertRedirect('/portal/overview');
+        ->assertRedirect(route('portal.overview'));
 
     Notification::assertNothingSent();
 });

@@ -39,4 +39,12 @@ class TaxReturnPolicy
 
         return false;
     }
+
+    /**
+     * Determine whether the user can sign the tax return.
+     */
+    public function sign(User $user, TaxReturn $taxReturn): bool
+    {
+        return $user->id === $taxReturn->user_id;
+    }
 }

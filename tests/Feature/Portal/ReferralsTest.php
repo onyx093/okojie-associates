@@ -173,7 +173,7 @@ test('cookie attribution through registration links referred user and updates st
     ]);
 
     // User visits with referral query, getting cookie
-    $response = $this->get('/contact?ref=OKJ-TEST99');
+    $response = $this->get(route('contact', ['ref' => 'OKJ-TEST99']));
     $response->assertPlainCookie('okojie_referral', 'OKJ-TEST99');
 
     // User registers with the cookie

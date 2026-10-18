@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { MarketingLayout } from '@/layouts/marketing-layout';
+import { contact, login, register } from '@/routes';
+import { request as forgotPassword } from '@/routes/password';
 
 interface Props {
     mode: 'signin' | 'signup';
@@ -36,41 +38,45 @@ export default function AccessPage({
     });
 
     const toggleUrl = React.useMemo(() => {
-        const targetPath = mode === 'signin' ? '/register' : '/login';
-        const searchParams = new URLSearchParams();
+        const routeFn = mode === 'signin' ? register : login;
+        const query: Record<string, string> = {};
         if (tier) {
-            searchParams.set('tier', tier);
+            query.tier = tier;
         }
         if (next) {
-            searchParams.set('next', next);
+            query.next = next;
         }
         if (refParam) {
-            searchParams.set('ref', refParam);
+            query.ref = refParam;
         }
-        const qs = searchParams.toString();
-        return qs ? `${targetPath}?${qs}` : targetPath;
+        return routeFn.url(
+            Object.keys(query).length > 0 ? { query } : undefined,
+        );
     }, [mode, tier, next, refParam]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (mode === 'signin') {
-            post('/login', {
+            post(login.url(), {
                 onFinish: () => reset('password'),
             });
         } else {
-            post('/register', {
+            post(register.url(), {
                 onFinish: () => reset('password'),
             });
         }
     };
 
     const isSignIn = mode === 'signin';
-    const pageTitle = isSignIn ? 'Sign In | Okojie Online' : 'Sign Up | Okojie Online';
+    const pageTitle = isSignIn
+        ? 'Sign In | Okojie Online'
+        : 'Sign Up | Okojie Online';
 
     return (
         <>
             <Head>
                 <title>{pageTitle}</title>
+                <meta name="robots" content="noindex, nofollow" />
                 <meta
                     name="description"
                     content="Sign in to Okojie Online to upload documents, review your return status, e-sign, and pay."
@@ -93,7 +99,8 @@ export default function AccessPage({
 
                         {/* Sub Copy */}
                         <p className="mt-2 text-sm leading-relaxed text-body">
-                            Upload documents, review your return status, e-sign, and pay — all in one place.
+                            Upload documents, review your return status, e-sign,
+                            and pay — all in one place.
                         </p>
 
                         {/* Session Status Banner */}
@@ -104,7 +111,11 @@ export default function AccessPage({
                         )}
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+                        <form
+                            onSubmit={handleSubmit}
+                            className="mt-6 space-y-4"
+                            noValidate
+                        >
                             {/* Email */}
                             <div>
                                 <Input
@@ -112,7 +123,9 @@ export default function AccessPage({
                                     type="email"
                                     name="email"
                                     value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('email', e.target.value)
+                                    }
                                     placeholder="you@example.com"
                                     aria-label="Email address"
                                     autoComplete="email"
@@ -121,7 +134,10 @@ export default function AccessPage({
                                     className="h-11 bg-background text-sm"
                                 />
                                 {errors.email && (
-                                    <p className="mt-1.5 text-xs text-destructive" role="alert">
+                                    <p
+                                        className="mt-1.5 text-xs text-destructive"
+                                        role="alert"
+                                    >
                                         {errors.email}
                                     </p>
                                 )}
@@ -132,21 +148,35 @@ export default function AccessPage({
                                 <div className="relative">
                                     <Input
                                         id="password"
-                                        type={showPassword ? 'text' : 'password'}
+                                        type={
+                                            showPassword ? 'text' : 'password'
+                                        }
                                         name="password"
                                         value={data.password}
-                                        onChange={(e) => setData('password', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('password', e.target.value)
+                                        }
                                         placeholder="Password"
                                         aria-label="Password"
-                                        autoComplete={isSignIn ? 'current-password' : 'new-password'}
+                                        autoComplete={
+                                            isSignIn
+                                                ? 'current-password'
+                                                : 'new-password'
+                                        }
                                         required
                                         className="h-11 bg-background pr-10 text-sm"
                                     />
                                     <button
                                         type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        aria-label={showPassword ? 'Hide password' : 'Show password'}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-white"
+                                        onClick={() =>
+                                            setShowPassword(!showPassword)
+                                        }
+                                        aria-label={
+                                            showPassword
+                                                ? 'Hide password'
+                                                : 'Show password'
+                                        }
+                                        className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-white"
                                         tabIndex={-1}
                                     >
                                         {showPassword ? (
@@ -157,7 +187,10 @@ export default function AccessPage({
                                     </button>
                                 </div>
                                 {errors.password && (
-                                    <p className="mt-1.5 text-xs text-destructive" role="alert">
+                                    <p
+                                        className="mt-1.5 text-xs text-destructive"
+                                        role="alert"
+                                    >
                                         {errors.password}
                                     </p>
                                 )}
@@ -167,8 +200,8 @@ export default function AccessPage({
                             {isSignIn && (
                                 <div className="flex justify-end pt-0.5">
                                     <Link
-                                        href="/forgot-password"
-                                        className="text-xs text-primary transition-colors hover:text-primary-hover hover:underline"
+                                        href={forgotPassword.url()}
+                                        className="hover:text-primary-hover text-xs text-primary transition-colors hover:underline"
                                     >
                                         Forgot password?
                                     </Link>
@@ -195,7 +228,7 @@ export default function AccessPage({
                                         Need an account?{' '}
                                         <Link
                                             href={toggleUrl}
-                                            className="font-semibold text-primary transition-colors hover:text-primary-hover hover:underline"
+                                            className="hover:text-primary-hover font-semibold text-primary transition-colors hover:underline"
                                         >
                                             Sign up
                                         </Link>
@@ -205,7 +238,7 @@ export default function AccessPage({
                                         Have an account?{' '}
                                         <Link
                                             href={toggleUrl}
-                                            className="font-semibold text-primary transition-colors hover:text-primary-hover hover:underline"
+                                            className="hover:text-primary-hover font-semibold text-primary transition-colors hover:underline"
                                         >
                                             Sign in
                                         </Link>
@@ -219,8 +252,8 @@ export default function AccessPage({
                     <div className="mt-8 text-center text-sm text-body">
                         New here?{' '}
                         <Link
-                            href="/contact"
-                            className="font-medium text-primary transition-colors hover:text-primary-hover hover:underline"
+                            href={contact.url()}
+                            className="hover:text-primary-hover font-medium text-primary transition-colors hover:underline"
                         >
                             Start your return online
                         </Link>{' '}
@@ -232,4 +265,6 @@ export default function AccessPage({
     );
 }
 
-AccessPage.layout = (page: React.ReactNode) => <MarketingLayout>{page}</MarketingLayout>;
+AccessPage.layout = (page: React.ReactNode) => (
+    <MarketingLayout>{page}</MarketingLayout>
+);

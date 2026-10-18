@@ -13,10 +13,6 @@ class SendReturnStatusUpdatedNotification implements ShouldQueue
      */
     public function handle(ReturnStatusChanged $event): void
     {
-        $client = $event->taxReturn->user;
-
-        if ($client) {
-            $client->notify(new ReturnStatusUpdated($event->taxReturn, $event->to));
-        }
+        $event->taxReturn->user->notify(new ReturnStatusUpdated($event->taxReturn, $event->to));
     }
 }

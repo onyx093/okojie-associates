@@ -16,17 +16,17 @@ test('login screen can be rendered with access page in signin mode', function ()
 });
 
 test('/login with mode=signup 301 redirects to /register', function () {
-    $response = $this->get('/login?mode=signup');
+    $response = $this->get(route('login', ['mode' => 'signup']));
 
     $response->assertStatus(301);
-    $response->assertRedirect('/register');
+    $response->assertRedirect(route('register'));
 });
 
 test('/login with mode=signup preserves query params', function () {
-    $response = $this->get('/login?mode=signup&tier=hybrid&next=%2Fportal');
+    $response = $this->get(route('login', ['mode' => 'signup', 'tier' => 'hybrid', 'next' => '/portal']));
 
     $response->assertStatus(301);
-    $response->assertRedirect('/register?tier=hybrid&next=%2Fportal');
+    $response->assertRedirect(route('register', ['tier' => 'hybrid', 'next' => '/portal']));
 });
 
 test('users can authenticate using the login screen and land on portal overview', function () {
@@ -38,14 +38,14 @@ test('users can authenticate using the login screen and land on portal overview'
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/portal/overview');
+    $response->assertRedirect(route('portal.overview'));
 });
 
 test('login honors stored intended URL', function () {
     $user = User::factory()->create();
 
     // Guest tries to access protected page
-    $this->get('/portal/overview');
+    $this->get(route('portal.overview'));
 
     $response = $this->post(route('login.store'), [
         'email' => $user->email,
@@ -53,14 +53,14 @@ test('login honors stored intended URL', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/portal/overview');
+    $response->assertRedirect(route('portal.overview'));
 });
 
 test('authenticated users are redirected away from login and register to portal overview', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)->get('/login')->assertRedirect('/portal/overview');
-    $this->actingAs($user)->get('/register')->assertRedirect('/portal/overview');
+    $this->actingAs($user)->get(route('login'))->assertRedirect(route('portal.overview'));
+    $this->actingAs($user)->get(route('register'))->assertRedirect(route('portal.overview'));
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {
@@ -145,7 +145,7 @@ test('users with legacy bcrypt password can authenticate and are seamlessly reha
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/portal/overview');
+    $response->assertRedirect(route('portal.overview'));
 
     $user->refresh();
     expect(password_get_info($user->password)['algoName'])->toBe('argon2id');

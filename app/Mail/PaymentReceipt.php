@@ -28,7 +28,7 @@ class PaymentReceipt extends Mailable implements ShouldQueue
      */
     public function envelope(): Envelope
     {
-        $taxYear = $this->invoice->taxReturn?->tax_year ?? (int) date('Y');
+        $taxYear = $this->invoice->taxReturn->tax_year ?? (int) date('Y');
 
         return new Envelope(
             subject: "Payment Receipt: Tax Year {$taxYear} Preparation Fee",
@@ -41,7 +41,7 @@ class PaymentReceipt extends Mailable implements ShouldQueue
     public function content(): Content
     {
         $amountDollars = number_format(($this->invoice->amount_cents ?? 0) / 100, 2);
-        $taxYear = $this->invoice->taxReturn?->tax_year ?? (int) date('Y');
+        $taxYear = $this->invoice->taxReturn->tax_year ?? (int) date('Y');
 
         return new Content(
             markdown: 'mail.payment-receipt',

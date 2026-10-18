@@ -35,7 +35,7 @@ test('new users can register and redirect to portal overview', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/portal/overview');
+    $response->assertRedirect(route('portal.overview'));
 
     $user = User::where('email', 'newclient@example.com')->first();
     expect($user)->not->toBeNull();
@@ -75,7 +75,7 @@ test('registration applies tier and links referral from param', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/portal/overview');
+    $response->assertRedirect(route('portal.overview'));
 
     $user = User::where('email', 'referred1@example.com')->first();
     expect($user)->not->toBeNull();
@@ -106,7 +106,7 @@ test('registration applies referral from cookie when param is absent', function 
         ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect('/portal/overview');
+    $response->assertRedirect(route('portal.overview'));
 
     $user = User::where('email', 'referred2@example.com')->first();
     expect($user)->not->toBeNull();

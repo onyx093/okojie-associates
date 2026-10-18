@@ -20,6 +20,7 @@ import {
     CardContent,
 } from '@/components/ui/card';
 import { MarketingLayout } from '@/layouts/marketing-layout';
+import { contact } from '@/routes';
 
 interface WelcomeProps {
     site?: {
@@ -87,7 +88,7 @@ export default function Welcome({ site }: WelcomeProps) {
                                 asChild
                                 className="w-full rounded-full shadow-md sm:w-auto"
                             >
-                                <Link href="/contact#start">
+                                <Link href={`${contact.url()}#start`}>
                                     Start My Return Online
                                     <ArrowRight className="ml-1 size-4" />
                                 </Link>
@@ -98,7 +99,7 @@ export default function Welcome({ site }: WelcomeProps) {
                                 asChild
                                 className="w-full rounded-full sm:w-auto"
                             >
-                                <Link href="/contact#consult">
+                                <Link href={`${contact.url()}#consult`}>
                                     Book a Free Consultation
                                 </Link>
                             </Button>

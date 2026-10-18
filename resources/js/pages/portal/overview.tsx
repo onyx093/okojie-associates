@@ -1,11 +1,15 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { Check, CreditCard, FileText, Gift, PenLine } from 'lucide-react';
 import * as React from 'react';
-import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { PortalLayout } from '@/layouts/portal-layout';
 import { cn } from '@/lib/utils';
+import { documents, referrals, sign } from '@/routes/portal';
+import {
+    checkout as invoiceCheckout,
+    receipt as invoiceReceipt,
+} from '@/routes/portal/invoices';
 
 interface TaxReturnData {
     id: string;
@@ -49,7 +53,7 @@ const STAGES = [
 export default function PortalOverview({
     taxReturn,
     invoice,
-    counts = { documents: 0, referrals: 0 },
+    counts,
 }: OverviewProps) {
     const currentStatus = taxReturn?.status ?? 'intake_received';
     const currentIndex = STAGES.findIndex((s) => s.key === currentStatus);
@@ -86,7 +90,9 @@ export default function PortalOverview({
                                     Your return status
                                 </h2>
                                 <p className="mt-0.5 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Tax Year {taxReturn?.tax_year ?? new Date().getFullYear()}
+                                    Tax Year{' '}
+                                    {taxReturn?.tax_year ??
+                                        new Date().getFullYear()}
                                 </p>
                             </div>
                         </div>
@@ -99,13 +105,18 @@ export default function PortalOverview({
                                     const isLast = idx === STAGES.length - 1;
 
                                     return (
-                                        <div key={stage.key} className="relative flex items-center gap-4">
+                                        <div
+                                            key={stage.key}
+                                            className="relative flex items-center gap-4"
+                                        >
                                             {/* Vertical connector line */}
                                             {!isLast && (
                                                 <div
                                                     className={cn(
-                                                        'absolute left-[11px] top-[26px] h-[calc(100%+8px)] w-[2px]',
-                                                        idx < activeIndex ? 'bg-primary' : 'bg-border'
+                                                        'absolute top-[26px] left-[11px] h-[calc(100%+8px)] w-[2px]',
+                                                        idx < activeIndex
+                                                            ? 'bg-primary'
+                                                            : 'bg-border',
                                                     )}
                                                     aria-hidden="true"
                                                 />
@@ -117,13 +128,15 @@ export default function PortalOverview({
                                                     'relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors',
                                                     isCompleted
                                                         ? 'bg-primary/15 text-primary ring-2 ring-primary'
-                                                        : 'border-2 border-border-strong bg-transparent'
+                                                        : 'border-2 border-border-strong bg-transparent',
                                                 )}
                                             >
                                                 {isCompleted ? (
                                                     <Check className="h-3.5 w-3.5 stroke-[2.5]" />
                                                 ) : (
-                                                    <span className="sr-only">Pending</span>
+                                                    <span className="sr-only">
+                                                        Pending
+                                                    </span>
                                                 )}
                                             </div>
 
@@ -133,7 +146,7 @@ export default function PortalOverview({
                                                     'text-base transition-colors',
                                                     isCompleted
                                                         ? 'font-semibold text-foreground'
-                                                        : 'text-muted-foreground'
+                                                        : 'text-muted-foreground',
                                                 )}
                                             >
                                                 {stage.label}
@@ -152,16 +165,24 @@ export default function PortalOverview({
                             <p className="mt-1.5 text-sm font-medium text-foreground sm:text-base">
                                 {nextStepMessage}
                             </p>
-                            {currentStatus === 'ready_for_review' && taxReturn && (
-                                <div className="mt-4">
-                                    <Button asChild className="rounded-full shadow-sm">
-                                        <Link href={`/portal/sign/${taxReturn.id}`}>
-                                            <PenLine className="mr-2 size-4" />
-                                            Review & E-Sign Return
-                                        </Link>
-                                    </Button>
-                                </div>
-                            )}
+                            {currentStatus === 'ready_for_review' &&
+                                taxReturn && (
+                                    <div className="mt-4">
+                                        <Button
+                                            asChild
+                                            className="rounded-full shadow-sm"
+                                        >
+                                            <Link
+                                                href={sign.url({
+                                                    taxReturn: taxReturn.id,
+                                                })}
+                                            >
+                                                <PenLine className="mr-2 size-4" />
+                                                Review & E-Sign Return
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 </div>
@@ -188,7 +209,8 @@ export default function PortalOverview({
                                         Awaiting quote
                                     </span>
                                     <p className="mt-1 text-xs text-muted-foreground">
-                                        Your preparer will review your files and set your fee before filing.
+                                        Your preparer will review your files and
+                                        set your fee before filing.
                                     </p>
                                 </div>
                             ) : (
@@ -203,8 +225,14 @@ export default function PortalOverview({
                         <div>
                             {isPaid ? (
                                 <Link
-                                    href={invoice ? `/portal/invoices/${invoice.id}/receipt` : '#'}
-                                    className="flex w-full items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/15 py-3 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/20 transition-colors"
+                                    href={
+                                        invoice
+                                            ? invoiceReceipt.url({
+                                                  invoice: invoice.id,
+                                              })
+                                            : '#'
+                                    }
+                                    className="flex w-full items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/15 py-3 text-sm font-semibold text-emerald-500 transition-colors hover:bg-emerald-500/20"
                                 >
                                     <Check className="mr-2 h-4 w-4" />
                                     Paid ✓ · View receipt
@@ -212,7 +240,7 @@ export default function PortalOverview({
                             ) : isAwaitingQuote ? (
                                 <Button
                                     disabled
-                                    className="w-full rounded-full py-5 text-sm font-semibold cursor-not-allowed opacity-50"
+                                    className="w-full cursor-not-allowed rounded-full py-5 text-sm font-semibold opacity-50"
                                 >
                                     <CreditCard className="mr-2 h-4 w-4" />
                                     Awaiting quote
@@ -221,7 +249,11 @@ export default function PortalOverview({
                                 <Button
                                     onClick={() => {
                                         if (!invoice) return;
-                                        router.post(`/portal/invoices/${invoice.id}/checkout`);
+                                        router.post(
+                                            invoiceCheckout.url({
+                                                invoice: invoice.id,
+                                            }),
+                                        );
                                     }}
                                     className="w-full rounded-full py-5 text-sm font-semibold"
                                 >
@@ -235,7 +267,7 @@ export default function PortalOverview({
                     {/* Two Stat Tiles */}
                     <div className="grid grid-cols-2 gap-4">
                         <Link
-                            href="/portal/documents"
+                            href={documents.url()}
                             className="group block rounded-[18px] border border-border bg-card p-5 transition hover:border-primary/50 sm:p-6"
                         >
                             <FileText className="h-6 w-6 text-primary" />
@@ -250,7 +282,7 @@ export default function PortalOverview({
                         </Link>
 
                         <Link
-                            href="/portal/referrals"
+                            href={referrals.url()}
                             className="group block rounded-[18px] border border-border bg-card p-5 transition hover:border-primary/50 sm:p-6"
                         >
                             <Gift className="h-6 w-6 text-primary" />

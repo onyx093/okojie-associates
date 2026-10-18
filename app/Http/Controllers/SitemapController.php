@@ -11,39 +11,56 @@ class SitemapController extends Controller
      */
     public function __invoke(): Response
     {
-        $baseUrl = url('/');
         $lastmod = now()->toAtomString();
 
         $urls = [
             [
-                'loc' => $baseUrl.'/',
+                'loc' => route('home'),
                 'lastmod' => $lastmod,
                 'changefreq' => 'weekly',
                 'priority' => '1.0',
             ],
             [
-                'loc' => $baseUrl.'/services',
+                'loc' => route('services'),
                 'lastmod' => $lastmod,
                 'changefreq' => 'monthly',
                 'priority' => '0.9',
             ],
             [
-                'loc' => $baseUrl.'/pricing',
+                'loc' => route('pricing'),
                 'lastmod' => $lastmod,
                 'changefreq' => 'monthly',
                 'priority' => '0.9',
             ],
             [
-                'loc' => $baseUrl.'/about',
+                'loc' => route('about'),
                 'lastmod' => $lastmod,
                 'changefreq' => 'monthly',
                 'priority' => '0.8',
             ],
             [
-                'loc' => $baseUrl.'/contact',
+                'loc' => route('contact'),
                 'lastmod' => $lastmod,
                 'changefreq' => 'monthly',
                 'priority' => '0.8',
+            ],
+            [
+                'loc' => route('security'),
+                'lastmod' => $lastmod,
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ],
+            [
+                'loc' => route('privacy'),
+                'lastmod' => $lastmod,
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
+            ],
+            [
+                'loc' => route('terms'),
+                'lastmod' => $lastmod,
+                'changefreq' => 'monthly',
+                'priority' => '0.5',
             ],
         ];
 

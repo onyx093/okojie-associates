@@ -1,6 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import {
-    AlertCircle,
     Calendar,
     CalendarPlus,
     Clock,
@@ -13,7 +12,10 @@ import {
 import * as React from 'react';
 import { toast } from 'sonner';
 
-import { destroy, store } from '@/actions/App/Http/Controllers/Portal/AppointmentController';
+import {
+    destroy,
+    store,
+} from '@/actions/App/Http/Controllers/Portal/AppointmentController';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -72,7 +74,9 @@ function getLocalDateString(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-export default function AppointmentsPage({ appointments = [] }: AppointmentsPageProps) {
+export default function AppointmentsPage({
+    appointments,
+}: AppointmentsPageProps) {
     const today = React.useMemo(() => new Date(), []);
     const minDateStr = React.useMemo(() => getLocalDateString(today), [today]);
     const maxDateStr = React.useMemo(() => {
@@ -112,7 +116,11 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
             return;
         }
 
-        if (window.confirm('Are you sure you want to cancel this appointment request?')) {
+        if (
+            window.confirm(
+                'Are you sure you want to cancel this appointment request?',
+            )
+        ) {
             setCancellingId(appointment.id);
             router.delete(destroy.url(appointment.id), {
                 preserveScroll: true,
@@ -129,7 +137,10 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
         }
     };
 
-    const getStatusBadge = (status: AppointmentItem['status'], label: string) => {
+    const getStatusBadge = (
+        status: AppointmentItem['status'],
+        label: string,
+    ) => {
         switch (status) {
             case 'requested':
                 return (
@@ -196,11 +207,15 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                 Request an appointment
                             </h2>
                             <p className="mt-1 text-sm text-muted-foreground">
-                                Choose your preferred date, time window, and meeting format.
+                                Choose your preferred date, time window, and
+                                meeting format.
                             </p>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+                        <form
+                            onSubmit={handleSubmit}
+                            className="mt-6 space-y-5"
+                        >
                             {/* Preferred date */}
                             <div className="space-y-1.5">
                                 <label
@@ -215,7 +230,12 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                     min={minDateStr}
                                     max={maxDateStr}
                                     value={data.preferred_date}
-                                    onChange={(e) => setData('preferred_date', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'preferred_date',
+                                            e.target.value,
+                                        )
+                                    }
                                     className="w-full"
                                     required
                                 />
@@ -232,14 +252,22 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                 </label>
                                 <Select
                                     value={data.time_window}
-                                    onValueChange={(val) => setData('time_window', val)}
+                                    onValueChange={(val) =>
+                                        setData('time_window', val)
+                                    }
                                 >
-                                    <SelectTrigger id="time_window" className="w-full">
+                                    <SelectTrigger
+                                        id="time_window"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select time window" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {TIME_WINDOWS.map((tw) => (
-                                            <SelectItem key={tw.value} value={tw.value}>
+                                            <SelectItem
+                                                key={tw.value}
+                                                value={tw.value}
+                                            >
                                                 {tw.label}
                                             </SelectItem>
                                         ))}
@@ -258,16 +286,24 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                 </label>
                                 <Select
                                     value={data.format}
-                                    onValueChange={(val) => setData('format', val)}
+                                    onValueChange={(val) =>
+                                        setData('format', val)
+                                    }
                                 >
-                                    <SelectTrigger id="format" className="w-full">
+                                    <SelectTrigger
+                                        id="format"
+                                        className="w-full"
+                                    >
                                         <SelectValue placeholder="Select meeting format" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {FORMAT_OPTIONS.map((f) => {
                                             const Icon = f.icon;
                                             return (
-                                                <SelectItem key={f.value} value={f.value}>
+                                                <SelectItem
+                                                    key={f.value}
+                                                    value={f.value}
+                                                >
                                                     <div className="flex items-center gap-2">
                                                         <Icon className="h-4 w-4 text-muted-foreground" />
                                                         <span>{f.label}</span>
@@ -294,7 +330,9 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                     maxLength={120}
                                     placeholder="Return review, planning, IRS notice..."
                                     value={data.topic}
-                                    onChange={(e) => setData('topic', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('topic', e.target.value)
+                                    }
                                     className="w-full"
                                 />
                                 <InputError message={errors.topic} />
@@ -313,7 +351,9 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                     rows={3}
                                     placeholder="Any details or questions you'd like your preparer to know in advance..."
                                     value={data.notes}
-                                    onChange={(e) => setData('notes', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('notes', e.target.value)
+                                    }
                                     className="w-full resize-none"
                                 />
                                 <InputError message={errors.notes} />
@@ -353,7 +393,9 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                 </h2>
                                 <p className="mt-1 text-sm text-muted-foreground">
                                     {appointments.length}{' '}
-                                    {appointments.length === 1 ? 'appointment' : 'appointments'}
+                                    {appointments.length === 1
+                                        ? 'appointment'
+                                        : 'appointments'}
                                 </p>
                             </div>
                         </div>
@@ -368,8 +410,9 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                     No appointments yet.
                                 </h3>
                                 <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                                    Schedule a video, phone, or in-person consultation with your preparer
-                                    using the form on the left.
+                                    Schedule a video, phone, or in-person
+                                    consultation with your preparer using the
+                                    form on the left.
                                 </p>
                             </div>
                         ) : (
@@ -382,7 +425,7 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                             'rounded-[14px] border border-border p-4 transition-colors sm:p-5',
                                             appt.status === 'cancelled'
                                                 ? 'bg-muted/30 opacity-75'
-                                                : 'bg-card hover:border-border-strong'
+                                                : 'bg-card hover:border-border-strong',
                                         )}
                                     >
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -390,14 +433,20 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <span className="flex items-center gap-1.5 text-base font-semibold text-foreground">
                                                         <Calendar className="h-4 w-4 text-primary" />
-                                                        {appt.preferred_date_full || appt.preferred_date_formatted}
+                                                        {appt.preferred_date_full ||
+                                                            appt.preferred_date_formatted}
                                                     </span>
-                                                    {getStatusBadge(appt.status, appt.status_label)}
+                                                    {getStatusBadge(
+                                                        appt.status,
+                                                        appt.status_label,
+                                                    )}
                                                 </div>
 
                                                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                                                     <span className="flex items-center gap-1">
-                                                        {getFormatIcon(appt.format)}
+                                                        {getFormatIcon(
+                                                            appt.format,
+                                                        )}
                                                         {appt.format_label}
                                                     </span>
                                                     <span>•</span>
@@ -414,11 +463,16 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                                     type="button"
                                                     variant="outline"
                                                     size="sm"
-                                                    disabled={cancellingId === appt.id}
-                                                    onClick={() => handleCancel(appt)}
+                                                    disabled={
+                                                        cancellingId === appt.id
+                                                    }
+                                                    onClick={() =>
+                                                        handleCancel(appt)
+                                                    }
                                                     className="self-start rounded-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
                                                 >
-                                                    {cancellingId === appt.id ? (
+                                                    {cancellingId ===
+                                                    appt.id ? (
                                                         <>
                                                             <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
                                                             Cancelling...
@@ -436,7 +490,9 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                         {/* Topic */}
                                         {appt.topic && (
                                             <div className="mt-3 text-sm font-medium text-foreground">
-                                                <span className="text-muted-foreground">Topic: </span>
+                                                <span className="text-muted-foreground">
+                                                    Topic:{' '}
+                                                </span>
                                                 {appt.topic}
                                             </div>
                                         )}
@@ -444,7 +500,9 @@ export default function AppointmentsPage({ appointments = [] }: AppointmentsPage
                                         {/* Notes */}
                                         {appt.notes && (
                                             <div className="mt-2 rounded-lg bg-secondary/40 p-2.5 text-xs text-secondary-foreground">
-                                                <span className="font-semibold text-foreground">Notes: </span>
+                                                <span className="font-semibold text-foreground">
+                                                    Notes:{' '}
+                                                </span>
                                                 {appt.notes}
                                             </div>
                                         )}

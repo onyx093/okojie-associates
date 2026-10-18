@@ -7,11 +7,13 @@ use App\Listeners\HandleCashierWebhookReceived;
 use App\Listeners\SendReturnStatusUpdatedNotification;
 use App\Models\Appointment;
 use App\Models\Document;
+use App\Models\Invoice;
 use App\Models\Referral;
 use App\Models\TaxReturn;
 use App\Models\User;
 use App\Policies\AppointmentPolicy;
 use App\Policies\DocumentPolicy;
+use App\Policies\InvoicePolicy;
 use App\Policies\ReferralPolicy;
 use App\Policies\TaxReturnPolicy;
 use App\Policies\UserPolicy;
@@ -56,6 +58,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(Appointment::class, AppointmentPolicy::class);
         Gate::policy(Document::class, DocumentPolicy::class);
+        Gate::policy(Invoice::class, InvoicePolicy::class);
         Gate::policy(Referral::class, ReferralPolicy::class);
         Gate::policy(TaxReturn::class, TaxReturnPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
@@ -80,6 +83,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Date::use(CarbonImmutable::class);
 
+        Model::preventLazyLoading(! app()->isProduction());
         Model::shouldBeStrict(! app()->isProduction());
 
         RateLimiter::for('public-forms', fn (Request $request) => Limit::perHour(5)->by($request->ip()));

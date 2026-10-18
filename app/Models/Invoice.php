@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use Carbon\CarbonInterface as Carbon;
 use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $paid_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property TaxReturn|null $taxReturn
  */
 #[Fillable(['tax_return_id', 'amount_cents', 'currency', 'status', 'stripe_session_id', 'paid_at'])]
 class Invoice extends Model

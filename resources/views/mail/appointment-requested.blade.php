@@ -20,7 +20,7 @@ A client has submitted an appointment request via the client portal.
 - **Notes:** {{ $notes }}
 @endif
 
-<x-mail::button :url="config('app.url') . '/admin/appointments'">
+<x-mail::button :url="route('admin.clients.show', $user)">
 View Appointments
 </x-mail::button>
 @else
@@ -44,7 +44,7 @@ If you need to make changes or have questions before then, feel free to contact 
 - **Email:** hello@okojieonline.com
 - **Hours:** Mon–Fri 9am–6pm
 
-<x-mail::button :url="config('app.url') . '/portal/appointments'">
+<x-mail::button :url="route('portal.appointments')">
 View in Portal
 </x-mail::button>
 @endif

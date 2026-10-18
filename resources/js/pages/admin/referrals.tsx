@@ -1,10 +1,10 @@
 import { Head, router } from '@inertiajs/react';
-import { Award, CheckCircle2, DollarSign, Gift, Mail, User as UserIcon } from 'lucide-react';
+import { Award, CheckCircle2, Gift, Mail } from 'lucide-react';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Table,
     TableBody,
@@ -14,6 +14,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { AdminLayout } from '@/layouts/admin-layout';
+import { reward as referralReward } from '@/routes/admin/referrals';
 
 interface ReferralItem {
     id: string;
@@ -40,8 +41,16 @@ interface ReferralsProps {
 
 export default function Referrals({ referrals }: ReferralsProps) {
     const handleMarkRewarded = (referralId: string) => {
-        if (confirm('Mark this referral as Rewarded? This records the payout amount based on tier.')) {
-            router.post(`/admin/referrals/${referralId}/reward`, {}, { preserveScroll: true });
+        if (
+            confirm(
+                'Mark this referral as Rewarded? This records the payout amount based on tier.',
+            )
+        ) {
+            router.post(
+                referralReward.url({ referral: referralId }),
+                {},
+                { preserveScroll: true },
+            );
         }
     };
 
@@ -66,13 +75,16 @@ export default function Referrals({ referrals }: ReferralsProps) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <Gift className="size-4 text-primary" />
-                                <CardTitle className="text-sm font-semibold">Client Referrals Directory</CardTitle>
+                                <CardTitle className="text-sm font-semibold">
+                                    Client Referrals Directory
+                                </CardTitle>
                                 <span className="text-xs text-muted-foreground">
                                     ({referrals.total} total)
                                 </span>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Payouts trigger when a referred friend&apos;s return reaches E-Filed status.
+                                Payouts trigger when a referred friend&apos;s
+                                return reaches E-Filed status.
                             </p>
                         </div>
                     </CardHeader>
@@ -86,25 +98,35 @@ export default function Referrals({ referrals }: ReferralsProps) {
                                         <TableHead>Status</TableHead>
                                         <TableHead>Reward</TableHead>
                                         <TableHead>Date Sent</TableHead>
-                                        <TableHead className="text-right">Action</TableHead>
+                                        <TableHead className="text-right">
+                                            Action
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {referrals.data.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
+                                            <TableCell
+                                                colSpan={6}
+                                                className="py-12 text-center text-sm text-muted-foreground"
+                                            >
                                                 No referrals recorded yet.
                                             </TableCell>
                                         </TableRow>
                                     ) : (
                                         referrals.data.map((ref) => {
-                                            const isRewarded = ref.status === 'rewarded';
-                                            const isFiled = ref.status === 'filed';
+                                            const isRewarded =
+                                                ref.status === 'rewarded';
+                                            const isFiled =
+                                                ref.status === 'filed';
 
                                             return (
-                                                <TableRow key={ref.id} className="border-border">
+                                                <TableRow
+                                                    key={ref.id}
+                                                    className="border-border"
+                                                >
                                                     <TableCell>
-                                                        <div className="font-semibold text-foreground text-xs">
+                                                        <div className="text-xs font-semibold text-foreground">
                                                             {ref.referrerName}
                                                         </div>
                                                         <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -114,7 +136,7 @@ export default function Referrals({ referrals }: ReferralsProps) {
                                                     </TableCell>
 
                                                     <TableCell>
-                                                        <div className="font-medium text-foreground text-xs">
+                                                        <div className="text-xs font-medium text-foreground">
                                                             {ref.friendName}
                                                         </div>
                                                         <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -122,7 +144,7 @@ export default function Referrals({ referrals }: ReferralsProps) {
                                                             {ref.friendEmail}
                                                         </div>
                                                         {ref.hasSignedUp && (
-                                                            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-500 font-medium">
+                                                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-500">
                                                                 <CheckCircle2 className="size-2.5" />
                                                                 Account created
                                                             </span>
@@ -131,7 +153,9 @@ export default function Referrals({ referrals }: ReferralsProps) {
 
                                                     <TableCell>
                                                         <Badge
-                                                            variant={getStatusVariant(ref.status)}
+                                                            variant={getStatusVariant(
+                                                                ref.status,
+                                                            )}
                                                             className="text-xs capitalize"
                                                         >
                                                             {ref.statusLabel}
@@ -139,8 +163,10 @@ export default function Referrals({ referrals }: ReferralsProps) {
                                                     </TableCell>
 
                                                     <TableCell>
-                                                        <div className="font-semibold text-xs text-foreground">
-                                                            {ref.formattedReward}
+                                                        <div className="text-xs font-semibold text-foreground">
+                                                            {
+                                                                ref.formattedReward
+                                                            }
                                                         </div>
                                                     </TableCell>
 
@@ -159,9 +185,17 @@ export default function Referrals({ referrals }: ReferralsProps) {
                                                         ) : (
                                                             <Button
                                                                 size="sm"
-                                                                variant={isFiled ? 'default' : 'outline'}
+                                                                variant={
+                                                                    isFiled
+                                                                        ? 'default'
+                                                                        : 'outline'
+                                                                }
                                                                 className="h-7 text-xs"
-                                                                onClick={() => handleMarkRewarded(ref.id)}
+                                                                onClick={() =>
+                                                                    handleMarkRewarded(
+                                                                        ref.id,
+                                                                    )
+                                                                }
                                                             >
                                                                 <Award className="mr-1.5 size-3.5" />
                                                                 Mark Rewarded
