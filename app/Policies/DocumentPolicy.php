@@ -21,8 +21,12 @@ class DocumentPolicy
      */
     public function view(User $user, Document $document): bool
     {
-        if ($user->role === Role::Admin || $user->role === Role::Preparer) {
+        if ($user->role === Role::Admin) {
             return true;
+        }
+
+        if ($user->role === Role::Preparer) {
+            return $document->user->taxReturns()->where('preparer_id', $user->id)->exists();
         }
 
         return $user->id === $document->user_id;

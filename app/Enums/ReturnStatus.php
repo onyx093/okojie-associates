@@ -50,4 +50,15 @@ enum ReturnStatus: string
             self::ReadyForReview, self::ESigned, self::EFiled => false,
         };
     }
+
+    public function order(): int
+    {
+        return match ($this) {
+            self::IntakeReceived => 0,
+            self::InPreparation => 1,
+            self::ReadyForReview => 2,
+            self::ESigned => 3,
+            self::EFiled => 4,
+        };
+    }
 }

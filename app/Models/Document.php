@@ -69,4 +69,20 @@ class Document extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    /**
+     * Format the document size into human-readable units.
+     */
+    public function formattedSize(): string
+    {
+        if ($this->size_bytes >= 1048576) {
+            return number_format($this->size_bytes / 1048576, 1).' MB';
+        }
+
+        if ($this->size_bytes >= 1024) {
+            return number_format($this->size_bytes / 1024, 0).' KB';
+        }
+
+        return $this->size_bytes.' B';
+    }
 }

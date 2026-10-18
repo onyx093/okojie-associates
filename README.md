@@ -46,3 +46,24 @@ Source: 13 screenshots of the live site (public pages, auth screens, and all fiv
 "Okojie & Associates" is a real firm name, and a USPTO record exists for an owner of the same surname in tax-preparation services. If you are building your own product, do **not** reuse the firm's name, logo, photography, testimonials, office addresses, or phone numbers. All brand values live in one config object (see `SPEC.md` §3 and Prompt 14), so swapping them is a one-file change. The phone numbers shown on the original are 555 fictional numbers; the testimonials and stats appear to be demo content.
 
 Also: tax software handles highly sensitive data (SSNs, income). Before taking real client data you need a proper security review, an IRS-compliant WISP, and a legal review of the e-signature and e-file flows. These docs describe the UI and product shape, not a compliance certification.
+
+## Testing Stripe Payments with Stripe CLI
+
+To test Stripe Checkout payments and webhooks locally during development:
+
+1. **Install and authenticate the Stripe CLI:**
+   ```bash
+   stripe login
+   ```
+
+2. **Forward webhook events to your local application:**
+   ```bash
+   stripe listen --forward-to localhost/stripe/webhook
+   ```
+   Copy the temporary signing secret output by the CLI (`whsec_...`) into your `.env` file as `STRIPE_WEBHOOK_SECRET`.
+
+3. **Complete checkout in Stripe test mode:**
+   - In the client portal Overview tab, click **Pay Now** on an invoice with an active quote.
+   - You will be redirected to the Stripe Checkout page. Use any Stripe test card (e.g. `4242 4242 4242 4242`, any future expiration date, and CVC `123`).
+   - Upon successful payment, Stripe redirects back to `/portal/overview?payment=success`.
+   - The `checkout.session.completed` webhook fires, which marks the invoice as **Paid** idempotently, queues a `PaymentReceipt` confirmation email to the client, and records an `AuditLog` entry.

@@ -1,15 +1,20 @@
 <?php
 
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\TaxReturnController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\Portal\AppointmentController;
 use App\Http\Controllers\Portal\DocumentController;
+use App\Http\Controllers\Portal\MessageController;
 use App\Http\Controllers\Portal\OverviewController;
 use App\Http\Controllers\Portal\ReferralController;
 use App\Http\Controllers\Portal\SecurityController as PortalSecurityController;
+use App\Http\Controllers\Portal\SignController;
 use App\Http\Controllers\Portal\TierController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\ServicesController;
@@ -57,9 +62,51 @@ Route::middleware(['auth', 'verified', 'portal.2fa'])->prefix('portal')->name('p
     Route::get('referrals', [ReferralController::class, 'index'])->name('referrals');
     Route::post('referrals', [ReferralController::class, 'store'])->name('referrals.store');
 
-    // Tab routes (stubs for subsequent steps)
-    Route::get('messages', fn () => redirect()->route('portal.overview'))->name('messages');
+    // Messages
+    Route::get('messages', [MessageController::class, 'index'])->name('messages');
+    Route::post('messages/read', [MessageController::class, 'markRead'])->name('messages.read');
+
+    // Invoices & Checkout
+    Route::post('invoices/{invoice}/checkout', [App\Http\Controllers\Portal\InvoiceController::class, 'checkout'])->name('invoices.checkout');
+    Route::get('invoices/{invoice}/receipt', [App\Http\Controllers\Portal\InvoiceController::class, 'receipt'])->name('invoices.receipt');
+
+    // E-signature
+    Route::get('sign/{taxReturn}', [SignController::class, 'show'])->name('sign');
+    Route::post('sign/{taxReturn}', [SignController::class, 'sign'])->name('sign.submit');
 });
+
+Route::middleware(['auth', 'verified', 'portal.2fa', 'can:access-admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::redirect('/', '/admin/clients')->name('index');
+
+        // Leads inbox
+        Route::get('leads', [App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
+        Route::patch('leads/{lead}/status', [App\Http\Controllers\Admin\LeadController::class, 'updateStatus'])->name('leads.status');
+        Route::patch('leads/{lead}/notes', [App\Http\Controllers\Admin\LeadController::class, 'updateNotes'])->name('leads.notes');
+        Route::post('leads/{lead}/convert', [App\Http\Controllers\Admin\LeadController::class, 'convert'])->name('leads.convert');
+
+        // Clients
+        Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+        Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show');
+        Route::patch('clients/{client}/tier', [ClientController::class, 'updateTier'])->name('clients.tier');
+        Route::patch('clients/{client}/preparer', [ClientController::class, 'assignPreparer'])->name('clients.preparer');
+
+        // Tax return status & invoice
+        Route::patch('tax-returns/{taxReturn}/status', [TaxReturnController::class, 'updateStatus'])->name('returns.status');
+        Route::patch('tax-returns/{taxReturn}/invoice', [InvoiceController::class, 'update'])->name('invoices.update');
+
+        // Appointments
+        Route::patch('appointments/{appointment}/status', [App\Http\Controllers\Admin\AppointmentController::class, 'updateStatus'])->name('appointments.status');
+
+        // Messages to client
+        Route::post('clients/{client}/messages', [App\Http\Controllers\Admin\MessageController::class, 'store'])->name('clients.messages.store');
+
+        // Referrals
+        Route::get('referrals', [App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals.index');
+        Route::post('referrals/{referral}/reward', [App\Http\Controllers\Admin\ReferralController::class, 'reward'])->name('referrals.reward');
+    });
 
 if (app()->environment('local', 'testing')) {
     Route::get('dev/styleguide', function () {

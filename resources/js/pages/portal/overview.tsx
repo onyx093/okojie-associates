@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
-import { Check, CreditCard, FileText, Gift } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Check, CreditCard, FileText, Gift, PenLine } from 'lucide-react';
 import * as React from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { PortalLayout } from '@/layouts/portal-layout';
@@ -151,6 +152,16 @@ export default function PortalOverview({
                             <p className="mt-1.5 text-sm font-medium text-foreground sm:text-base">
                                 {nextStepMessage}
                             </p>
+                            {currentStatus === 'ready_for_review' && taxReturn && (
+                                <div className="mt-4">
+                                    <Button asChild className="rounded-full shadow-sm">
+                                        <Link href={`/portal/sign/${taxReturn.id}`}>
+                                            <PenLine className="mr-2 size-4" />
+                                            Review & E-Sign Return
+                                        </Link>
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -191,17 +202,28 @@ export default function PortalOverview({
 
                         <div>
                             {isPaid ? (
-                                <div className="flex w-full items-center justify-center rounded-full border border-success/30 bg-success/15 py-3 text-sm font-semibold text-success">
+                                <Link
+                                    href={invoice ? `/portal/invoices/${invoice.id}/receipt` : '#'}
+                                    className="flex w-full items-center justify-center rounded-full border border-emerald-500/30 bg-emerald-500/15 py-3 text-sm font-semibold text-emerald-500 hover:bg-emerald-500/20 transition-colors"
+                                >
                                     <Check className="mr-2 h-4 w-4" />
-                                    Paid
-                                </div>
+                                    Paid ✓ · View receipt
+                                </Link>
+                            ) : isAwaitingQuote ? (
+                                <Button
+                                    disabled
+                                    className="w-full rounded-full py-5 text-sm font-semibold cursor-not-allowed opacity-50"
+                                >
+                                    <CreditCard className="mr-2 h-4 w-4" />
+                                    Awaiting quote
+                                </Button>
                             ) : (
                                 <Button
-                                    disabled={isAwaitingQuote}
-                                    className={cn(
-                                        'w-full rounded-full py-5 text-sm font-semibold',
-                                        isAwaitingQuote && 'cursor-not-allowed opacity-50'
-                                    )}
+                                    onClick={() => {
+                                        if (!invoice) return;
+                                        router.post(`/portal/invoices/${invoice.id}/checkout`);
+                                    }}
+                                    className="w-full rounded-full py-5 text-sm font-semibold"
                                 >
                                     <CreditCard className="mr-2 h-4 w-4" />
                                     Pay Now

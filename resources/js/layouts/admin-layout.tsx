@@ -1,26 +1,80 @@
-import { Link } from '@inertiajs/react';
-import { Shield, Home, LogOut } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { Gift, Home, Inbox, LogOut, Shield, Users } from 'lucide-react';
 import * as React from 'react';
+import { toast } from 'sonner';
 
 import { BrandLogo } from '@/components/brand-logo';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/sonner';
+import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
     title?: string;
 }
 
+const NAV_ITEMS = [
+    { name: 'Clients', href: '/admin/clients', icon: Users },
+    { name: 'Leads', href: '/admin/leads', icon: Inbox },
+    { name: 'Referrals', href: '/admin/referrals', icon: Gift },
+];
+
 export function AdminLayout({ children, title }: AdminLayoutProps) {
+    const { url, props } = usePage();
+    const pageProps = props as unknown as {
+        flash?: {
+            success?: string | null;
+            error?: string | null;
+        };
+    };
+
+    React.useEffect(() => {
+        if (pageProps.flash?.success) {
+            toast.success(pageProps.flash.success);
+        }
+        if (pageProps.flash?.error) {
+            toast.error(pageProps.flash.error);
+        }
+    }, [pageProps.flash?.success, pageProps.flash?.error]);
+
     return (
         <div className="flex min-h-screen flex-col bg-background text-foreground">
             <header className="sticky top-0 z-50 w-full border-b border-border bg-card/90 backdrop-blur-md">
                 <div className="mx-auto flex h-16 max-w-[1240px] items-center justify-between px-6">
-                    <div className="flex items-center gap-4">
-                        <BrandLogo showSublabel={false} href="/admin" />
-                        <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                            Staff Console
-                        </span>
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-3">
+                            <BrandLogo showSublabel={false} href="/admin" />
+                            <span className="rounded-full bg-primary/20 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                                Staff Console
+                            </span>
+                        </div>
+
+                        <nav className="hidden items-center gap-1 sm:flex" aria-label="Admin Navigation">
+                            {NAV_ITEMS.map((item) => {
+                                const Icon = item.icon;
+                                const isActive =
+                                    url === item.href ||
+                                    url.startsWith(item.href + '/') ||
+                                    url.startsWith(item.href + '?');
+
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className={cn(
+                                            'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                                            isActive
+                                                ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                                                : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                                        )}
+                                        aria-current={isActive ? 'page' : undefined}
+                                    >
+                                        <Icon className="size-3.5" />
+                                        {item.name}
+                                    </Link>
+                                );
+                            })}
+                        </nav>
                     </div>
 
                     <div className="flex items-center gap-3">
@@ -36,6 +90,35 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
                                 Sign out
                             </Link>
                         </Button>
+                    </div>
+                </div>
+
+                {/* Mobile Navigation bar */}
+                <div className="flex border-t border-border px-6 py-2 sm:hidden">
+                    <div className="flex w-full items-center justify-around gap-1">
+                        {NAV_ITEMS.map((item) => {
+                            const Icon = item.icon;
+                            const isActive =
+                                url === item.href ||
+                                url.startsWith(item.href + '/') ||
+                                url.startsWith(item.href + '?');
+
+                            return (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={cn(
+                                        'flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium',
+                                        isActive
+                                            ? 'bg-primary text-primary-foreground font-semibold'
+                                            : 'text-muted-foreground'
+                                    )}
+                                >
+                                    <Icon className="size-3.5" />
+                                    {item.name}
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
             </header>

@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\ApptStatus;
+use App\Enums\Role;
 use App\Models\Appointment;
 use App\Models\User;
 
@@ -21,11 +22,31 @@ class AppointmentPolicy
      */
     public function view(User $user, Appointment $appointment): bool
     {
-        if ($user->isStaff()) {
+        if ($user->role === Role::Admin) {
             return true;
         }
 
+        if ($user->role === Role::Preparer) {
+            return $appointment->user->taxReturns()->where('preparer_id', $user->id)->exists();
+        }
+
         return $user->id === $appointment->user_id;
+    }
+
+    /**
+     * Determine whether the user can update the appointment status.
+     */
+    public function update(User $user, Appointment $appointment): bool
+    {
+        if ($user->role === Role::Admin) {
+            return true;
+        }
+
+        if ($user->role === Role::Preparer) {
+            return $appointment->user->taxReturns()->where('preparer_id', $user->id)->exists();
+        }
+
+        return false;
     }
 
     /**
