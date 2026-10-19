@@ -41,7 +41,9 @@ test('new users can register and redirect to portal overview', function () {
     expect($user)->not->toBeNull();
     expect($user->referral_code)->toMatch('/^OKJ-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{6}$/');
 
-    Notification::assertSentTo($user, VerifyEmail::class);
+    if (Features::enabled(Features::emailVerification())) {
+        Notification::assertSentTo($user, VerifyEmail::class);
+    }
 
     $this->assertDatabaseHas('tax_returns', [
         'user_id' => $user->id,

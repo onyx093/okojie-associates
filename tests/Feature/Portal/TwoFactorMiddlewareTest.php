@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Laravel\Fortify\Features;
 
 test('guests accessing portal are redirected to login', function () {
     $response = $this->get(route('portal.overview'));
@@ -9,6 +10,8 @@ test('guests accessing portal are redirected to login', function () {
 });
 
 test('unverified users accessing portal are redirected to email verification', function () {
+    $this->skipUnlessFortifyHas(Features::emailVerification());
+
     $user = User::factory()->unverified()->create();
 
     $response = $this->actingAs($user)->get(route('portal.overview'));

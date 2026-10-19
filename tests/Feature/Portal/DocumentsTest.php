@@ -13,6 +13,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Fortify\Features;
 
 test('guests are redirected to login from documents page', function () {
     $response = $this->get(route('portal.documents'));
@@ -21,6 +22,8 @@ test('guests are redirected to login from documents page', function () {
 });
 
 test('unverified users are redirected to email verification from documents page', function () {
+    $this->skipUnlessFortifyHas(Features::emailVerification());
+
     $user = User::factory()->unverified()->create();
 
     $response = $this->actingAs($user)->get(route('portal.documents'));

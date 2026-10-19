@@ -9,6 +9,7 @@ use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Fortify\Features;
 
 test('guests are redirected to login from appointments page', function () {
     $response = $this->get(route('portal.appointments'));
@@ -17,6 +18,8 @@ test('guests are redirected to login from appointments page', function () {
 });
 
 test('unverified users are redirected to email verification from appointments page', function () {
+    $this->skipUnlessFortifyHas(Features::emailVerification());
+
     $user = User::factory()->unverified()->create();
 
     $response = $this->actingAs($user)->get(route('portal.appointments'));

@@ -1,6 +1,6 @@
 # Technical Documentation — Okojie Online (Okojie & Associates, Inc.)
 
-*Comprehensive Software Engineering Documentation covering the complete 12-step implementation of Okojie Online.*
+_Comprehensive Software Engineering Documentation covering the complete 12-step implementation of Okojie Online._
 
 ---
 
@@ -25,14 +25,14 @@
   **Source of Truth:** Git repository root at `docs/TECHNICAL_DOCUMENTATION.md` within repository `okojie-associates`.  
   **Change Proposal Process:** Changes must be submitted via Git pull requests against branch `main`. PRs require review from a designated code owner, passing CI pipeline runs (`tests.yml`), zero linter/type errors, and explicit sign-off from compliance on legal and regulatory updates.
 
-- **What is the change log (date, author, summary of change)?**  
-  | Date | Author | Summary of Change |
-  | --- | --- | --- |
-  | 2026-10-17 | Engineering Team | Initial scaffolding, design foundation, and marketing components (Steps 1–3). |
-  | 2026-10-17 | Engineering Team | Fortify authentication, client portal core, documents, and MFA enforcement (Steps 4–7). |
-  | 2026-10-18 | Engineering Team | Appointments, referrals, messaging, staff admin console, Cashier Stripe payments, and e-signatures (Steps 8–11). |
-  | 2026-10-18 | Engineering Team | Hardening (CSP, Turnstile, rate limits, noindex), SEO, error pages, WISP template, CI workflow, and full named route audit (Step 12). |
-  | 2026-10-18 | Engineering Team | Compiled comprehensive Technical Documentation per engineering template standards. |
+- **What is the change log (date, author, summary of change)?**
+    | Date       | Author           | Summary of Change                                                                                                                     |
+    | ---------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+    | 2026-10-17 | Engineering Team | Initial scaffolding, design foundation, and marketing components (Steps 1–3).                                                         |
+    | 2026-10-17 | Engineering Team | Fortify authentication, client portal core, documents, and MFA enforcement (Steps 4–7).                                               |
+    | 2026-10-18 | Engineering Team | Appointments, referrals, messaging, staff admin console, Cashier Stripe payments, and e-signatures (Steps 8–11).                      |
+    | 2026-10-18 | Engineering Team | Hardening (CSP, Turnstile, rate limits, noindex), SEO, error pages, WISP template, CI workflow, and full named route audit (Step 12). |
+    | 2026-10-18 | Engineering Team | Compiled comprehensive Technical Documentation per engineering template standards.                                                    |
 
 ---
 
@@ -47,47 +47,47 @@
 - **Why does it exist now? What business or technical trigger led to it?**  
   Client demand has shifted rapidly toward hybrid and fully remote tax services. Clients who previously visited physical offices in Germantown, Northeast Philadelphia, or Baltimore now expect mobile-friendly digital uploads, video reviews, and remote e-signatures. Furthermore, stricter federal regulatory scrutiny under the FTC Safeguards Rule (16 CFR Part 314) and IRS Publication 4557 mandated that accounting and tax preparation practices implement robust access controls, multi-factor authentication (MFA), encrypted storage, immutable audit logs, and written security policies.
 
-- **Who is the intended audience of this document?**  
-  - **Full-Stack Developers & Software Engineers:** Implementing features, refactoring components, and maintaining APIs.  
-  - **DevOps / SRE Engineers:** Managing Docker Sail environments, CI/CD pipelines, and Laravel Cloud deployments.  
-  - **Security & Compliance Officers:** Auditing access controls, GLBA compliance, FTC Safeguards, and IRS WISP alignment.  
-  - **QA & Automation Engineers:** Maintaining Pest test suites, axe accessibility tests, and regression suites.  
-  - **Product Managers & Operations Staff:** Understanding platform capabilities, return status workflows, and tier economics.
+- **Who is the intended audience of this document?**
+    - **Full-Stack Developers & Software Engineers:** Implementing features, refactoring components, and maintaining APIs.
+    - **DevOps / SRE Engineers:** Managing Docker Sail environments, CI/CD pipelines, and Laravel Cloud deployments.
+    - **Security & Compliance Officers:** Auditing access controls, GLBA compliance, FTC Safeguards, and IRS WISP alignment.
+    - **QA & Automation Engineers:** Maintaining Pest test suites, axe accessibility tests, and regression suites.
+    - **Product Managers & Operations Staff:** Understanding platform capabilities, return status workflows, and tier economics.
 
-- **What is explicitly out of scope?**  
-  1. *Calculation Engine:* The portal does not compute tax math (depreciation schedules, tax brackets, EITC phaseouts); preparers use professional tax preparation desktop software (e.g., Drake, ProConnect, UltraTax).  
-  2. *Direct IRS MeF Transmission:* The portal does not act as an IRS Electronic Return Originator (ERO) Transmitter; staff transmit returns via their certified provider and manually update return statuses to `E-Filed` and `Accepted`.  
-  3. *Native Mobile Apps:* iOS and Android apps are out of scope for v1; the web application is fully responsive.  
-  4. *Multi-Language Localization:* English only for v1.
+- **What is explicitly out of scope?**
+    1. _Calculation Engine:_ The portal does not compute tax math (depreciation schedules, tax brackets, EITC phaseouts); preparers use professional tax preparation desktop software (e.g., Drake, ProConnect, UltraTax).
+    2. _Direct IRS MeF Transmission:_ The portal does not act as an IRS Electronic Return Originator (ERO) Transmitter; staff transmit returns via their certified provider and manually update return statuses to `E-Filed` and `Accepted`.
+    3. _Native Mobile Apps:_ iOS and Android apps are out of scope for v1; the web application is fully responsive.
+    4. _Multi-Language Localization:_ English only for v1.
 
 ---
 
 ## 2. Goals, Non-Goals, and Success Criteria
 
-- **What are the measurable goals?**  
-  - **Performance:** Largest Contentful Paint (LCP) under 2.5 seconds on mobile; First Input Delay / INP < 200 ms; Cumulative Layout Shift (CLS) < 0.1.  
-  - **Availability:** 99.9% uptime during tax season (January 15 – April 30).  
-  - **Quality Gates:** Zero serious or critical axe accessibility violations across all public and portal views; 100% test pass rate across the Pest regression suite (>160 tests, >970 assertions); 100% PHPStan level 5 compliance with 0 errors.  
-  - **Security:** 100% MFA adoption for all portal client accounts; zero plaintext SSN or tax document leakage; comprehensive CSP and security headers on every response.
+- **What are the measurable goals?**
+    - **Performance:** Largest Contentful Paint (LCP) under 2.5 seconds on mobile; First Input Delay / INP < 200 ms; Cumulative Layout Shift (CLS) < 0.1.
+    - **Availability:** 99.9% uptime during tax season (January 15 – April 30).
+    - **Quality Gates:** Zero serious or critical axe accessibility violations across all public and portal views; 100% test pass rate across the Pest regression suite (>160 tests, >970 assertions); 100% PHPStan level 5 compliance with 0 errors.
+    - **Security:** 100% MFA adoption for all portal client accounts; zero plaintext SSN or tax document leakage; comprehensive CSP and security headers on every response.
 
-- **What are the non-goals?**  
-  - Real-time instant messaging / chat socket server (messages are transactional and asynchronous in v1).  
-  - Automatic OCR transcription or automated extraction of tax forms into third-party software.  
-  - Client self-service filing without preparer review.
+- **What are the non-goals?**
+    - Real-time instant messaging / chat socket server (messages are transactional and asynchronous in v1).
+    - Automatic OCR transcription or automated extraction of tax forms into third-party software.
+    - Client self-service filing without preparer review.
 
-- **How will we know the work succeeded? Which metrics, and who owns them?**  
-  - *Lead Conversion Rate:* Proportion of unique visitors submitting quote/consultation forms (Target: ≥ 5.0%, owned by Marketing).  
-  - *Client Digital Adoption:* Percentage of active tax clients completing document upload and e-sign digitally through the portal (Target: ≥ 65%, owned by Operations).  
-  - *Time to Invoice Settlement:* Median time from invoice issuance to payment completion (Target: ≤ 48 hours, owned by Finance).  
-  - *Referral Virality:* Proportion of new leads originating with an active referral code (Target: ≥ 15%, owned by Growth).
+- **How will we know the work succeeded? Which metrics, and who owns them?**
+    - _Lead Conversion Rate:_ Proportion of unique visitors submitting quote/consultation forms (Target: ≥ 5.0%, owned by Marketing).
+    - _Client Digital Adoption:_ Percentage of active tax clients completing document upload and e-sign digitally through the portal (Target: ≥ 65%, owned by Operations).
+    - _Time to Invoice Settlement:_ Median time from invoice issuance to payment completion (Target: ≤ 48 hours, owned by Finance).
+    - _Referral Virality:_ Proportion of new leads originating with an active referral code (Target: ≥ 15%, owned by Growth).
 
-- **What are the key assumptions, and what happens if one turns out to be false?**  
-  1. *Assumption:* Clients can authenticate with modern smartphones capable of TOTP authenticator apps.  
-     *Failure Mitigation:* SMS fallback or preparer-assisted in-person verification can be activated.  
-  2. *Assumption:* ClamAV scanning is available in production or managed file environments.  
-     *Failure Mitigation:* The `ScanDocument` job gracefully falls back to clean logging when ClamAV is unconfigured in development/testing, but halts download of unscanned files in strict production mode.  
-  3. *Assumption:* Stripe Checkout handles PCI-DSS compliance and payment processing without storing cardholder data.  
-     *Failure Mitigation:* If Stripe suffers an outage, offline payments can be recorded manually by staff via the Admin Console.
+- **What are the key assumptions, and what happens if one turns out to be false?**
+    1. _Assumption:_ Clients can authenticate with modern smartphones capable of TOTP authenticator apps.  
+       _Failure Mitigation:_ SMS fallback or preparer-assisted in-person verification can be activated.
+    2. _Assumption:_ ClamAV scanning is available in production or managed file environments.  
+       _Failure Mitigation:_ The `ScanDocument` job gracefully falls back to clean logging when ClamAV is unconfigured in development/testing, but halts download of unscanned files in strict production mode.
+    3. _Assumption:_ Stripe Checkout handles PCI-DSS compliance and payment processing without storing cardholder data.  
+       _Failure Mitigation:_ If Stripe suffers an outage, offline payments can be recorded manually by staff via the Admin Console.
 
 ---
 
@@ -96,29 +96,29 @@
 - **What existing systems, processes, or prior decisions does this build on or replace?**  
   Replaces disparate legacy operations: physical paper drop-offs at branch offices (Broad St, 52nd St, Frankford Ave, Baltimore), unencrypted email attachments, manual paper receipts, and paper Form 8879 signature logs. Builds upon a unified Laravel 12 application scaffold utilizing Inertia.js v3, React 19, and Tailwind CSS v4.
 
-- **What domain terms, acronyms, or concepts must a reader know?**  
-  - **PTIN:** Preparer Tax Identification Number issued by the IRS to credentialed preparers.  
-  - **EFIN:** Electronic Filing Identification Number used by firms to e-file tax returns.  
-  - **Form 8879:** IRS e-file Signature Authorization for Form 1040.  
-  - **IRC § 7216:** Internal Revenue Code section criminalizing unauthorized disclosure or use of tax return information by preparers without express affirmative client consent.  
-  - **WISP:** Written Information Security Plan mandated by the FTC Safeguards Rule (16 CFR Part 314) and IRS Publication 4557.  
-  - **MFA / TOTP:** Multi-Factor Authentication / Time-Based One-Time Password algorithm (RFC 6238).  
-  - **Inertia.js:** Client-side routing adapter allowing server-driven Laravel routing and validation while rendering React client components.  
-  - **Wayfinder:** Build-time generator producing TypeScript route functions and form actions from Laravel route definitions.
+- **What domain terms, acronyms, or concepts must a reader know?**
+    - **PTIN:** Preparer Tax Identification Number issued by the IRS to credentialed preparers.
+    - **EFIN:** Electronic Filing Identification Number used by firms to e-file tax returns.
+    - **Form 8879:** IRS e-file Signature Authorization for Form 1040.
+    - **IRC § 7216:** Internal Revenue Code section criminalizing unauthorized disclosure or use of tax return information by preparers without express affirmative client consent.
+    - **WISP:** Written Information Security Plan mandated by the FTC Safeguards Rule (16 CFR Part 314) and IRS Publication 4557.
+    - **MFA / TOTP:** Multi-Factor Authentication / Time-Based One-Time Password algorithm (RFC 6238).
+    - **Inertia.js:** Client-side routing adapter allowing server-driven Laravel routing and validation while rendering React client components.
+    - **Wayfinder:** Build-time generator producing TypeScript route functions and form actions from Laravel route definitions.
 
-- **What alternatives were considered, and why were they rejected?**  
-  - *Separate SPA (Next.js / Vite SPA) + Laravel API:* Rejected due to token authentication friction (Sanctum/cookies across domains), duplicate validation rules in TS and PHP, and operational overhead of maintaining two deployments. Inertia.js provides single-repo simplicity with zero API drift.  
-  - *Commercial Client Portal SaaS (e.g., TaxDome, Canopy):* Rejected due to high per-seat recurring licensing costs ($1,000+/preparer/yr), lack of local neighborhood branding parity, rigid workflow constraints, and inability to customize local referral/attribution models.  
-  - *Blade + Alpine.js:* Rejected in favor of Inertia React to support complex interactive state machines (file dropzones, appointment scheduling calendars, e-signature canvases, real-time OTP slot inputs).
+- **What alternatives were considered, and why were they rejected?**
+    - _Separate SPA (Next.js / Vite SPA) + Laravel API:_ Rejected due to token authentication friction (Sanctum/cookies across domains), duplicate validation rules in TS and PHP, and operational overhead of maintaining two deployments. Inertia.js provides single-repo simplicity with zero API drift.
+    - _Commercial Client Portal SaaS (e.g., TaxDome, Canopy):_ Rejected due to high per-seat recurring licensing costs ($1,000+/preparer/yr), lack of local neighborhood branding parity, rigid workflow constraints, and inability to customize local referral/attribution models.
+    - _Blade + Alpine.js:_ Rejected in favor of Inertia React to support complex interactive state machines (file dropzones, appointment scheduling calendars, e-signature canvases, real-time OTP slot inputs).
 
-- **Are there links to related documents, tickets, design reviews, or RFCs?**  
-  - Product Requirements Document: `docs/PRD.md`  
-  - Technical Specifications: `docs/SPEC.md`  
-  - Feature Inventory & Acceptance Criteria: `docs/FEATURES.md`  
-  - Architecture Decisions Log: `docs/DECISIONS.md`  
-  - Written Information Security Plan: `docs/WISP-TEMPLATE.md`  
-  - Content & Copy Matrix: `docs/CONTENT.md`  
-  - Design System Guide: `docs/DESIGN_SYSTEM.md`
+- **Are there links to related documents, tickets, design reviews, or RFCs?**
+    - Product Requirements Document: `docs/PRD.md`
+    - Technical Specifications: `docs/SPEC.md`
+    - Feature Inventory & Acceptance Criteria: `docs/FEATURES.md`
+    - Architecture Decisions Log: `docs/DECISIONS.md`
+    - Written Information Security Plan: `docs/WISP-TEMPLATE.md`
+    - Content & Copy Matrix: `docs/CONTENT.md`
+    - Design System Guide: `docs/DESIGN_SYSTEM.md`
 
 ---
 
@@ -126,28 +126,29 @@
 
 ### 4.1 Functional Requirements
 
-| ID | Requirement Statement | Primary Actor | Expected Outcome |
-| --- | --- | --- | --- |
-| **FR-001** | Public marketing pages must showcase services, pricing tiers, office locations, testimonials, video guides, and firm credentials. | Anonymous Visitor | Clear visibility into pricing and services; high conversion to quote/consultation. |
-| **FR-002** | Visitors must be able to submit Quote Requests and Consultation Requests with spam honeypot and rate limiting. | Anonymous Visitor | Lead record created in DB, audit log entry recorded, confirmation email sent, staff alerted. |
-| **FR-003** | Visitors must be able to subscribe to tax updates with immediate idempotent feedback. | Anonymous Visitor | Email stored in `newsletter_subscribers`, audit log written, success toast displayed. |
-| **FR-004** | Unified authentication screen supporting sign-in, account registration with tier selection, email verification, and password resets. | Client / Staff | Secure account creation, default current-year `TaxReturn` initialized, verification email queued. |
-| **FR-005** | Mandatory 2FA enforcement requiring TOTP activation before a client or staff member can access portal/admin views. | Authenticated User | Blocked from protected routes; redirected to `/portal/security` until 2FA is confirmed. |
-| **FR-006** | Client portal dashboard displaying current tax return status across 7 distinct states with status tracker and quick links. | Client | Real-time visibility into return progress, assigned preparer, and actionable next steps. |
-| **FR-007** | Secure document upload with file type/size validation, categorization, private disk storage, and asynchronous virus scanning. | Client / Preparer | Files uploaded without public URL exposure; status flagged `clean` or `infected`. |
-| **FR-008** | Client appointment requests for specific dates (up to 180 days out), time windows, and formats (video, phone, in-person). | Client | Appointment created in `Requested` status; staff can confirm; client can cancel while requested. |
-| **FR-009** | Client referral system with unique referral codes, copyable tracking links, email invites, and 30-day cookie attribution. | Client / Lead | Referrals tracked from visit to registration; marked `Filed` upon return filing; rewarded by staff. |
-| **FR-010** | Asynchronous client messaging interface with unread tracking and automatic mark-as-read interaction. | Client / Preparer | Client reads preparer notes; unread indicators clear upon view; staff compose messages from admin. |
-| **FR-011** | Staff administration console scoped by roles and preparer assignments for leads, clients, appointments, returns, and invoices. | Preparer / Admin | Preparers manage assigned clients; admins manage all; every read/write action audit logged. |
-| **FR-012** | Integrated payment checkout via Laravel Cashier Stripe for preparation fees, with idempotent webhooks and receipts. | Client | Client pays via hosted Stripe Checkout; return unlocked for filing; payment receipt emailed. |
-| **FR-013** | Digital e-signature flow with mandatory IRC § 7216 consent, typed signature capture, audit metadata, and signed PDF generation. | Client | Tax return advances to `ESigned`; immutable signed PDF stored on private disk; ready for e-filing. |
+| ID         | Requirement Statement                                                                                                                | Primary Actor      | Expected Outcome                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------------------------------- |
+| **FR-001** | Public marketing pages must showcase services, pricing tiers, office locations, testimonials, video guides, and firm credentials.    | Anonymous Visitor  | Clear visibility into pricing and services; high conversion to quote/consultation.                  |
+| **FR-002** | Visitors must be able to submit Quote Requests and Consultation Requests with spam honeypot and rate limiting.                       | Anonymous Visitor  | Lead record created in DB, audit log entry recorded, confirmation email sent, staff alerted.        |
+| **FR-003** | Visitors must be able to subscribe to tax updates with immediate idempotent feedback.                                                | Anonymous Visitor  | Email stored in `newsletter_subscribers`, audit log written, success toast displayed.               |
+| **FR-004** | Unified authentication screen supporting sign-in, account registration with tier selection, email verification, and password resets. | Client / Staff     | Secure account creation, default current-year `TaxReturn` initialized, verification email queued.   |
+| **FR-005** | Mandatory 2FA enforcement requiring TOTP activation before a client or staff member can access portal/admin views.                   | Authenticated User | Blocked from protected routes; redirected to `/portal/security` until 2FA is confirmed.             |
+| **FR-006** | Client portal dashboard displaying current tax return status across 7 distinct states with status tracker and quick links.           | Client             | Real-time visibility into return progress, assigned preparer, and actionable next steps.            |
+| **FR-007** | Secure document upload with file type/size validation, categorization, private disk storage, and asynchronous virus scanning.        | Client / Preparer  | Files uploaded without public URL exposure; status flagged `clean` or `infected`.                   |
+| **FR-008** | Client appointment requests for specific dates (up to 180 days out), time windows, and formats (video, phone, in-person).            | Client             | Appointment created in `Requested` status; staff can confirm; client can cancel while requested.    |
+| **FR-009** | Client referral system with unique referral codes, copyable tracking links, email invites, and 30-day cookie attribution.            | Client / Lead      | Referrals tracked from visit to registration; marked `Filed` upon return filing; rewarded by staff. |
+| **FR-010** | Asynchronous client messaging interface with unread tracking and automatic mark-as-read interaction.                                 | Client / Preparer  | Client reads preparer notes; unread indicators clear upon view; staff compose messages from admin.  |
+| **FR-011** | Staff administration console scoped by roles and preparer assignments for leads, clients, appointments, returns, and invoices.       | Preparer / Admin   | Preparers manage assigned clients; admins manage all; every read/write action audit logged.         |
+| **FR-012** | Integrated payment checkout via Laravel Cashier Stripe for preparation fees, with idempotent webhooks and receipts.                  | Client             | Client pays via hosted Stripe Checkout; return unlocked for filing; payment receipt emailed.        |
+| **FR-013** | Digital e-signature flow with mandatory IRC § 7216 consent, typed signature capture, audit metadata, and signed PDF generation.      | Client             | Tax return advances to `ESigned`; immutable signed PDF stored on private disk; ready for e-filing.  |
 
 #### Edge Cases and Error Scenarios
-- *Unverified Email:* User cannot access portal features; redirected to `/email/verify` with resend capability.
-- *Unconfirmed 2FA:* Middleware intercepts any `/portal/*` or `/admin/*` route and redirects to `/portal/security`.
-- *Reversing Return Status:* Staff attempting to move a return backwards in the pipeline must provide a mandatory text reason, which is written to the immutable `StatusEvent` ledger.
-- *Concurrent Checkout:* If an invoice is already paid or lacks an assigned dollar amount, `InvoiceController@checkout` rejects the request with HTTP `409 Conflict`.
-- *Infected Document:* If ClamAV detects malware, the document status is set to `infected`, download buttons are disabled, and staff are alerted.
+
+- _Unverified Email:_ User cannot access portal features; redirected to `/email/verify` with resend capability.
+- _Unconfirmed 2FA:_ Middleware intercepts any `/portal/*` or `/admin/*` route and redirects to `/portal/security`.
+- _Reversing Return Status:_ Staff attempting to move a return backwards in the pipeline must provide a mandatory text reason, which is written to the immutable `StatusEvent` ledger.
+- _Concurrent Checkout:_ If an invoice is already paid or lacks an assigned dollar amount, `InvoiceController@checkout` rejects the request with HTTP `409 Conflict`.
+- _Infected Document:_ If ClamAV detects malware, the document status is set to `infected`, download buttons are disabled, and staff are alerted.
 
 ### 4.2 Non-Functional Requirements
 
@@ -200,24 +201,25 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 ```
 
 #### Communication & Protocols
+
 - **Client ↔ Server:** Synchronous HTTPS visits returning Inertia JSON/SSR HTML payloads; typed router visits via Wayfinder route helpers.
 - **Server ↔ Background Workers:** Asynchronous job dispatching via database/Redis queues.
 - **Server ↔ Stripe:** Outbound HTTPS calls to Stripe API via Laravel Cashier; inbound HTTPS webhooks to `/stripe/webhook`.
 - **Third-Party Failures:**
-  - *Stripe Failure:* Checkout aborts gracefully with client error; offline payment bypass available in Admin Console.
-  - *ClamAV Failure:* Fallback logs warning and marks file clean in dev/test, or locks file download pending manual review in production.
-  - *Turnstile Failure:* Validation fails gracefully with descriptive error prompting user to retry challenge.
+    - _Stripe Failure:_ Checkout aborts gracefully with client error; offline payment bypass available in Admin Console.
+    - _ClamAV Failure:_ Fallback logs warning and marks file clean in dev/test, or locks file download pending manual review in production.
+    - _Turnstile Failure:_ Validation fails gracefully with descriptive error prompting user to retry challenge.
 
 ### 5.2 Detailed Design
 
 - **Component Patterns:**
-  - *Action Classes:* Single-responsibility command actions such as `AdvanceReturnStatus` to encapsulate complex business transactions, write status events, queue notifications, and record audit trails atomically.
-  - *Form Request Validation:* Dedicated request classes (e.g., `StoreLeadRequest`, `StoreAppointmentRequest`, `StoreReferralRequest`) encapsulating authorization and sanitization.
-  - *Eloquent Model Policies:* Granular policies enforcing user scoping (e.g., clients can only access their own returns; preparers can only access assigned clients; admins access all).
+    - _Action Classes:_ Single-responsibility command actions such as `AdvanceReturnStatus` to encapsulate complex business transactions, write status events, queue notifications, and record audit trails atomically.
+    - _Form Request Validation:_ Dedicated request classes (e.g., `StoreLeadRequest`, `StoreAppointmentRequest`, `StoreReferralRequest`) encapsulating authorization and sanitization.
+    - _Eloquent Model Policies:_ Granular policies enforcing user scoping (e.g., clients can only access their own returns; preparers can only access assigned clients; admins access all).
 - **Idempotency & Concurrency:**
-  - *Stripe Webhooks:* Webhook handler inspects `invoice.stripe_session_id` and `invoice.status`. If already `Paid`, the event is logged and ignored to prevent duplicate receipt emails.
-  - *Newsletter Subscriptions:* Database unique constraint on `email`; re-submitting returns success toast without inserting duplicate rows.
-  - *Referral Attribution:* Middleware attaches cookie once per 30-day window; duplicate referral invites to the same friend email by the same user are rejected with validation errors.
+    - _Stripe Webhooks:_ Webhook handler inspects `invoice.stripe_session_id` and `invoice.status`. If already `Paid`, the event is logged and ignored to prevent duplicate receipt emails.
+    - _Newsletter Subscriptions:_ Database unique constraint on `email`; re-submitting returns success toast without inserting duplicate rows.
+    - _Referral Attribution:_ Middleware attaches cookie once per 30-day window; duplicate referral invites to the same friend email by the same user are rejected with validation errors.
 
 ### 5.3 Data Design
 
@@ -254,6 +256,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 ```
 
 #### Schema Specifications
+
 - **`users`:** `id`, `name`, `email`, `phone`, `password`, `role` (`client`, `preparer`, `admin`), `tier` (`upload_and_go`, `hybrid`, `premium_remote`), `referral_code` (unique 10-char formatted `OKJ-XXXXXX`), `referred_by_code`, `two_factor_secret`, `two_factor_recovery_codes`, `two_factor_confirmed_at`, timestamps.
 - **`tax_returns`:** `id`, `user_id`, `preparer_id` (nullable FK to users), `tax_year` (int), `status` (`intake_received`, `in_preparation`, `ready_for_review`, `e_signed`, `e_filed`, `accepted`, `completed`), `tier`, timestamps.
 - **`status_events`:** `id`, `tax_return_id`, `actor_id`, `from_status`, `to_status`, `reason` (text, required on reversals), `meta` (json), timestamps.
@@ -267,54 +270,54 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 ### 5.4 Interface Design
 
 - **UI Navigation & Layouts:**
-  - `SiteHeader`: Responsive branding, links (Home, Services, Pricing, About, Contact), guest CTAs ("Client Login", "Start My Return Online"), and authenticated CTAs ("My Portal", "Sign out").
-  - `PortalLayout`: Tab-based navigation across 5 core views (`Overview`, `Documents`, `Appointments`, `Referrals`, `Messages`) + topbar security badge.
-  - `AdminLayout`: Staff management layout with dark navigation for `Clients`, `Leads`, and `Referrals`.
+    - `SiteHeader`: Responsive branding, links (Home, Services, Pricing, About, Contact), guest CTAs ("Client Login", "Start My Return Online"), and authenticated CTAs ("My Portal", "Sign out").
+    - `PortalLayout`: Tab-based navigation across 5 core views (`Overview`, `Documents`, `Appointments`, `Referrals`, `Messages`) + topbar security badge.
+    - `AdminLayout`: Staff management layout with dark navigation for `Clients`, `Leads`, and `Referrals`.
 - **Key Client Portal Views:**
-  - *Overview:* Seven-stage visual progress tracker, active tier card with upgrade switcher, quote/invoice card with Stripe Pay Now action, preparer contact chip, and quick action cards.
-  - *Documents:* Drag-and-drop file upload zone, category filters, scan status indicators, and secure download links.
-  - *Appointments:* Native HTML5 date picker constrained to valid calendar windows, format selector, and interactive list with cancel actions.
-  - *Referrals:* Copyable link banner with 2-second visual feedback, direct email invite sender, and referral reward tracking table.
-  - *Sign View (`/portal/sign/{taxReturn}`):* Tax return breakdown, mandatory Form 7216 consent checkbox, signature input, and submission confirmation.
-  - *Receipt View (`/portal/invoices/{invoice}/receipt`):* Printable receipt with transaction timestamp, invoice ID, and Stripe verification.
+    - _Overview:_ Seven-stage visual progress tracker, active tier card with upgrade switcher, quote/invoice card with Stripe Pay Now action, preparer contact chip, and quick action cards.
+    - _Documents:_ Drag-and-drop file upload zone, category filters, scan status indicators, and secure download links.
+    - _Appointments:_ Native HTML5 date picker constrained to valid calendar windows, format selector, and interactive list with cancel actions.
+    - _Referrals:_ Copyable link banner with 2-second visual feedback, direct email invite sender, and referral reward tracking table.
+    - _Sign View (`/portal/sign/{taxReturn}`):_ Tax return breakdown, mandatory Form 7216 consent checkbox, signature input, and submission confirmation.
+    - _Receipt View (`/portal/invoices/{invoice}/receipt`):_ Printable receipt with transaction timestamp, invoice ID, and Stripe verification.
 
 ### 5.5 Technology Stack
 
-| Layer | Technology | Version | Rationale |
-| --- | --- | --- | --- |
-| **Runtime** | PHP | 8.5 | High-performance execution, modern constructor promotion, strict typing. |
-| **Backend Framework** | Laravel | 12.x | Comprehensive enterprise framework with built-in auth, queues, ORM, and policies. |
-| **SPA Bridge** | Inertia.js | v3 | Seamless client-side React routing without maintaining separate API contracts. |
-| **Frontend Library** | React | 19.x | Modern UI components, fast virtual DOM reconciliation, and hooks architecture. |
-| **CSS Framework** | Tailwind CSS | v4 | Modern high-performance utility engine with CSS variable theming. |
-| **UI Components** | shadcn/ui (Radix) | Latest | Accessible, customizable primitive components (Dialog, Tabs, Accordion, Sheet). |
-| **Route Typing** | Laravel Wayfinder | 0.4.x | Automated TypeScript generation for controllers, route URLs, and form helpers. |
-| **Authentication** | Laravel Fortify | Latest | Frontend-agnostic secure authentication backend supporting 2FA and passkeys. |
-| **Payments** | Laravel Cashier (Stripe) | Latest | Industry-standard recurring and one-off checkout handling with webhook security. |
-| **Testing** | Pest PHP | v3 | Expressive, readable test runner with parallelization and dataset support. |
-| **Code Formatting** | Laravel Pint & Biome | Latest | Automated PSR-12/Pint PHP formatting and ultra-fast frontend linting. |
+| Layer                 | Technology               | Version | Rationale                                                                         |
+| --------------------- | ------------------------ | ------- | --------------------------------------------------------------------------------- |
+| **Runtime**           | PHP                      | 8.5     | High-performance execution, modern constructor promotion, strict typing.          |
+| **Backend Framework** | Laravel                  | 12.x    | Comprehensive enterprise framework with built-in auth, queues, ORM, and policies. |
+| **SPA Bridge**        | Inertia.js               | v3      | Seamless client-side React routing without maintaining separate API contracts.    |
+| **Frontend Library**  | React                    | 19.x    | Modern UI components, fast virtual DOM reconciliation, and hooks architecture.    |
+| **CSS Framework**     | Tailwind CSS             | v4      | Modern high-performance utility engine with CSS variable theming.                 |
+| **UI Components**     | shadcn/ui (Radix)        | Latest  | Accessible, customizable primitive components (Dialog, Tabs, Accordion, Sheet).   |
+| **Route Typing**      | Laravel Wayfinder        | 0.4.x   | Automated TypeScript generation for controllers, route URLs, and form helpers.    |
+| **Authentication**    | Laravel Fortify          | Latest  | Frontend-agnostic secure authentication backend supporting 2FA and passkeys.      |
+| **Payments**          | Laravel Cashier (Stripe) | Latest  | Industry-standard recurring and one-off checkout handling with webhook security.  |
+| **Testing**           | Pest PHP                 | v3      | Expressive, readable test runner with parallelization and dataset support.        |
+| **Code Formatting**   | Laravel Pint & Biome     | Latest  | Automated PSR-12/Pint PHP formatting and ultra-fast frontend linting.             |
 
 ### 5.6 Design Decisions (Architecture Decision Records)
 
 - **ADR-001: Inertia.js v3 with Vite SSR Daemon**  
-  *Context:* Need instant SPA transitions, high mobile responsiveness, and perfect SEO indexing on public pages.  
-  *Decision:* Deploy Inertia v3 with an active Node SSR daemon (`artisan inertia:start-ssr` on port 13714). Public pages render complete HTML server-side; portal transitions execute instantly via client JSON diffs.  
-  *Consequence:* SEO Lighthouse score reaches 100 while client runtime remains snappy.
+  _Context:_ Need instant SPA transitions, high mobile responsiveness, and perfect SEO indexing on public pages.  
+  _Decision:_ Deploy Inertia v3 with an active Node SSR daemon (`artisan inertia:start-ssr` on port 13714). Public pages render complete HTML server-side; portal transitions execute instantly via client JSON diffs.  
+  _Consequence:_ SEO Lighthouse score reaches 100 while client runtime remains snappy.
 
 - **ADR-002: Private Storage Disk with Signed Access for Tax Documents**  
-  *Context:* Tax documents contain confidential W-2s, 1099s, and SSNs that cannot be stored in publicly accessible `public/` web roots.  
-  *Decision:* Store all uploads in `storage/app/private/documents/`. All file retrievals must pass through `DocumentController@download` guarded by `DocumentPolicy`.  
-  *Consequence:* Zero unauthorized document access; complete audit trail on every file download.
+  _Context:_ Tax documents contain confidential W-2s, 1099s, and SSNs that cannot be stored in publicly accessible `public/` web roots.  
+  _Decision:_ Store all uploads in `storage/app/private/documents/`. All file retrievals must pass through `DocumentController@download` guarded by `DocumentPolicy`.  
+  _Consequence:_ Zero unauthorized document access; complete audit trail on every file download.
 
 - **ADR-003: Grace Period MFA Enforcement with Session Gates**  
-  *Context:* Mandating 2FA at registration creates friction that degrades marketing conversion; however, IRS rules mandate MFA for tax record access.  
-  *Decision:* Allow user creation with email and password, but apply `EnsureTwoFactorEnabled` middleware to all `/portal/*` and `/admin/*` routes. Unconfirmed users are restricted to `/portal/security` until TOTP is verified.  
-  *Consequence:* High registration conversion combined with 100% MFA compliance prior to sensitive data exposure.
+  _Context:_ Mandating 2FA at registration creates friction that degrades marketing conversion; however, IRS rules mandate MFA for tax record access.  
+  _Decision:_ Allow user creation with email and password, but apply `EnsureTwoFactorEnabled` middleware to all `/portal/*` and `/admin/*` routes. Unconfirmed users are restricted to `/portal/security` until TOTP is verified.  
+  _Consequence:_ High registration conversion combined with 100% MFA compliance prior to sensitive data exposure.
 
 - **ADR-004: Wayfinder Route Helpers to Eliminate Hardcoded URLs**  
-  *Context:* Hardcoded URLs in frontend files create fragility when routes are renamed or nested.  
-  *Decision:* Use Laravel Wayfinder to auto-generate typed functions (`@/routes/*`). Replace every hardcoded URL with typed route helpers.  
-  *Consequence:* Compile-time TypeScript validation on every route parameter, URL, and form submission.
+  _Context:_ Hardcoded URLs in frontend files create fragility when routes are renamed or nested.  
+  _Decision:_ Use Laravel Wayfinder to auto-generate typed functions (`@/routes/*`). Replace every hardcoded URL with typed route helpers.  
+  _Consequence:_ Compile-time TypeScript validation on every route parameter, URL, and form submission.
 
 ---
 
@@ -322,20 +325,20 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 
 ### 6.1 Feature Inventory
 
-| ID | Feature | Purpose | Requirements covered | Owner | Status |
-| --- | --- | --- | --- | --- | --- |
-| **F-001** | Brand & Marketing Suite | 5 public pages (Home, Services, Pricing, About, Contact), testimonials, videos. | FR-001 | Frontend | Released |
-| **F-002** | Lead Capture & Anti-Spam | Quote and consultation forms, honeypot, rate limiting, and email dispatch. | FR-002, FR-003 | Full-Stack | Released |
-| **F-003** | Unified Authentication | Single `/login` & `/register` screen, Fortify integration, email verification. | FR-004 | Full-Stack | Released |
-| **F-004** | Client Portal Dashboard | Return status tracker (7 stages), tier switcher, and overview cards. | FR-006 | Full-Stack | Released |
-| **F-005** | Secure Document Vault | Multi-file dropzone upload, ClamAV antivirus scanning, and private downloads. | FR-007 | Backend | Released |
-| **F-006** | Multi-Factor Authentication | Mandatory TOTP MFA enforcement, recovery codes, and passkey support. | FR-005 | Security | Released |
-| **F-007** | Appointment Scheduling | Client appointment requests, window/format selection, and staff confirmation. | FR-008 | Full-Stack | Released |
-| **F-008** | Referral Engine | Unique referral codes, 30-day cookie attribution, and reward progression. | FR-009 | Growth | Released |
-| **F-009** | Preparer Messaging | Transactional preparer messaging, unread badges, and read-receipt tracking. | FR-010 | Full-Stack | Released |
-| **F-010** | Staff Administration Console | Scoped console for leads, client management, return status, and invoices. | FR-011 | Full-Stack | Released |
-| **F-011** | Stripe Payment Processing | Invoice quote setting, hosted Stripe Checkout, and idempotent webhooks. | FR-012 | Finance | Released |
-| **F-012** | Form 7216 Consent & E-Sign | Digital tax return signature, Form 7216 consent, and signed PDF generation. | FR-013 | Legal/Sec | Released |
+| ID        | Feature                      | Purpose                                                                         | Requirements covered | Owner      | Status   |
+| --------- | ---------------------------- | ------------------------------------------------------------------------------- | -------------------- | ---------- | -------- |
+| **F-001** | Brand & Marketing Suite      | 5 public pages (Home, Services, Pricing, About, Contact), testimonials, videos. | FR-001               | Frontend   | Released |
+| **F-002** | Lead Capture & Anti-Spam     | Quote and consultation forms, honeypot, rate limiting, and email dispatch.      | FR-002, FR-003       | Full-Stack | Released |
+| **F-003** | Unified Authentication       | Single `/login` & `/register` screen, Fortify integration, email verification.  | FR-004               | Full-Stack | Released |
+| **F-004** | Client Portal Dashboard      | Return status tracker (7 stages), tier switcher, and overview cards.            | FR-006               | Full-Stack | Released |
+| **F-005** | Secure Document Vault        | Multi-file dropzone upload, ClamAV antivirus scanning, and private downloads.   | FR-007               | Backend    | Released |
+| **F-006** | Multi-Factor Authentication  | Mandatory TOTP MFA enforcement, recovery codes, and passkey support.            | FR-005               | Security   | Released |
+| **F-007** | Appointment Scheduling       | Client appointment requests, window/format selection, and staff confirmation.   | FR-008               | Full-Stack | Released |
+| **F-008** | Referral Engine              | Unique referral codes, 30-day cookie attribution, and reward progression.       | FR-009               | Growth     | Released |
+| **F-009** | Preparer Messaging           | Transactional preparer messaging, unread badges, and read-receipt tracking.     | FR-010               | Full-Stack | Released |
+| **F-010** | Staff Administration Console | Scoped console for leads, client management, return status, and invoices.       | FR-011               | Full-Stack | Released |
+| **F-011** | Stripe Payment Processing    | Invoice quote setting, hosted Stripe Checkout, and idempotent webhooks.         | FR-012               | Finance    | Released |
+| **F-012** | Form 7216 Consent & E-Sign   | Digital tax return signature, Form 7216 consent, and signed PDF generation.     | FR-013               | Legal/Sec  | Released |
 
 ### 6.2 Framework Context
 
@@ -345,23 +348,24 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 
 ### 6.3 Mapping Features to Framework Constructs
 
-| Concern | Laravel 12 + Inertia.js v3 (This Application) |
-| --- | --- |
-| **Entry point and routing** | `routes/web.php`, `routes/settings.php`, Wayfinder typed exports in `resources/js/routes/*` |
-| **UI or response layer** | React 19 Inertia page components in `resources/js/pages/*` rendered via `Inertia::render()` |
-| **Business logic** | Action classes (`App\Actions\AdvanceReturnStatus`), Models, and Enums (`App\Enums\*`) |
-| **Data access** | Eloquent ORM models in `app/Models/*`, migrations in `database/migrations/*` |
-| **Validation** | FormRequest classes (`app/Http/Requests/*`) and custom rules (`App\Rules\TurnstileRule`) |
-| **Authentication & AuthZ** | Laravel Fortify, `EnsureTwoFactorEnabled` middleware, Gates, and Policies (`app/Policies/*`) |
-| **Background work** | Queued Mailables, queued Jobs (`App\Jobs\ScanDocument`), and listeners (`HandleCashierWebhookReceived`) |
-| **Configuration** | `config/*.php` files (site, tiers, addons, faqs, offices, videos), `.env` environment variables |
-| **Testing** | Pest PHP test suite in `tests/Feature/*` and `tests/Unit/*` |
+| Concern                     | Laravel 12 + Inertia.js v3 (This Application)                                                           |
+| --------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Entry point and routing** | `routes/web.php`, `routes/settings.php`, Wayfinder typed exports in `resources/js/routes/*`             |
+| **UI or response layer**    | React 19 Inertia page components in `resources/js/pages/*` rendered via `Inertia::render()`             |
+| **Business logic**          | Action classes (`App\Actions\AdvanceReturnStatus`), Models, and Enums (`App\Enums\*`)                   |
+| **Data access**             | Eloquent ORM models in `app/Models/*`, migrations in `database/migrations/*`                            |
+| **Validation**              | FormRequest classes (`app/Http/Requests/*`) and custom rules (`App\Rules\TurnstileRule`)                |
+| **Authentication & AuthZ**  | Laravel Fortify, `EnsureTwoFactorEnabled` middleware, Gates, and Policies (`app/Policies/*`)            |
+| **Background work**         | Queued Mailables, queued Jobs (`App\Jobs\ScanDocument`), and listeners (`HandleCashierWebhookReceived`) |
+| **Configuration**           | `config/*.php` files (site, tiers, addons, faqs, offices, videos), `.env` environment variables         |
+| **Testing**                 | Pest PHP test suite in `tests/Feature/*` and `tests/Unit/*`                                             |
 
 ---
 
 ### 6.4 Per-Feature Implementation Details
 
 #### F-001 — Brand & Marketing Suite
+
 - **Summary:** Delivers public-facing marketing pages (Home, Services, Pricing, About, Contact) establishing 26+ years of firm history, transparent pricing tiers, office locations, testimonials, and video walkthroughs.
 - **Entry points:** `GET /`, `GET /services`, `GET /pricing`, `GET /about`, `GET /contact`.
 - **Components:** `resources/js/pages/home.tsx`, `services.tsx`, `pricing.tsx`, `about.tsx`, `contact.tsx`, `resources/js/components/site-header.tsx`, `site-footer.tsx`.
@@ -369,6 +373,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/PublicPagesTest.php` asserts HTTP 200, required Inertia props, and valid XML output on `/sitemap.xml`.
 
 #### F-002 — Lead Capture & Anti-Spam
+
 - **Summary:** Captures taxpayer inquiries for quotes or consultations, enforces Cloudflare Turnstile verification and Spatie Honeypot fields, throttles submissions (5/hour), and notifies staff.
 - **Entry points:** `POST /leads/quote`, `POST /leads/consult`. Handled by `App\Http\Controllers\LeadController`.
 - **Components:** `app/Http/Controllers/LeadController.php`, `app/Http/Requests/StoreLeadRequest.php`, `app/Rules/TurnstileRule.php`.
@@ -377,6 +382,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/LeadFormsTest.php` validates field errors, rate limiting, and queued mailables.
 
 #### F-003 — Unified Authentication
+
 - **Summary:** Provides a unified access portal (`/login` and `/register`) with interactive tab switching, URL state preservation (`?mode=signup`), Fortify user creation, and verification notices.
 - **Entry points:** `GET /login`, `GET /register`, `POST /login`, `POST /register`.
 - **Components:** `resources/js/pages/auth/access.tsx`, `app/Actions/Fortify/CreateNewUser.php`, `app/Providers/FortifyServiceProvider.php`.
@@ -384,6 +390,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Auth/AuthenticationTest.php` and `RegistrationTest.php` assert redirection to `/portal/overview`, referral association, and email verification dispatch.
 
 #### F-004 — Client Portal Dashboard
+
 - **Summary:** The central cockpit for authenticated taxpayers, featuring a visual return progress tracker across 7 statuses, tier badge with dynamic modal switcher, invoice card, and quick links.
 - **Entry points:** `GET /portal/overview`. Handled by `App\Http\Controllers\Portal\OverviewController`.
 - **Components:** `resources/js/pages/portal/overview.tsx`, `app/Http/Controllers/Portal/OverviewController.php`, `resources/js/layouts/portal-layout.tsx`.
@@ -392,6 +399,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/OverviewTest.php` tests view authorization and returned props.
 
 #### F-005 — Secure Document Vault
+
 - **Summary:** Secure document exchange enabling clients to drag-and-drop W-2s, 1099s, and IDs. Stores files on a private filesystem disk and queues an asynchronous ClamAV virus scan before enabling download.
 - **Entry points:** `GET /portal/documents`, `POST /portal/documents`, `GET /portal/documents/{document}/download`, `DELETE /portal/documents/{document}`.
 - **Components:** `app/Http/Controllers/Portal/DocumentController.php`, `app/Jobs/ScanDocument.php`, `resources/js/pages/portal/documents.tsx`.
@@ -399,6 +407,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/DocumentsTest.php` covers IDOR prevention, upload limits, and virus scan status handling.
 
 #### F-006 — Multi-Factor Authentication (MFA)
+
 - **Summary:** Enforces two-factor authentication (TOTP + recovery codes) for all client and staff accounts accessing portal features.
 - **Entry points:** `GET /portal/security`, Fortify 2FA endpoints (`/user/two-factor-authentication`, `/user/two-factor-qr-code`, `/two-factor-challenge`).
 - **Components:** `app/Http/Middleware/EnsureTwoFactorEnabled.php`, `resources/js/pages/portal/security.tsx`, `resources/js/hooks/use-two-factor-auth.ts`.
@@ -406,6 +415,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/TwoFactorMiddlewareTest.php` validates that unconfirmed clients cannot bypass the security screen.
 
 #### F-007 — Appointment Scheduling
+
 - **Summary:** Allows clients to book video, phone, or in-person tax review consultations with their preparer, choose time windows, and cancel pending requests.
 - **Entry points:** `GET /portal/appointments`, `POST /portal/appointments`, `DELETE /portal/appointments/{appointment}`.
 - **Components:** `app/Http/Controllers/Portal/AppointmentController.php`, `app/Http/Requests/Portal/StoreAppointmentRequest.php`, `resources/js/pages/portal/appointments.tsx`.
@@ -413,6 +423,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/AppointmentsTest.php` asserts date validation (today..+180 days in America/New_York) and policy enforcement.
 
 #### F-008 — Referral Engine
+
 - **Summary:** Drives word-of-mouth growth by assigning unique referral codes (`OKJ-XXXXXX`), copyable links, direct friend invite emails, and 30-day cookie attribution for rewards ($25 or $50 based on filed tier).
 - **Entry points:** `GET /portal/referrals`, `POST /portal/referrals`, `GET /contact?ref={code}`.
 - **Components:** `app/Http/Controllers/Portal/ReferralController.php`, `app/Http/Middleware/AttributeReferral.php`, `resources/js/pages/portal/referrals.tsx`.
@@ -420,6 +431,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/ReferralsTest.php` validates cookie attribution through registration, duplicate invite rejection, and status progression.
 
 #### F-009 — Preparer Messaging
+
 - **Summary:** Transactional messaging channel allowing tax preparers to communicate document requests and filing updates to clients. Displays unread dots and marks messages read on view.
 - **Entry points:** `GET /portal/messages`, `POST /portal/messages/read`.
 - **Components:** `app/Http/Controllers/Portal/MessageController.php`, `resources/js/pages/portal/messages.tsx`.
@@ -427,6 +439,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/MessagesTest.php` asserts unread count decrements and unauthorized users cannot view messages.
 
 #### F-010 — Staff Administration Console
+
 - **Summary:** Operations center under `/admin` restricted to staff and admins (`can:access-admin`). Includes leads inbox, client management, return status transitions with mandatory reversal reasons, and audit logging.
 - **Entry points:** `GET /admin/leads`, `GET /admin/clients`, `GET /admin/clients/{client}`, `PATCH /admin/tax-returns/{taxReturn}/status`.
 - **Components:** `app/Http/Controllers/Admin/ClientController.php`, `LeadController.php`, `TaxReturnController.php`, `resources/js/pages/admin/client-show.tsx`.
@@ -434,6 +447,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Admin/StaffConsoleTest.php` verifies role scoping and return status progression.
 
 #### F-011 — Stripe Payment Processing
+
 - **Summary:** Collects tax preparation fees via Stripe Checkout. Handles webhooks idempotently, generates payment receipts, and advances the invoice state.
 - **Entry points:** `POST /portal/invoices/{invoice}/checkout`, `GET /portal/invoices/{invoice}/receipt`, `POST /stripe/webhook`.
 - **Components:** `app/Http/Controllers/Portal/InvoiceController.php`, `app/Listeners/HandleCashierWebhookReceived.php`, `resources/js/pages/portal/receipt.tsx`.
@@ -441,6 +455,7 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 - **Testing:** `tests/Feature/Portal/PaymentTest.php` verifies guard rails (409 on unpaid/null amount), webhook idempotency, and receipt rendering.
 
 #### F-012 — Form 7216 Consent & E-Sign
+
 - **Summary:** Electronic signature step available when return reaches `ReadyForReview`. Captures IRC § 7216 disclosure consent, typed name signature, IP, user-agent, generates signed PDF audit record, and moves return to `ESigned`.
 - **Entry points:** `GET /portal/sign/{taxReturn}`, `POST /portal/sign/{taxReturn}`.
 - **Components:** `app/Http/Controllers/Portal/SignController.php`, `resources/js/pages/portal/sign.tsx`.
@@ -468,13 +483,13 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
         │◀── Redirect to /portal/overview ───────┤                                    │
 ```
 
-| Aspect | Implementation Detail |
-| --- | --- |
-| **Entry Points** | `GET /portal/sign/{taxReturn}` (`route('portal.sign')`), `POST /portal/sign/{taxReturn}` (`route('portal.sign.submit')`). |
-| **Components** | `App\Http\Controllers\Portal\SignController`, `resources/js/pages/portal/sign.tsx`, `lang/en/legal.php`. |
-| **Data & State** | Reads `tax_returns`, updates `status` to `ESigned`, creates `status_events` row, writes signed PDF to `storage/app/private/signed_returns/{id}.pdf`. |
-| **Security & Compliance** | `TaxReturnPolicy@sign` ensures client ownership; captures IP and User-Agent; enforces verbatim IRC § 7216 statutory consent wording. |
-| **Testing** | Covered by `tests/Feature/Portal/SignTest.php`. |
+| Aspect                    | Implementation Detail                                                                                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entry Points**          | `GET /portal/sign/{taxReturn}` (`route('portal.sign')`), `POST /portal/sign/{taxReturn}` (`route('portal.sign.submit')`).                            |
+| **Components**            | `App\Http\Controllers\Portal\SignController`, `resources/js/pages/portal/sign.tsx`, `lang/en/legal.php`.                                             |
+| **Data & State**          | Reads `tax_returns`, updates `status` to `ESigned`, creates `status_events` row, writes signed PDF to `storage/app/private/signed_returns/{id}.pdf`. |
+| **Security & Compliance** | `TaxReturnPolicy@sign` ensures client ownership; captures IP and User-Agent; enforces verbatim IRC § 7216 statutory consent wording.                 |
+| **Testing**               | Covered by `tests/Feature/Portal/SignTest.php`.                                                                                                      |
 
 ### 6.6 Feature Interactions and Dependencies
 
@@ -491,18 +506,18 @@ The system utilizes a modern monolithic architecture powered by Laravel 12 and I
 
 The application communicates via Inertia.js protocol over standard HTTPS. Below is the reference for core endpoints:
 
-| Method | URI / Route Name | Description | Auth / Middleware | Parameters / Body | Status Codes |
-| --- | --- | --- | --- | --- | --- |
-| `POST` | `/leads/quote`<br>`leads.quote` | Submit tax quote request | `throttle:public-forms`, Honeypot | `name`, `email`, `phone`, `tier_interest`, `situation`, `cf-turnstile-response` | `302`, `422`, `429` |
-| `POST` | `/leads/consult`<br>`leads.consult` | Request consultation | `throttle:public-forms`, Honeypot | `name`, `email`, `phone`, `preferred_date`, `time_window`, `format`, `notes` | `302`, `422`, `429` |
-| `POST` | `/newsletter/subscribe`<br>`newsletter.subscribe` | Subscribe to updates | `throttle:public-forms`, Honeypot | `email` | `302`, `422`, `429` |
-| `POST` | `/portal/documents`<br>`portal.documents.store` | Upload tax documents | `auth`, `verified`, `portal.2fa` | `files[]` (multipart, max 25MB, pdf/jpeg/png), `type` | `302`, `422` |
-| `GET` | `/portal/documents/{id}/download`<br>`portal.documents.download` | Download clean document | `auth`, `verified`, `portal.2fa`, Policy | `id` (Document UUID) | `200`, `403`, `404` |
-| `POST` | `/portal/appointments`<br>`portal.appointments.store` | Request appointment | `auth`, `verified`, `portal.2fa` | `preferred_date`, `time_window`, `format`, `topic`, `notes` | `302`, `422` |
-| `POST` | `/portal/referrals`<br>`portal.referrals.store` | Send referral email | `auth`, `verified`, `portal.2fa` | `friend_name`, `friend_email` | `302`, `422` |
-| `POST` | `/portal/invoices/{id}/checkout`<br>`portal.invoices.checkout` | Initialize Stripe Checkout | `auth`, `verified`, `portal.2fa`, Policy | `id` (Invoice ID) | `303` (Stripe URL), `409` |
-| `POST` | `/portal/sign/{id}`<br>`portal.sign.submit` | E-sign tax return | `auth`, `verified`, `portal.2fa`, Policy | `consent_7216` (bool), `typed_signature` (string) | `302`, `403`, `422` |
-| `PATCH` | `/admin/tax-returns/{id}/status`<br>`admin.returns.status` | Update return status | `auth`, `verified`, `portal.2fa`, `can:access-admin` | `status` (string), `reason` (string, required if reversing) | `302`, `403`, `422` |
+| Method  | URI / Route Name                                                 | Description                | Auth / Middleware                                    | Parameters / Body                                                               | Status Codes              |
+| ------- | ---------------------------------------------------------------- | -------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------- |
+| `POST`  | `/leads/quote`<br>`leads.quote`                                  | Submit tax quote request   | `throttle:public-forms`, Honeypot                    | `name`, `email`, `phone`, `tier_interest`, `situation`, `cf-turnstile-response` | `302`, `422`, `429`       |
+| `POST`  | `/leads/consult`<br>`leads.consult`                              | Request consultation       | `throttle:public-forms`, Honeypot                    | `name`, `email`, `phone`, `preferred_date`, `time_window`, `format`, `notes`    | `302`, `422`, `429`       |
+| `POST`  | `/newsletter/subscribe`<br>`newsletter.subscribe`                | Subscribe to updates       | `throttle:public-forms`, Honeypot                    | `email`                                                                         | `302`, `422`, `429`       |
+| `POST`  | `/portal/documents`<br>`portal.documents.store`                  | Upload tax documents       | `auth`, `verified`, `portal.2fa`                     | `files[]` (multipart, max 25MB, pdf/jpeg/png), `type`                           | `302`, `422`              |
+| `GET`   | `/portal/documents/{id}/download`<br>`portal.documents.download` | Download clean document    | `auth`, `verified`, `portal.2fa`, Policy             | `id` (Document UUID)                                                            | `200`, `403`, `404`       |
+| `POST`  | `/portal/appointments`<br>`portal.appointments.store`            | Request appointment        | `auth`, `verified`, `portal.2fa`                     | `preferred_date`, `time_window`, `format`, `topic`, `notes`                     | `302`, `422`              |
+| `POST`  | `/portal/referrals`<br>`portal.referrals.store`                  | Send referral email        | `auth`, `verified`, `portal.2fa`                     | `friend_name`, `friend_email`                                                   | `302`, `422`              |
+| `POST`  | `/portal/invoices/{id}/checkout`<br>`portal.invoices.checkout`   | Initialize Stripe Checkout | `auth`, `verified`, `portal.2fa`, Policy             | `id` (Invoice ID)                                                               | `303` (Stripe URL), `409` |
+| `POST`  | `/portal/sign/{id}`<br>`portal.sign.submit`                      | E-sign tax return          | `auth`, `verified`, `portal.2fa`, Policy             | `consent_7216` (bool), `typed_signature` (string)                               | `302`, `403`, `422`       |
+| `PATCH` | `/admin/tax-returns/{id}/status`<br>`admin.returns.status`       | Update return status       | `auth`, `verified`, `portal.2fa`, `can:access-admin` | `status` (string), `reason` (string, required if reversing)                     | `302`, `403`, `422`       |
 
 ---
 
@@ -514,9 +529,9 @@ The application communicates via Inertia.js protocol over standard HTTPS. Below 
   Managed via Laravel Fortify. Passwords hashed using Argon2id (`memory: 65536, time: 4, threads: 1`). Multi-Factor Authentication (RFC 6238 TOTP) enforced via `EnsureTwoFactorEnabled` middleware. WebAuthn passkey authentication supported natively.
 - **Authorization & Data Scoping:**  
   Granular Eloquent Policies enforce access control. Clients cannot view or download documents belonging to other users. Preparers can only view clients assigned to them; only administrators can access system-wide settings. Tested and enforced by `PolicyCoverageTest`.
-- **Data Protection:**  
-  - *In Transit:* TLS 1.3 forced; HSTS header with 1-year max-age (`preload`).  
-  - *At Rest:* Uploaded documents stored on private disk with non-deterministic UUID filenames. Sensitive API keys and credentials managed via encrypted environment variables.
+- **Data Protection:**
+    - _In Transit:_ TLS 1.3 forced; HSTS header with 1-year max-age (`preload`).
+    - _At Rest:_ Uploaded documents stored on private disk with non-deterministic UUID filenames. Sensitive API keys and credentials managed via encrypted environment variables.
 - **Input Validation & Output Sanitization:**  
   Every public form is protected by Cloudflare Turnstile token validation, Honeypot hidden fields, and strict FormRequest rules. Content Security Policy (CSP) restricts script/frame execution with nonces and allows only Stripe and Cloudflare domains.
 - **Audit Logging:**  
@@ -527,6 +542,7 @@ The application communicates via Inertia.js protocol over standard HTTPS. Below 
 ## 9. Development Setup
 
 ### 9.1 Prerequisites
+
 - Docker Desktop (or OrbStack / Rancher Desktop)
 - Git (2.35+)
 - Composer 2.x and Node.js 22.x (optional for host operations; Sail runs both inside Docker)
@@ -573,6 +589,7 @@ vendor/bin/sail artisan test --compact
 ```
 
 ### 9.3 Demo Accounts Seeded
+
 - **Administrator:** `admin@example.com` / `password` (MFA configured)
 - **Tax Preparer:** `preparer@example.com` / `password` (Assigned clients)
 - **Client (Demo Parity):** `client@example.com` / `password` (Return at Ready for Review, Invoice $225)
@@ -616,6 +633,7 @@ okojie-associates/
 ```
 
 ### 10.2 Coding Standards & Tooling
+
 - **PHP:** Formatted using Laravel Pint (`vendor/bin/sail bin pint --format agent`). Static analysis enforced via PHPStan Level 5 (`vendor/bin/sail bin phpstan analyse`).
 - **TypeScript & React:** Formatted and linted using Biome (`vendor/bin/sail npm run check`). Type checking verified via `vendor/bin/sail npm run types:check`.
 
@@ -625,14 +643,14 @@ okojie-associates/
 
 - **Test Framework:** Pest PHP v3 with parallel test runner.
 - **Coverage Areas:**
-  - *Feature Tests:* Public marketing rendering, lead capture validation, rate-limiting, honeypot rejection, Fortify authentication, portal dashboard rendering, document upload/download/deletion policies, appointment scheduling rules, referral attribution progression, preparer assignment scoping, Stripe checkout guard rails, webhook idempotency, e-sign validation, security headers, and SEO verification.
-  - *Policy Coverage:* `PolicyCoverageTest` utilizes reflection to ensure that every public method on any portal controller accepting an Eloquent model parameter calls `authorize()`.
-  - *Accessibility Testing:* Automated axe checks verifying zero critical accessibility violations.
+    - _Feature Tests:_ Public marketing rendering, lead capture validation, rate-limiting, honeypot rejection, Fortify authentication, portal dashboard rendering, document upload/download/deletion policies, appointment scheduling rules, referral attribution progression, preparer assignment scoping, Stripe checkout guard rails, webhook idempotency, e-sign validation, security headers, and SEO verification.
+    - _Policy Coverage:_ `PolicyCoverageTest` utilizes reflection to ensure that every public method on any portal controller accepting an Eloquent model parameter calls `authorize()`.
+    - _Accessibility Testing:_ Automated axe checks verifying zero critical accessibility violations.
 - **Execution Command:**
-  ```bash
-  vendor/bin/sail artisan test --compact
-  ```
-  *(Current Suite: 161 tests, 977 assertions, 100% passing).*
+    ```bash
+    vendor/bin/sail artisan test --compact
+    ```
+    _(Current Suite: 161 tests, 977 assertions, 100% passing)._
 
 ---
 
@@ -640,9 +658,9 @@ okojie-associates/
 
 - **CI/CD Pipeline (`.github/workflows/tests.yml`):**  
   Every push and pull request triggers a multi-stage GitHub Actions workflow:
-  1. *Backend Checks:* Runs `composer validate`, Laravel Pint style verification, PHPStan static analysis, and Composer security audit.
-  2. *Frontend Checks:* Runs Biome linter/formatter, TypeScript type check, Vite production build, and NPM security audit.
-  3. *Test Execution:* Configures SQLite/PostgreSQL in-memory, runs all migrations, and executes the complete Pest test suite.
+    1. _Backend Checks:_ Runs `composer validate`, Laravel Pint style verification, PHPStan static analysis, and Composer security audit.
+    2. _Frontend Checks:_ Runs Biome linter/formatter, TypeScript type check, Vite production build, and NPM security audit.
+    3. _Test Execution:_ Configures SQLite/PostgreSQL in-memory, runs all migrations, and executes the complete Pest test suite.
 - **Deployment Platform:**  
   Designed for zero-downtime deployment on Laravel Cloud. Assets are compiled during build (`npm run build`), database migrations run automatically with `--force`, and the Inertia SSR daemon is gracefully reloaded.
 - **Rollback Strategy:**  
@@ -655,23 +673,23 @@ okojie-associates/
 - **Application Logging:** Structured JSON logs sent to `storage/logs/laravel.log` or centralized Cloud logging (Datadog / PaperTrail).
 - **Audit Logging:** Every user authorization, file interaction, status transition, and financial transaction is permanently written to the `audit_logs` database table.
 - **Health Checks & Monitoring:**
-  - `GET /up`: Built-in Laravel 12 health check endpoint returning HTTP 200 when database, cache, and filesystem are functional.
-  - Inertia SSR health: Monitored on localhost port 13714.
+    - `GET /up`: Built-in Laravel 12 health check endpoint returning HTTP 200 when database, cache, and filesystem are functional.
+    - Inertia SSR health: Monitored on localhost port 13714.
 - **Incident Runbooks:**
-  - *Stripe Webhook Delays:* Invoices can be manually reconciled and marked "paid offline" in the Admin Console.
-  - *Queue Backlog:* Monitor worker container count and scale queue worker processes via `sail artisan queue:work --tries=3`.
+    - _Stripe Webhook Delays:_ Invoices can be manually reconciled and marked "paid offline" in the Admin Console.
+    - _Queue Backlog:_ Monitor worker container count and scale queue worker processes via `sail artisan queue:work --tries=3`.
 
 ---
 
 ## 14. Risks, Limitations, and Open Issues
 
 - **Known Limitations:**
-  - Client messaging is read-only for clients in v1 (clients read messages sent by preparers; direct two-way chat is slated for v1.1).
-  - Video library cards display placeholders with modal previews; production deployment requires uploading actual video assets to CDN.
-  - Real IRS Form 8879 and Form 7216 wording must be reviewed and countersigned by firm legal counsel prior to tax season kickoff.
+    - Client messaging is read-only for clients in v1 (clients read messages sent by preparers; direct two-way chat is slated for v1.1).
+    - Video library cards display placeholders with modal previews; production deployment requires uploading actual video assets to CDN.
+    - Real IRS Form 8879 and Form 7216 wording must be reviewed and countersigned by firm legal counsel prior to tax season kickoff.
 - **Technical Debt & Follow-up Items:**
-  - Implement full PDF stamping/flattening for Form 8879 generation rather than placeholder text PDFs.
-  - Integrate live WebSocket broadcast (Pusher/Reverb) for instantaneous return status and message notifications without page reload.
+    - Implement full PDF stamping/flattening for Form 8879 generation rather than placeholder text PDFs.
+    - Integrate live WebSocket broadcast (Pusher/Reverb) for instantaneous return status and message notifications without page reload.
 
 ---
 
@@ -686,20 +704,21 @@ okojie-associates/
 ## 16. Contribution and Support
 
 - **Contribution Guidelines:**
-  1. Create a feature branch off `main` (`feature/your-feature-name`).
-  2. Adhere to Laravel Pint and Biome formatting standards.
-  3. Run all unit and feature tests before opening a PR (`vendor/bin/sail artisan test`).
-  4. Ensure all new endpoints and actions use Wayfinder typed route helpers.
+    1. Create a feature branch off `main` (`feature/your-feature-name`).
+    2. Adhere to Laravel Pint and Biome formatting standards.
+    3. Run all unit and feature tests before opening a PR (`vendor/bin/sail artisan test`).
+    4. Ensure all new endpoints and actions use Wayfinder typed route helpers.
 - **Ownership & Support Contacts:**
-  - Lead Systems Architect: `engineering@okojieonline.com`
-  - Firm Operations & Office Admin: `operations@okojieonline.com`
-  - Emergency Escalation: (215) 555-0142
+    - Lead Systems Architect: `engineering@okojieonline.com`
+    - Firm Operations & Office Admin: `operations@okojieonline.com`
+    - Emergency Escalation: (215) 555-0142
 
 ---
 
 ## 17. Appendices
 
 ### Appendix A: Glossary of Terms
+
 - **E-File:** Electronic transmission of tax returns to the IRS and state departments of revenue.
 - **Inertia Protocol:** JSON-over-HTTP wire format that delivers page props and component names to a single-page React frontend.
 - **Wayfinder:** Build-time AST parser that translates Laravel route definitions into TypeScript functions.

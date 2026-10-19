@@ -3,6 +3,7 @@
 use App\Models\Message;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
+use Laravel\Fortify\Features;
 
 test('client can view messages page with empty state', function () {
     $client = User::factory()->withTwoFactor()->create();
@@ -65,6 +66,8 @@ test('client can mark messages as read via post endpoint', function () {
 test('unauthenticated or unverified user cannot view messages', function () {
     $this->get(route('portal.messages'))->assertRedirect(route('login'));
 
-    $unverified = User::factory()->unverified()->create();
-    $this->actingAs($unverified)->get(route('portal.messages'))->assertRedirect(route('verification.notice'));
+    if (Features::enabled(Features::emailVerification())) {
+        $unverified = User::factory()->unverified()->create();
+        $this->actingAs($unverified)->get(route('portal.messages'))->assertRedirect(route('verification.notice'));
+    }
 });
