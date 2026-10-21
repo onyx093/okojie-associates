@@ -4,7 +4,10 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { logout } from '@/routes';
-import { send } from '@/routes/verification';
+
+// Email verification is disabled in Fortify, so Wayfinder no longer generates
+// `@/routes/verification`. Point at Fortify's route directly until it's re-enabled.
+const VERIFICATION_NOTIFICATION_URL = '/email/verification-notification';
 
 export default function VerifyEmail({ status }: { status?: string }) {
     return (
@@ -18,7 +21,11 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 </div>
             )}
 
-            <Form {...send.form()} className="space-y-6 text-center">
+            <Form
+                action={VERIFICATION_NOTIFICATION_URL}
+                method="post"
+                className="space-y-6 text-center"
+            >
                 {({ processing }) => (
                     <>
                         <Button disabled={processing} variant="secondary">
