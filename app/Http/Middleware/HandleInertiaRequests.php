@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Vite;
 use Inertia\Middleware;
+use Spatie\Honeypot\Honeypot;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -65,6 +66,16 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
             ],
             'cspNonce' => fn () => Vite::cspNonce(),
+            // Public forms send these back so ProtectAgainstSpam doesn't reject real visitors.
+            'honeypot' => function () {
+                $honeypot = app(Honeypot::class);
+
+                return [
+                    'nameField' => $honeypot->nameFieldName(),
+                    'validFromField' => $honeypot->validFromFieldName(),
+                    'validFrom' => $honeypot->encryptedValidFrom(),
+                ];
+            },
         ];
     }
 }
