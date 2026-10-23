@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Referrals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.arrow-cell { color: var(--color-text-tertiary); width: 20px; padding-left: 0 !important; padding-right: 0 !important; }
+td .btn { height: 32px; padding: 0 12px; font-size: 13px; }
+dialog { border: 0; padding: 0; border-radius: 20px; background: var(--color-shell); color: inherit; box-shadow: var(--shadow-raised); width: min(420px, calc(100% - 32px)); }
+dialog::backdrop { background: var(--overlay); }
+dialog .inner { margin: 6px; }
+dialog h3 { font-size: 17px; }
+dialog p { color: var(--color-text-secondary); font-size: 14px; margin-top: 6px; }
+</style>
+</head>
+<body data-area="admin" data-active="referrals">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Workspace</span>
+      <h1>Referrals</h1>
+      <div class="sub">Every client referral and its reward.</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+      <a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-download"/></svg>Export</a>
+    </div>
+  </header>
+
+  <section class="shell" aria-label="Referral totals" style="margin-bottom:16px">
+    <div class="inner metrics" data-when="data">
+      <div class="metric"><span class="top"><span class="tile t-indigo"><svg class="i"><use href="#i-send"/></svg></span>Invites sent</span><span class="val num">86</span><span class="ctx">This season</span></div>
+      <div class="metric"><span class="top"><span class="tile t-amber"><svg class="i"><use href="#i-user"/></svg></span>Signed up</span><span class="val num">34</span><span class="ctx">40% of invites</span></div>
+      <div class="metric"><span class="top"><span class="tile t-green"><svg class="i"><use href="#i-check"/></svg></span>Filed</span><span class="val num">21</span><span class="ctx hot">5 ready to reward</span></div>
+      <div class="metric"><span class="top"><span class="tile t-rose"><svg class="i"><use href="#i-gift"/></svg></span>Rewards paid</span><span class="val num">$640</span><span class="ctx">16 clients</span></div>
+    </div>
+    <div class="inner metrics" data-when="empty">
+      <div class="metric"><span class="top"><span class="tile t-indigo"><svg class="i"><use href="#i-send"/></svg></span>Invites sent</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-amber"><svg class="i"><use href="#i-user"/></svg></span>Signed up</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-green"><svg class="i"><use href="#i-check"/></svg></span>Filed</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-rose"><svg class="i"><use href="#i-gift"/></svg></span>Rewards paid</span><span class="val num muted">$0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+    </div>
+  </section>
+
+  <section class="shell" aria-labelledby="ref-title">
+    <div class="shell-head">
+      <h2 id="ref-title"><svg class="i i-sm"><use href="#i-gift"/></svg>All referrals</h2>
+      <div class="seg" role="tablist" aria-label="Status">
+        <button role="tab" aria-selected="true" type="button">Ready to reward <span class="n">5</span></button>
+        <button role="tab" aria-selected="false" type="button">All <span class="n">86</span></button>
+      </div>
+    </div>
+    <div class="inner" style="padding:8px">
+      <div data-when="data">
+        <div class="table-wrap">
+          <table class="t">
+            <thead><tr><th>Referrer</th><th class="arrow-cell"></th><th>Friend</th><th>Status</th><th class="t-num">Reward</th><th>Sent</th><th><span class="sr-only">Action</span></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div data-when="empty">
+        <div class="empty" style="min-height:340px">
+          <span class="icon-tile"><svg class="i"><use href="#i-gift"/></svg></span>
+          <h3>No referrals recorded yet</h3>
+          <p>When clients share their link or send invites from their portal, referrals appear here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="reward" aria-labelledby="rw-t">
+    <div class="inner">
+      <h3 id="rw-t">Mark as rewarded?</h3>
+      <p>This records a <b style="font-weight:500;color:var(--color-text-primary)" id="rw-amt"></b> payout to <b style="font-weight:500;color:var(--color-text-primary)" id="rw-name"></b>, based on their friend’s tier. Send the reward before you confirm.</p>
+      <div class="form-foot" style="margin-top:18px;justify-content:flex-end"><button class="btn btn-ghost" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn btn-primary" type="button" onclick="this.closest('dialog').close();Okojie.toast('Marked as rewarded')">Mark as rewarded</button></div>
+    </div>
+  </dialog>
+</main>
+
+<script>
+  var ST = { filed: ['ok', 'check', 'Filed'], signed: ['info', 'user', 'Signed up'], sent: ['wait', 'send', 'Sent'], rewarded: ['ok', 'gift', 'Rewarded'] };
+  var R = [
+    ['DR', '', 'Denise Robinson', 'MT', 'av-3', 'Marcus Thompson', 'Account created', 'filed', '$50', 'Jan 30'],
+    ['AM', 'av-6', 'Alicia Morgan', 'SL', 'av-3', 'Sofia Lopez', 'Account created', 'filed', '$25', 'Jan 27'],
+    ['BN', 'av-4', 'Brian Nguyen', 'KA', 'av-5', 'Kwame Asante', 'Account created', 'filed', '$50', 'Jan 22'],
+    ['DR', '', 'Denise Robinson', 'PS', 'av-4', 'Priya Shah', 'Account created', 'signed', '—', 'Feb 4'],
+    ['JO', 'av-2', 'James Okafor', 'EO', 'av-6', 'Emeka Obi', 'Invite only', 'sent', '—', 'Feb 8'],
+    ['MT', 'av-3', 'Marcus Thompson', 'LB', 'av-2', 'Lena Brooks', 'Account created', 'rewarded', '$25', 'Jan 12']
+  ];
+  document.getElementById('rows').innerHTML = R.map(function (r) {
+    var s = ST[r[7]];
+    var act = r[7] === 'filed' ? '<button class="btn btn-primary" type="button" data-n="' + r[2] + '" data-a="' + r[8] + '">Mark rewarded</button>' : '';
+    return '<tr><td><span class="cell-2"><span class="avatar ' + r[1] + '" aria-hidden="true">' + r[0] + '</span><b>' + r[2] + '</b></span></td>' +
+      '<td class="arrow-cell"><svg class="i i-sm"><use href="#i-arrow"/></svg></td>' +
+      '<td><span class="cell-2"><span class="avatar ' + r[4] + '" aria-hidden="true">' + r[3] + '</span><span><b>' + r[5] + '</b><small>' + r[6] + '</small></span></span></td>' +
+      '<td><span class="status ' + s[0] + '"><svg class="i"><use href="#i-' + s[1] + '"/></svg>' + s[2] + '</span></td>' +
+      '<td class="t-num">' + r[8] + '</td><td>' + r[9] + '</td><td>' + act + '</td></tr>';
+  }).join('');
+  document.querySelectorAll('[data-n]').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById('rw-name').textContent = b.dataset.n; document.getElementById('rw-amt').textContent = b.dataset.a; document.getElementById('reward').showModal(); });
+  });
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () { document.querySelectorAll('.seg button').forEach(function (x) { x.setAttribute('aria-selected', x === b); }); });
+  });
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

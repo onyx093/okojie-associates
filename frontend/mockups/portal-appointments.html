@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Appointments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.cal { width: 48px; flex: none; border-radius: 11px; overflow: hidden; text-align: center; background: var(--color-surface); box-shadow: var(--shadow-chip); }
+.cal span { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 0; background: var(--color-accent-solid); color: #fff; }
+.cal b { display: block; font-size: 18px; font-weight: 500; padding: 3px 0 5px; letter-spacing: -0.02em; }
+.cal.past span { background: var(--color-text-tertiary); }
+.cal.past b { color: var(--color-text-tertiary); }
+.appt-row { align-items: flex-start; padding: 16px 10px; }
+.appt-row .row-meta small { display: flex; align-items: center; gap: 6px; white-space: normal; margin-top: 3px; }
+.appt-row .row-meta p { margin-top: 6px; font-size: 13.5px; color: var(--color-text-secondary); white-space: normal; }
+.appt-side { display: grid; justify-items: end; gap: 10px; flex: none; }
+.appt-side .btn { height: 32px; padding: 0 12px; font-size: 13px; }
+.section-label { padding: 14px 16px 4px; }
+.choice.formats { --cols: 3; }
+.choice.windows { --cols: 2; }
+.choice label { flex-direction: column; align-items: flex-start; gap: 2px; }
+.choice label small { font-weight: 400; color: var(--color-text-tertiary); font-size: 12px; }
+.choice label:has(input:checked) small { color: inherit; opacity: .8; }
+.choice.formats label { align-items: center; text-align: center; padding: 12px 8px; gap: 6px; }
+@media (max-width: 640px) { .appt-row { flex-wrap: wrap; } .appt-side { width: 100%; justify-items: start; padding-left: 60px; grid-auto-flow: column; justify-content: start; align-items: center; } .choice.formats { --cols: 3; grid-template-columns: repeat(3, 1fr); } }
+</style>
+</head>
+<body data-area="portal" data-active="appointments">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Your return</span>
+      <h1>Appointments</h1>
+      <div class="sub">Talk to your preparer by video, phone or in person.</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+
+  <div class="grid-2 form-left">
+    <section class="shell" aria-labelledby="req-title">
+      <div class="shell-head"><h2 id="req-title"><svg class="i i-sm"><use href="#i-plus"/></svg>Request an appointment</h2></div>
+      <div class="inner">
+        <form class="form" data-toast="Request sent. We’ll confirm a time within one business day.">
+          <fieldset>
+            <legend class="legend">Format</legend>
+            <div class="choice formats">
+              <label><input type="radio" name="fmt" checked><svg class="i"><use href="#i-video"/></svg>Video</label>
+              <label><input type="radio" name="fmt"><svg class="i"><use href="#i-phone"/></svg>Phone</label>
+              <label><input type="radio" name="fmt"><svg class="i"><use href="#i-building"/></svg>In person</label>
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="date">Preferred date</label>
+            <input class="input" id="date" type="date" value="2027-02-18">
+          </div>
+          <fieldset>
+            <legend class="legend">Time window</legend>
+            <div class="choice windows">
+              <label><input type="radio" name="win">Morning<small>9am–12pm</small></label>
+              <label><input type="radio" name="win" checked>Afternoon<small>12pm–4pm</small></label>
+              <label><input type="radio" name="win">Evening<small>4pm–6pm</small></label>
+              <label><input type="radio" name="win">Any time<small>We’ll pick</small></label>
+            </div>
+          </fieldset>
+          <div class="field">
+            <label for="topic">Topic</label>
+            <input class="input" id="topic" placeholder="e.g. Review my return" value="Go through my return before signing">
+          </div>
+          <div class="field">
+            <label for="notes">Notes <span class="opt">(optional)</span></label>
+            <textarea class="input" id="notes" placeholder="Anything your preparer should know beforehand"></textarea>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Request appointment</button>
+          <p class="hint" style="text-align:center">We confirm requests within one business day.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="shell" aria-labelledby="list-title">
+      <div class="shell-head">
+        <h2 id="list-title"><svg class="i i-sm"><use href="#i-cal"/></svg>Your appointments</h2>
+      </div>
+      <div class="inner" style="padding:0" data-when="data">
+        <div class="eyebrow section-label">Upcoming</div>
+        <div class="list">
+          <div class="row appt-row">
+            <span class="cal" aria-hidden="true"><span>Feb</span><b class="num">12</b></span>
+            <span class="row-meta"><b>Review call with your preparer</b><small><svg class="i i-sm"><use href="#i-video"/></svg>Video · Thu, Feb 12 · 4:30 PM</small><p>Go through the return together before e-signing.</p></span>
+            <span class="appt-side"><span class="chip chip-success chip-dot">Confirmed</span><a href="#" class="btn btn-primary">Join call</a></span>
+          </div>
+          <div class="row appt-row">
+            <span class="cal" aria-hidden="true"><span>Feb</span><b class="num">18</b></span>
+            <span class="row-meta"><b>Question about my 1098-T</b><small><svg class="i i-sm"><use href="#i-phone"/></svg>Phone · Wed, Feb 18 · Afternoon (12pm–4pm)</small></span>
+            <span class="appt-side"><span class="chip chip-warning chip-dot">Requested</span><button class="btn btn-ghost cancel" type="button">Cancel request</button></span>
+          </div>
+        </div>
+        <div class="eyebrow section-label" style="border-top:1px solid var(--color-border)">Past</div>
+        <div class="list">
+          <div class="row appt-row">
+            <span class="cal past" aria-hidden="true"><span>Jan</span><b class="num">28</b></span>
+            <span class="row-meta"><b>Free consultation</b><small><svg class="i i-sm"><use href="#i-building"/></svg>In person · 5601 Germantown Ave · Jan 28</small></span>
+            <span class="appt-side"><span class="chip chip-neutral">Completed</span></span>
+          </div>
+          <div class="row appt-row">
+            <span class="cal past" aria-hidden="true"><span>Jan</span><b class="num">24</b></span>
+            <span class="row-meta"><b>Free consultation</b><small><svg class="i i-sm"><use href="#i-video"/></svg>Video · Jan 24</small></span>
+            <span class="appt-side"><span class="chip chip-neutral">Cancelled</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="inner flush-empty" data-when="empty">
+        <div class="empty" style="min-height:420px">
+          <span class="icon-tile"><svg class="i"><use href="#i-cal"/></svg></span>
+          <h3>No appointments yet</h3>
+          <p>Request a video, phone or in-person call with your preparer using the form.</p>
+          <div class="acts"><a href="#date" class="btn btn-secondary">Choose a date</a></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  document.querySelectorAll('.cancel').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var side = b.closest('.appt-side');
+      side.querySelector('.chip').className = 'chip chip-neutral';
+      side.querySelector('.chip').textContent = 'Cancelled';
+      b.remove();
+      Okojie.toast('Request cancelled');
+    });
+  });
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

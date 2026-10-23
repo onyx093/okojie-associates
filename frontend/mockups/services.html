@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/site.css">
+<style>
+.tier-row { display: grid; grid-template-columns: 1fr 1.1fr; gap: 0; padding: 8px; margin-bottom: 16px; }
+.tier-row.featured { box-shadow: 0 0 0 1.5px var(--color-accent-solid), 0 24px 56px -28px rgb(79 99 232 / .45); }
+.tier-main { padding: 28px; display: flex; flex-direction: column; }
+.tier-main .num-tag { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-tertiary); letter-spacing: .06em; }
+.tier-main h3 { font-size: 30px; letter-spacing: -0.03em; margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tier-main .tag { color: var(--color-text-tertiary); margin-top: 4px; }
+.tier-main p { color: var(--color-text-secondary); margin-top: 16px; max-width: 46ch; }
+.tier-main .price { margin-top: auto; padding-top: 24px; display: flex; align-items: baseline; gap: 8px; }
+.tier-main .price small { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-tertiary); }
+.tier-main .price b { font-size: 34px; font-weight: 500; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
+.tier-main .acts { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.tier-side { padding: 24px; border-radius: 14px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); display: grid; gap: 18px; align-content: start; }
+.tier-side ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 15px; }
+.tier-side li { display: flex; gap: 10px; }
+.tier-side li svg { color: var(--color-accent-text); margin-top: 3px; }
+.best { padding-top: 16px; border-top: 1px solid var(--color-border); font-size: 14.5px; color: var(--color-text-secondary); }
+.best b { color: var(--color-text-primary); font-weight: 500; }
+.addons { padding: 8px; }
+.addon { display: grid; grid-template-columns: 44px 1fr auto; gap: 16px; align-items: center; padding: 18px 16px; border-top: 1px solid var(--color-border); }
+.addon:first-child { border-top: 0; }
+.addon .tile { width: 44px; height: 44px; border-radius: 12px; }
+.addon .tile svg { width: 19px; height: 19px; }
+.addon b { display: block; font-weight: 500; font-size: 16px; }
+.addon p { color: var(--color-text-secondary); font-size: 14.5px; margin-top: 2px; }
+.addon .p { font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.guide { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px; }
+.guide-q { padding: 24px; display: grid; gap: 20px; align-content: start; }
+.guide-res { padding: 28px; border-radius: 14px; background: #0C0D16; color: #F2F3F7; position: relative; overflow: hidden; isolation: isolate; display: flex; flex-direction: column; }
+.guide-res::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(70% 90% at 100% 0%, rgb(94 112 240 / .45), transparent 60%), radial-gradient(50% 70% at 80% 120%, rgb(246 150 110 / .3), transparent 60%); }
+.guide-res .eyebrow { color: rgb(242 243 247 / .55); }
+.guide-res h3 { font-size: 34px; letter-spacing: -0.035em; margin-top: 10px; }
+.guide-res p { color: rgb(242 243 247 / .72); margin-top: 10px; max-width: 40ch; }
+.guide-res .price { margin-top: auto; padding-top: 24px; font-size: 15px; color: rgb(242 243 247 / .72); }
+.guide-res .price b { color: #F2F3F7; font-weight: 500; font-size: 22px; }
+.guide-res .btn { margin-top: 16px; align-self: flex-start; }
+.choice label { justify-content: flex-start; }
+@media (max-width: 900px) { .tier-row, .guide { grid-template-columns: minmax(0, 1fr); } .tier-main { padding: 20px; } }
+@media (max-width: 640px) { .addon { grid-template-columns: 44px minmax(0, 1fr); } .addon .p { grid-column: 2; } }
+</style>
+</head>
+<body data-area="site" data-active="services">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="band-wrap">
+  <header class="band">
+    <div class="band-copy">
+      <span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-grid"/></svg></span>Services</span>
+      <h1>Tax help that fits <em>your situation.</em></h1>
+      <p class="lead">From a simple W-2 return to multi-state small-business filings. Choose the tier that matches how you want to work, and add specialist help when you need it.</p>
+      <div class="ctas"><a href="#guide" class="btn btn-primary has-icon-r">Help me choose <svg class="i i-sm"><use href="#i-arrow"/></svg></a><a href="pricing.html" class="btn btn-secondary">Compare prices</a></div>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+  <section class="section" aria-labelledby="tiers-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-card"/></svg></span>Service tiers</span><h2 id="tiers-t">Three ways to file</h2></div>
+        <p>Every tier includes a real, credentialed preparer and an IRS-compliant e-signature.</p>
+      </div>
+
+      <article class="card tier-row">
+        <div class="tier-main">
+          <span class="num-tag">01 · Fully remote</span>
+          <h3>Upload &amp; Go</h3>
+          <p class="tag">Start to finish from your phone</p>
+          <p>Book online, upload to the secure portal, and a credentialed preparer handles the rest. Review by video or phone, e-sign and e-file.</p>
+          <div class="price"><small>From</small><b>$150–$225</b></div>
+          <div class="acts"><a href="auth-register.html" class="btn btn-secondary">Choose Upload &amp; Go</a></div>
+        </div>
+        <div class="tier-side">
+          <ul>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Secure portal document upload</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Preparer-prepared federal + state return</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Review by video or phone</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>IRS-compliant e-signature (Form 8879)</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>E-file and online payment</li>
+          </ul>
+          <p class="best"><b>Best for</b> W-2 households, students, gig workers and out-of-area clients.</p>
+        </div>
+      </article>
+
+      <article class="card tier-row featured">
+        <div class="tier-main">
+          <span class="num-tag">02 · In office or online</span>
+          <h3>Hybrid <span class="chip chip-accent">Most popular</span></h3>
+          <p class="tag">Drop off or upload, review in person or by video</p>
+          <p>Bring your documents to a Philadelphia or Baltimore office, or upload them online. Sit down with your preparer in person or meet by video.</p>
+          <div class="price"><small>From</small><b>$225–$350</b></div>
+          <div class="acts"><a href="auth-register.html" class="btn btn-primary">Choose Hybrid</a><a href="contact.html#start" class="btn btn-ghost">Book a free consultation</a></div>
+        </div>
+        <div class="tier-side">
+          <ul>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>In-office drop-off or secure upload</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>In-person or video review</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>EITC and Child Tax Credit maximization</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Prior-year comparison</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>IRS-compliant e-signature and e-file</li>
+          </ul>
+          <p class="best"><b>Best for</b> families, EITC/CTC filers and first-time clients.</p>
+        </div>
+      </article>
+
+      <article class="card tier-row">
+        <div class="tier-main">
+          <span class="num-tag">03 · Year-round</span>
+          <h3>Premium Remote</h3>
+          <p class="tag">A dedicated preparer all year</p>
+          <p>For complex returns and ongoing strategy: Schedule C and E, multi-state filings, and year-round planning so there are no surprises.</p>
+          <div class="price"><small>From</small><b>$400–$900</b></div>
+          <div class="acts"><a href="auth-register.html" class="btn btn-secondary">Choose Premium Remote</a></div>
+        </div>
+        <div class="tier-side">
+          <ul>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Dedicated preparer</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Schedule C and Schedule E support</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Multi-state (PA / MD / NJ / DE)</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Quarterly estimates and year-round planning</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Priority support</li>
+          </ul>
+          <p class="best"><b>Best for</b> self-employed people, landlords and small business owners.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="addons-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-plus"/></svg></span>Add-ons</span><h2 id="addons-t">Extra help, when you need it</h2></div>
+        <p>Available with any tier. Priced as ranges depending on complexity.</p>
+      </div>
+      <div class="card addons">
+        <div class="addon"><span class="tile t-indigo"><svg class="i"><use href="#i-refresh"/></svg></span><span><b>Prior-year amendments</b><p>Amend a filed return to claim missed credits or correct errors.</p></span><span class="p">$150–$500</span></div>
+        <div class="addon"><span class="tile t-amber"><svg class="i"><use href="#i-mail"/></svg></span><span><b>IRS notice response</b><p>We read the notice, respond on your behalf, and keep you informed.</p></span><span class="p">$125–$400</span></div>
+        <div class="addon"><span class="tile t-green"><svg class="i"><use href="#i-user"/></svg></span><span><b>ITIN applications</b><p>New or renewed ITIN applications with certified document review.</p></span><span class="p">$150–$300</span></div>
+        <div class="addon"><span class="tile t-rose"><svg class="i"><use href="#i-note"/></svg></span><span><b>Bookkeeping</b><p>Monthly bookkeeping for small businesses and self-employed clients.</p></span><span class="p">$100–$500 / mo</span></div>
+        <div class="addon"><span class="tile t-indigo"><svg class="i"><use href="#i-cal"/></svg></span><span><b>Quarterly estimates</b><p>Estimated tax calculations and payment reminders each quarter.</p></span><span class="p">$75–$250</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" id="guide" aria-labelledby="guide-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-spark"/></svg></span>Not sure?</span><h2 id="guide-t">Find your tier in three questions</h2></div>
+        <p>A starting point, not a commitment. Your preparer confirms the right fit before any work begins.</p>
+      </div>
+      <div class="card guide">
+        <form class="guide-q" id="gq">
+          <fieldset><legend class="legend">What income did you have?</legend>
+            <div class="choice" style="--cols:2">
+              <label><input type="radio" name="inc" value="w2" checked>W-2 job only</label>
+              <label><input type="radio" name="inc" value="se">Self-employed or 1099</label>
+              <label><input type="radio" name="inc" value="rent">Rental property</label>
+              <label><input type="radio" name="inc" value="mix">A mix of these</label>
+            </div></fieldset>
+          <fieldset><legend class="legend">How do you want to meet?</legend>
+            <div class="choice" style="--cols:2">
+              <label><input type="radio" name="meet" value="remote" checked>Fully online</label>
+              <label><input type="radio" name="meet" value="office">In an office</label>
+            </div></fieldset>
+          <fieldset><legend class="legend">Did you live or work in more than one state?</legend>
+            <div class="choice" style="--cols:2">
+              <label><input type="radio" name="st" value="one" checked>Just one</label>
+              <label><input type="radio" name="st" value="multi">More than one</label>
+            </div></fieldset>
+        </form>
+        <div class="guide-res" role="status" aria-live="polite">
+          <span class="eyebrow">We’d suggest</span>
+          <h3 id="g-name">Upload &amp; Go</h3>
+          <p id="g-why">A straightforward W-2 return you can finish from home.</p>
+          <div class="price">From <b id="g-price">$150–$225</b></div>
+          <a href="auth-register.html" class="btn btn-primary has-icon-r">Start with this tier <svg class="i i-sm"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="faq-t">
+    <div class="container faq-grid">
+      <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-msg"/></svg></span>FAQ</span><h2 id="faq-t">Choosing a service</h2><p class="lead">Real questions about tiers, remote filing and preparation.</p></div>
+      <div class="faq-list">
+        <details class="faq-item" open><summary>Do I have to come into an office?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">No. Upload &amp; Go and Premium Remote are fully remote: you upload documents to your secure portal, review by video or phone, and e-sign. Hybrid lets you drop off documents or meet in person at one of our Philadelphia or Baltimore offices if you prefer.</p></details>
+        <details class="faq-item"><summary>Can you help with back taxes or an IRS notice?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. Our IRS notice response add-on covers reading the notice, responding on your behalf, and keeping you informed. We can also prepare prior-year returns and amendments.</p></details>
+        <details class="faq-item"><summary>Do you serve clients outside Philadelphia and Baltimore?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. Our remote tiers work anywhere in the U.S., and Premium Remote supports multi-state filings including PA, MD, NJ, and DE.</p></details>
+        <details class="faq-item"><summary>Is the e-signature legally valid?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. We use IRS Form 8879 (IRS e-file Signature Authorization), which the IRS permits for electronically filed returns. You’ll review your return and sign electronically in your portal before we file.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  var T = {
+    upload: ['Upload & Go', '$150–$225', 'A straightforward return you can finish from home.'],
+    hybrid: ['Hybrid', '$225–$350', 'You’d like to sit down with a preparer, in person or by video.'],
+    premium: ['Premium Remote', '$400–$900', 'Self-employment, rentals or several states need a dedicated preparer.']
+  };
+  function pick() {
+    var f = document.getElementById('gq');
+    var inc = f.inc.value, meet = f.meet.value, st = f.st.value;
+    var k = (inc !== 'w2' || st === 'multi') ? 'premium' : meet === 'office' ? 'hybrid' : 'upload';
+    if (inc !== 'w2' && meet === 'office' && st === 'one' && inc !== 'mix') k = 'hybrid';
+    document.getElementById('g-name').textContent = T[k][0];
+    document.getElementById('g-price').textContent = T[k][1];
+    document.getElementById('g-why').textContent = T[k][2];
+  }
+  document.getElementById('gq').addEventListener('change', pick);
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

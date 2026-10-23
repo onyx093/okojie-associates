@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reset password — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/auth.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="auth">
+  <div class="auth-form">
+    <div class="auth-top">
+      <a href="home.html" class="ws"><span class="ws-mark" aria-hidden="true">O</span><span><b>Okojie Online</b><small>Okojie &amp; Associates</small></span></a>
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+    <main class="auth-body" id="main">
+      <div data-state="form">
+        <span class="eyebrow">Account recovery</span>
+        <h1>Forgot your password?</h1>
+        <p class="lead">Enter your email and we’ll send you a link to choose a new one.</p>
+        <form class="form" onsubmit="event.preventDefault();setState('sent')">
+          <div class="field"><label for="email">Email address</label><input class="input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+          <button class="btn btn-primary btn-block" type="submit">Send reset link</button>
+        </form>
+        <p class="switch-line">Remembered it? <a href="auth-login.html">Back to sign in</a></p>
+      </div>
+      <div data-state="sent" hidden>
+        <span class="big-tile"><svg class="i"><use href="#i-mail"/></svg></span>
+        <h1>Check your email</h1>
+        <p class="lead">If an account exists for <b style="font-weight:500;color:var(--color-text-primary)">denise.r@example.com</b>, a reset link is on its way. It expires in 60 minutes.</p>
+        <form class="form"><a href="auth-reset.html" class="btn btn-primary btn-block">Open the link (demo)</a><button class="btn btn-ghost btn-block" type="button" onclick="Okojie.toast('Link sent again')">Didn’t get it? Send again</button></form>
+        <p class="switch-line"><a href="auth-login.html">Back to sign in</a></p>
+      </div>
+    </main>
+    <div class="auth-foot">
+      <span><svg class="i i-sm"><use href="#i-shield"/></svg>IRS Pub 4557 &amp; FTC Safeguards compliant</span>
+      <span><a href="legal-privacy.html">Privacy</a> · <a href="legal-terms.html">Terms</a></span>
+    </div>
+  </div>
+  <aside class="auth-art" aria-hidden="true">
+    <div class="art-trust"><span><svg class="i i-sm"><use href="#i-lock"/></svg>Encrypted portal</span><span><svg class="i i-sm"><use href="#i-users"/></svg>Credentialed preparers</span><span><svg class="i i-sm"><use href="#i-pin"/></svg>PA &amp; MD offices</span></div>
+    <div class="art-quote">
+      <p>“This year I did everything online from my phone and still talked to my preparer. Same people, way less hassle.”</p>
+      <div class="who"><span class="avatar">DR</span><span><b>Denise R.</b>Germantown, Philadelphia</span></div>
+    </div>
+  </aside>
+</div>
+<script>
+  function setState(v) { document.querySelectorAll('[data-state]').forEach(function (e) { e.hidden = e.dataset.state !== v; }); }
+  window.MOCK_CONTROLS = [{ label: 'Step', value: 'form', options: [['form', 'Enter email'], ['sent', 'Link sent']], onChange: setState }];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

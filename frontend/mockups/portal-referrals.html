@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Referrals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.hero-ref {
+  position: relative; overflow: hidden; isolation: isolate;
+  border-radius: var(--radius-lg); padding: 28px; margin-bottom: 16px;
+  background: #0C0D16; color: #F2F3F7;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08);
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; align-items: center;
+}
+.hero-ref::before { content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 90% at 100% 0%, rgb(94 112 240 / .45), transparent 60%), radial-gradient(50% 80% at 80% 120%, rgb(246 150 110 / .3), transparent 60%); }
+.hero-ref .eyebrow { color: rgb(242 243 247 / .55); }
+.hero-ref h2 { font-size: 28px; line-height: 1.1; letter-spacing: -0.03em; margin-top: 8px; }
+.hero-ref p { color: rgb(242 243 247 / .7); margin-top: 8px; font-size: 14.5px; max-width: 44ch; }
+.ref-box { background: rgb(255 255 255 / .06); border-radius: 16px; padding: 6px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .1); }
+.ref-in { background: #15161F; border-radius: 10px; padding: 16px; }
+.ref-in .eyebrow { font-size: 10.5px; }
+.ref-link { margin-top: 8px; display: flex; align-items: center; gap: 8px; padding: 5px 5px 5px 12px; border-radius: 10px; background: #0C0D16; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); font-family: var(--font-mono); font-size: 13px; }
+.ref-link span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ref-link button { height: 32px; padding: 0 12px; border-radius: 7px; border: 0; cursor: pointer; background: #F2F3F7; color: #0C0D16; font-size: 13px; font-weight: 500; font-family: var(--font-sans); display: inline-flex; align-items: center; gap: 6px; transition: scale 200ms var(--ease-out); }
+.ref-link button:active { scale: .96; }
+.code { margin-top: 12px; display: flex; justify-content: space-between; font-size: 13px; color: rgb(242 243 247 / .6); }
+.code b { font-family: var(--font-mono); color: #F2F3F7; font-weight: 500; letter-spacing: .04em; }
+.steps3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.s3 { padding: 16px; border-radius: 14px; background: var(--color-surface); box-shadow: var(--shadow-card); display: flex; gap: 12px; align-items: flex-start; }
+.s3 .n { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; flex: none; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); }
+.s3 b { display: block; font-weight: 500; font-size: 14px; }
+.s3 small { display: block; color: var(--color-text-tertiary); font-size: 13px; margin-top: 2px; }
+.reward { font-weight: 500; font-variant-numeric: tabular-nums; }
+.reward.muted { color: var(--color-text-tertiary); font-weight: 400; }
+@media (max-width: 900px) { .hero-ref { grid-template-columns: minmax(0, 1fr); } .steps3 { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .hero-ref { padding: 20px; } .hero-ref h2 { font-size: 24px; } }
+</style>
+</head>
+<body data-area="portal" data-active="referrals">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Account</span>
+      <h1>Referrals</h1>
+      <div class="sub">Earn a reward for every friend who files with us.</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+
+  <section class="hero-ref" aria-labelledby="ref-title">
+    <div>
+      <span class="eyebrow">Refer a friend</span>
+      <h2 id="ref-title">Earn $25–$50 for every friend you refer</h2>
+      <p>Share your link. When your friend files with Okojie Online, you get a reward and they get a real tax professional.</p>
+    </div>
+    <div class="ref-box">
+      <div class="ref-in">
+        <span class="eyebrow">Your personal referral link</span>
+        <div class="ref-link"><span>okojie.online/r/DENISE-R</span><button type="button" data-copy="https://okojie.online/r/DENISE-R" data-copy-toast="Referral link copied"><svg class="i i-sm"><use href="#i-copy"/></svg>Copy</button></div>
+        <div class="code"><span>Referral code</span><b>DENISE-R</b></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="steps3">
+    <div class="s3"><span class="n">01</span><span><b>Share your link</b><small>Text it, post it, or send an invite below.</small></span></div>
+    <div class="s3"><span class="n">02</span><span><b>They sign up</b><small>Your friend creates an account and books.</small></span></div>
+    <div class="s3"><span class="n">03</span><span><b>They file, you earn</b><small>$25–$50 once their return is filed.</small></span></div>
+  </div>
+
+  <div class="grid-2 form-left">
+    <section class="shell" aria-labelledby="inv-title">
+      <div class="shell-head"><h2 id="inv-title"><svg class="i i-sm"><use href="#i-mail"/></svg>Send an invite</h2></div>
+      <div class="inner">
+        <form class="form" data-toast="Invite sent to your friend">
+          <div class="field"><label for="fname">Friend’s name</label><input class="input" id="fname" autocomplete="off" placeholder="e.g. Marcus Thompson"></div>
+          <div class="field"><label for="femail">Friend’s email</label><input class="input" id="femail" type="email" inputmode="email" autocomplete="off" placeholder="name@example.com"></div>
+          <button class="btn btn-primary btn-block has-icon-l" type="submit"><svg class="i i-sm"><use href="#i-send"/></svg>Send invite</button>
+          <p class="hint">We send one email with your link. We never add your friend to a mailing list.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="shell" aria-labelledby="list-title">
+      <div class="shell-head"><h2 id="list-title"><svg class="i i-sm"><use href="#i-users"/></svg>Your referrals</h2><span class="hint" data-when="data">$50 earned so far</span></div>
+      <div class="inner" style="padding:0" data-when="data">
+        <div class="table-wrap" style="padding:6px">
+          <table class="t">
+            <thead><tr><th>Friend</th><th>Status</th><th class="hide-sm">Invited</th><th class="t-num">Reward</th></tr></thead>
+            <tbody>
+              <tr><td><span class="cell-2"><span class="avatar av-3" aria-hidden="true">MT</span><span><b>Marcus Thompson</b><small>marcus.t@example.com</small></span></span></td><td><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Filed</span></td><td class="hide-sm">Jan 30</td><td class="t-num"><span class="reward">$50</span></td></tr>
+              <tr><td><span class="cell-2"><span class="avatar av-4" aria-hidden="true">PS</span><span><b>Priya Shah</b><small>priya.shah@example.com</small></span></span></td><td><span class="status info"><svg class="i"><use href="#i-user"/></svg>Signed up</span></td><td class="hide-sm">Feb 4</td><td class="t-num"><span class="reward muted">When they file</span></td></tr>
+              <tr><td><span class="cell-2"><span class="avatar av-5" aria-hidden="true">TW</span><span><b>Terrence Wallace</b><small>t.wallace@example.com</small></span></span></td><td><span class="status wait"><svg class="i"><use href="#i-send"/></svg>Invite sent</span></td><td class="hide-sm">Feb 9</td><td class="t-num"><span class="reward muted">—</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="inner flush-empty" data-when="empty">
+        <div class="empty">
+          <span class="icon-tile"><svg class="i"><use href="#i-gift"/></svg></span>
+          <h3>No referrals yet</h3>
+          <p>Share your link or send an invite, and your friends will show up here.</p>
+          <div class="acts"><button class="btn btn-secondary has-icon-l" type="button" data-copy="https://okojie.online/r/DENISE-R" data-copy-toast="Referral link copied"><svg class="i i-sm"><use href="#i-copy"/></svg>Copy my link</button></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="shared/app.js"></script>
+</body>
+</html>

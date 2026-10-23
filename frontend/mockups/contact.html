@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/site.css">
+<style>
+.ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: -56px; position: relative; z-index: 3; }
+.way { padding: 22px; display: flex; gap: 14px; align-items: flex-start; }
+.way .tile { width: 40px; height: 40px; border-radius: 11px; }
+.way .tile svg { width: 18px; height: 18px; }
+.way .eyebrow { display: block; }
+.way b { display: block; font-size: 19px; font-weight: 500; letter-spacing: -0.02em; margin-top: 4px; }
+.way small { color: var(--color-text-tertiary); font-size: 13.5px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.15fr; gap: 56px; align-items: start; }
+.contact-grid h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.05; letter-spacing: -0.035em; margin-top: 18px; }
+.contact-grid .lead { margin-top: 14px; color: var(--color-text-secondary); font-size: 16.5px; max-width: 40ch; }
+.checks { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+.checks li { display: flex; gap: 12px; align-items: center; font-size: 15px; }
+.checks .ck { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--color-surface); box-shadow: var(--shadow-chip); color: var(--color-accent-text); }
+.form-card { padding: 8px; }
+.form-card .inner { padding: 24px; }
+.form-card .seg { margin-bottom: 20px; width: 100%; }
+.form-card .seg button { flex: 1; justify-content: center; }
+.office-list { display: grid; }
+.office-row { display: grid; grid-template-columns: 1.2fr 1fr 1.2fr auto; gap: 16px; align-items: center; padding: 18px 16px; border-top: 1px solid var(--color-border); font-size: 14.5px; }
+.office-row:first-child { border-top: 0; }
+.office-row b { font-weight: 500; display: block; }
+.office-row small { color: var(--color-text-tertiary); font-size: 13px; }
+.office-row .btn { height: 34px; font-size: 13.5px; }
+@media (max-width: 900px) { .ways { grid-template-columns: minmax(0, 1fr); margin-top: 24px; } .contact-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } .office-row { grid-template-columns: minmax(0, 1fr) auto; } .office-row .hide-sm { display: none; } }
+</style>
+</head>
+<body data-area="site" data-active="contact">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="band-wrap">
+  <header class="band">
+    <div class="band-copy" style="padding-bottom:96px">
+      <span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-msg"/></svg></span>Contact</span>
+      <h1>Talk to a <em>real person.</em></h1>
+      <p class="lead">Start your return online, book a free consultation, or reach us at any of our four offices.</p>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+  <div class="container">
+    <div class="ways">
+      <a href="tel:+12155550142" class="card way"><span class="tile t-indigo"><svg class="i"><use href="#i-phone"/></svg></span><span><span class="eyebrow">Call us</span><b class="num">(215) 555-0142</b><small>Main office, Philadelphia</small></span></a>
+      <a href="mailto:hello@okojieonline.com" class="card way"><span class="tile t-green"><svg class="i"><use href="#i-mail"/></svg></span><span><span class="eyebrow">Email</span><b>hello@okojieonline.com</b><small>We reply within one business day</small></span></a>
+      <div class="card way"><span class="tile t-amber"><svg class="i"><use href="#i-clock"/></svg></span><span><span class="eyebrow">Hours</span><b>Mon–Fri 9am–6pm</b><small>Some offices open Saturdays</small></span></div>
+    </div>
+  </div>
+
+  <section class="section" id="start" aria-labelledby="start-t">
+    <div class="container contact-grid">
+      <div>
+        <span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-spark"/></svg></span>Get started</span>
+        <h2 id="start-t">Tell us what you need</h2>
+        <p class="lead">A preparer will follow up within one business day. No obligation, no pressure.</p>
+        <ul class="checks">
+          <li><span class="ck"><svg class="i i-sm"><use href="#i-check"/></svg></span>A real preparer reviews your situation</li>
+          <li><span class="ck"><svg class="i i-sm"><use href="#i-lock"/></svg></span>Your information stays private</li>
+          <li><span class="ck"><svg class="i i-sm"><use href="#i-card"/></svg></span>You see your price before anything is filed</li>
+        </ul>
+      </div>
+      <div class="card form-card">
+        <div class="inner" style="box-shadow:none">
+          <div class="seg" role="tablist" aria-label="Request type">
+            <button role="tab" type="button" aria-selected="true" data-k="quote"><svg class="i i-sm"><use href="#i-card"/></svg>Get a free quote</button>
+            <button role="tab" type="button" aria-selected="false" data-k="consult"><svg class="i i-sm"><use href="#i-cal"/></svg>Book a consultation</button>
+          </div>
+          <form class="form" data-toast="Thanks! A preparer will be in touch within one business day.">
+            <div class="row-2">
+              <div class="field"><label for="n">Full name</label><input class="input" id="n" autocomplete="name"></div>
+              <div class="field"><label for="ph">Phone <span class="opt">(optional)</span></label><input class="input" id="ph" type="tel" inputmode="tel" autocomplete="tel"></div>
+            </div>
+            <div class="field"><label for="em">Email</label><input class="input" id="em" type="email" inputmode="email" autocomplete="email"></div>
+            <div data-k-show="quote">
+              <fieldset><legend class="legend">Tier you’re interested in <span class="opt">(optional)</span></legend>
+                <div class="choice" style="--cols:2">
+                  <label><input type="radio" name="tier">Upload &amp; Go</label>
+                  <label><input type="radio" name="tier" checked>Hybrid</label>
+                  <label><input type="radio" name="tier">Premium Remote</label>
+                  <label><input type="radio" name="tier">Not sure</label>
+                </div></fieldset>
+              <div class="field" style="margin-top:16px"><label for="sit">Your situation <span class="opt">(optional)</span></label><textarea class="input" id="sit" placeholder="e.g. W-2 job plus a rental property in Maryland"></textarea></div>
+            </div>
+            <div data-k-show="consult" hidden>
+              <div class="row-2">
+                <div class="field"><label for="d">Preferred date</label><input class="input" id="d" type="date"></div>
+                <div class="field"><label for="w">Time</label><select class="select" id="w"><option>Any time</option><option>Morning (9am–12pm)</option><option>Afternoon (12pm–4pm)</option><option>Evening (4pm–6pm)</option></select></div>
+              </div>
+              <fieldset style="margin-top:16px"><legend class="legend">Format</legend>
+                <div class="choice" style="--cols:3">
+                  <label><input type="radio" name="fmt" checked><svg class="i i-sm"><use href="#i-video"/></svg>Video</label>
+                  <label><input type="radio" name="fmt"><svg class="i i-sm"><use href="#i-phone"/></svg>Phone</label>
+                  <label><input type="radio" name="fmt"><svg class="i i-sm"><use href="#i-building"/></svg>In person</label>
+                </div></fieldset>
+            </div>
+            <div class="form-foot"><span class="hint" style="display:inline-flex;gap:6px;align-items:center"><svg class="i i-sm"><use href="#i-lock"/></svg>Never share your SSN here.</span><button class="btn btn-primary has-icon-r" type="submit" id="submit">Request my free quote <svg class="i i-sm"><use href="#i-arrow"/></svg></button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="off-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-pin"/></svg></span>Offices</span><h2 id="off-t">Find us in person</h2></div>
+        <p>Walk-ins welcome during office hours. Booking ahead means no wait.</p>
+      </div>
+      <div class="card office-list" style="padding:8px">
+        <div class="office-row"><span><b>5601 Germantown Ave</b><small>Philadelphia, PA</small></span><a class="num hide-sm" href="tel:+12155550142">(215) 555-0142</a><span class="hide-sm" style="color:var(--color-text-secondary)">Mon–Fri 9am–6pm · Sat 10am–2pm</span><a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-pin"/></svg>Directions</a></div>
+        <div class="office-row"><span><b>2301 N. Broad St</b><small>Philadelphia, PA</small></span><a class="num hide-sm" href="tel:+12155550178">(215) 555-0178</a><span class="hide-sm" style="color:var(--color-text-secondary)">Mon–Fri 9am–6pm</span><a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-pin"/></svg>Directions</a></div>
+        <div class="office-row"><span><b>6300 W. Chelten Ave</b><small>Philadelphia, PA</small></span><a class="num hide-sm" href="tel:+12155550193">(215) 555-0193</a><span class="hide-sm" style="color:var(--color-text-secondary)">Mon–Fri 9am–5pm · Sat 10am–1pm</span><a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-pin"/></svg>Directions</a></div>
+        <div class="office-row"><span><b>4100 Liberty Heights Ave</b><small>Baltimore, MD</small></span><a class="num hide-sm" href="tel:+14105550166">(410) 555-0166</a><span class="hide-sm" style="color:var(--color-text-secondary)">Mon–Fri 9am–6pm</span><a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-pin"/></svg>Directions</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  document.querySelectorAll('.seg [data-k]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.seg [data-k]').forEach(function (x) { x.setAttribute('aria-selected', x === b); });
+      document.querySelectorAll('[data-k-show]').forEach(function (s) { s.hidden = s.dataset.kShow !== b.dataset.k; });
+      document.getElementById('submit').firstChild.textContent = b.dataset.k === 'quote' ? 'Request my free quote ' : 'Request a consultation ';
+    });
+  });
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

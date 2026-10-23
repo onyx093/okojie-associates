@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/auth.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="auth">
+  <div class="auth-form">
+    <div class="auth-top">
+      <a href="home.html" class="ws"><span class="ws-mark" aria-hidden="true">O</span><span><b>Okojie Online</b><small>Okojie &amp; Associates</small></span></a>
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+    <main class="auth-body" id="main">
+      <span class="eyebrow">Secure client portal</span>
+      <h1>Sign in to Okojie Online</h1>
+      <p class="lead">Upload documents, check your return, e-sign and pay, all in one place.</p>
+      <form class="form" action="auth-2fa.html">
+        <div class="note warn" data-state="error" hidden role="alert"><svg class="i i-sm"><use href="#i-alert"/></svg>That email and password don’t match. Check them and try again.</div>
+        <div class="field"><label for="email">Email address</label><input class="input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" value="denise.r@example.com"></div>
+        <div class="field">
+          <div class="label-row"><label for="pw">Password</label><a href="auth-forgot.html">Forgot password?</a></div>
+          <div class="reveal"><input class="input" id="pw" type="password" autocomplete="current-password" value="correct-horse"><button class="mini-btn eye" type="button" aria-label="Show password"><svg class="i i-sm"><use href="#i-eye"/></svg></button></div>
+        </div>
+        <label class="check"><input type="checkbox" checked><span>Keep me signed in on this device</span></label>
+        <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+        <div class="or">or</div>
+        <a href="portal-overview.html" class="btn btn-secondary btn-block has-icon-l"><svg class="i i-sm"><use href="#i-key"/></svg>Sign in with a passkey</a>
+      </form>
+      <p class="switch-line">New to Okojie Online? <a href="auth-register.html">Start your return</a></p>
+    </main>
+    <div class="auth-foot">
+      <span><svg class="i i-sm"><use href="#i-shield"/></svg>IRS Pub 4557 &amp; FTC Safeguards compliant</span>
+      <span><a href="legal-privacy.html">Privacy</a> · <a href="legal-terms.html">Terms</a></span>
+    </div>
+  </div>
+  <aside class="auth-art" aria-hidden="true">
+    <div class="art-trust"><span><svg class="i i-sm"><use href="#i-lock"/></svg>Encrypted portal</span><span><svg class="i i-sm"><use href="#i-shield"/></svg>2FA on every account</span></div>
+    <div class="art-card">
+      <div class="inner">
+        <div class="mini-head"><span>Your 2026 return</span><span class="chip chip-accent chip-dot">In preparation</span></div>
+        <div class="art-row"><span class="file">PDF</span><span class="row-meta"><b>W-2 · Temple University</b><small>214 KB</small></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+        <div class="art-row"><span class="file">PDF</span><span class="row-meta"><b>1099-INT · PNC Bank</b><small>88 KB</small></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+        <div class="art-row"><span class="file">JPG</span><span class="row-meta"><b>Photo ID</b><small>1.2 MB</small></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+      </div>
+    </div>
+  </aside>
+</div>
+<script>
+  document.querySelectorAll('.eye').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.parentNode.querySelector('input'), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      b.querySelector('use').setAttribute('href', show ? '#i-eyeoff' : '#i-eye');
+    });
+  });
+</script><script>
+  function setState(v) { document.querySelectorAll('[data-state]').forEach(function (e) { e.hidden = e.dataset.state !== v; }); }
+  window.MOCK_CONTROLS = [{ label: 'Form', value: 'ok', options: [['ok', 'Default'], ['error', 'Wrong password']], onChange: setState }];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

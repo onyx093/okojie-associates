@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Clients</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.toolbar-left { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inv b { display: block; font-weight: 500; font-variant-numeric: tabular-nums; }
+.inv small { display: block; font-size: 12px; }
+.prep { display: flex; align-items: center; gap: 8px; }
+.prep .avatar { width: 24px; height: 24px; font-size: 10px; }
+.unassigned { color: var(--color-text-tertiary); font-style: normal; }
+</style>
+</head>
+<body data-area="admin" data-active="clients">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Workspace</span>
+      <h1>Clients</h1>
+      <div class="sub">2026 filing season · 128 clients</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+      <a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-download"/></svg>Export</a>
+      <a href="admin-leads.html" class="btn btn-primary has-icon-l"><svg class="i i-sm"><use href="#i-inbox"/></svg>Review new leads</a>
+    </div>
+  </header>
+
+  <section class="shell" aria-label="Season at a glance" style="margin-bottom:16px">
+    <div class="inner metrics" data-when="data">
+      <div class="metric"><span class="top"><span class="tile t-indigo"><svg class="i"><use href="#i-doc"/></svg></span>In preparation</span><span class="val num">41</span><span class="ctx"><span class="delta-up">+6</span><span>this week</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-amber"><svg class="i"><use href="#i-pen"/></svg></span>Waiting on signature</span><span class="val num">12</span><span class="ctx">Oldest: 4 days</span></div>
+      <div class="metric"><span class="top"><span class="tile t-rose"><svg class="i"><use href="#i-card"/></svg></span>Unpaid invoices</span><span class="val num">$3,480</span><span class="ctx">14 open</span></div>
+      <div class="metric"><span class="top"><span class="tile t-green"><svg class="i"><use href="#i-check"/></svg></span>E-filed</span><span class="val num">57</span><span class="ctx"><span class="delta-up">+9</span><span>this week</span></span></div>
+    </div>
+    <div class="inner metrics" data-when="empty">
+      <div class="metric"><span class="top"><span class="tile t-indigo"><svg class="i"><use href="#i-doc"/></svg></span>In preparation</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-amber"><svg class="i"><use href="#i-pen"/></svg></span>Waiting on signature</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-rose"><svg class="i"><use href="#i-card"/></svg></span>Unpaid invoices</span><span class="val num muted">$0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+      <div class="metric"><span class="top"><span class="tile t-green"><svg class="i"><use href="#i-check"/></svg></span>E-filed</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></div>
+    </div>
+  </section>
+
+  <section class="shell" aria-labelledby="tbl-title">
+    <div class="shell-head">
+      <h2 id="tbl-title"><svg class="i i-sm"><use href="#i-users"/></svg>All clients</h2>
+      <div class="seg" role="tablist" aria-label="Which clients">
+        <button role="tab" aria-selected="true" type="button">Assigned to me <span class="n">24</span></button>
+        <button role="tab" aria-selected="false" type="button">All clients <span class="n">128</span></button>
+      </div>
+    </div>
+    <div class="inner" style="padding:8px">
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <label class="search"><svg class="i i-sm"><use href="#i-search"/></svg><span class="sr-only">Search clients</span><input placeholder="Search name, email or phone"></label>
+          <button class="filter-btn" type="button"><svg class="i"><use href="#i-filter"/></svg>Status: Any<svg class="i"><use href="#i-chev"/></svg></button>
+          <button class="filter-btn hide-sm" type="button">Tier: Any<svg class="i"><use href="#i-chev"/></svg></button>
+        </div>
+      </div>
+      <div data-when="data">
+        <div class="table-wrap">
+          <table class="t">
+            <thead><tr><th>Taxpayer</th><th>Tier</th><th>Return status</th><th>Preparer</th><th class="t-num">Invoice</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span>Showing 1–8 of 24</span><span class="btns"><button class="btn btn-secondary" type="button" disabled style="opacity:.5">Previous</button><button class="btn btn-secondary" type="button">Next</button></span></div>
+      </div>
+      <div data-when="empty">
+        <div class="empty" style="min-height:360px">
+          <span class="icon-tile"><svg class="i"><use href="#i-users"/></svg></span>
+          <h3>No clients yet</h3>
+          <p>Convert a lead or invite a client, and their return will show up here.</p>
+          <div class="acts"><a href="#" class="btn btn-secondary">Invite a client</a><a href="admin-leads.html" class="btn btn-primary">Review leads</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  var STATUS = {
+    intake: ['wait', 'inbox', 'Intake received'],
+    prep: ['info', 'hourglass', 'In preparation'],
+    review: ['warn', 'pen', 'Ready for review'],
+    signed: ['info', 'check', 'E-signed'],
+    filed: ['ok', 'check', 'E-filed']
+  };
+  var INV = { quote: ['Awaiting quote', 'wait', '—'], open: ['Open', 'warn'], paid: ['Paid', 'ok'] };
+  var CLIENTS = [
+    ['DR', '', 'Denise Robinson', 'denise.r@example.com', 'Hybrid', 'review', 'AO', 'Adaeze Okojie', 'open', '$275'],
+    ['MT', 'av-3', 'Marcus Thompson', 'marcus.t@example.com', 'Upload & Go', 'filed', 'AO', 'Adaeze Okojie', 'paid', '$185'],
+    ['PS', 'av-4', 'Priya Shah', 'priya.shah@example.com', 'Premium Remote', 'prep', 'KB', 'Kofi Boateng', 'quote'],
+    ['TW', 'av-5', 'Terrence Wallace', 't.wallace@example.com', 'Hybrid', 'intake', '', '', 'quote'],
+    ['AM', 'av-6', 'Alicia Morgan', 'alicia.m@example.com', 'Hybrid', 'signed', 'AO', 'Adaeze Okojie', 'paid', '$310'],
+    ['JO', 'av-2', 'James Okafor', 'j.okafor@example.com', 'Premium Remote', 'prep', 'KB', 'Kofi Boateng', 'quote'],
+    ['SL', 'av-3', 'Sofia Lopez', 'sofia.lopez@example.com', 'Upload & Go', 'review', 'AO', 'Adaeze Okojie', 'open', '$195'],
+    ['BN', 'av-4', 'Brian Nguyen', 'brian.n@example.com', 'Hybrid', 'filed', 'KB', 'Kofi Boateng', 'paid', '$240']
+  ];
+  document.getElementById('rows').innerHTML = CLIENTS.map(function (c) {
+    var s = STATUS[c[5]], inv = INV[c[8]];
+    var prep = c[7] ? '<span class="prep"><span class="avatar ' + (c[6] === 'KB' ? 'av-5' : 'av-2') + '" aria-hidden="true">' + c[6] + '</span>' + c[7] + '</span>' : '<span class="unassigned">Unassigned</span>';
+    return '<tr class="click" onclick="location.href=\'admin-client.html\'">' +
+      '<td><span class="cell-2"><span class="avatar ' + c[1] + '" aria-hidden="true">' + c[0] + '</span><span><b><a href="admin-client.html">' + c[2] + '</a></b><small>' + c[3] + '</small></span></span></td>' +
+      '<td><span class="chip chip-neutral">' + c[4] + '</span></td>' +
+      '<td><span class="status ' + s[0] + '"><svg class="i"><use href="#i-' + s[1] + '"/></svg>' + s[2] + '</span></td>' +
+      '<td>' + prep + '</td>' +
+      '<td class="t-num"><span class="inv"><b>' + (c[9] || '—') + '</b><small class="status ' + inv[1] + '" style="justify-content:flex-end">' + inv[0] + '</small></span></td>' +
+      '<td><a class="mini-btn" href="admin-client.html" aria-label="Open ' + c[2] + '"><svg class="i i-sm"><use href="#i-arrow"/></svg></a></td></tr>';
+  }).join('');
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () { document.querySelectorAll('.seg button').forEach(function (x) { x.setAttribute('aria-selected', x === b); }); });
+  });
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

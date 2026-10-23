@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/site.css">
+<style>
+.story { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.story h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.05; letter-spacing: -0.035em; margin-top: 18px; }
+.story .body p { font-size: 17px; color: var(--color-text-secondary); line-height: 1.65; }
+.story .body p + p { margin-top: 16px; }
+.story .body p:first-child { font-size: 21px; color: var(--color-text-primary); line-height: 1.45; letter-spacing: -0.015em; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 72px; }
+.stat { padding: 8px 28px; border-left: 1px solid var(--color-border-strong); }
+.stat:first-child { border-left: 0; padding-left: 0; }
+.stat b { display: block; font-size: clamp(36px, 4vw, 48px); font-weight: 500; letter-spacing: -0.04em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.stat span { display: block; margin-top: 6px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-tertiary); }
+.team { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.person { padding: 8px; }
+.portrait { aspect-ratio: 4 / 5; border-radius: 14px; display: grid; place-items: end start; padding: 14px; font-size: 44px; font-weight: 500; letter-spacing: -0.04em; color: rgb(14 16 32 / .55); outline: 1px solid var(--color-border); outline-offset: -1px; }
+.person .meta { padding: 14px 8px 8px; }
+.person b { display: block; font-weight: 500; }
+.person small { display: block; color: var(--color-text-tertiary); font-size: 13.5px; }
+.sec4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.sec4 .card { padding: 24px; display: flex; gap: 16px; align-items: flex-start; }
+.sec4 .tile { width: 44px; height: 44px; border-radius: 12px; }
+.sec4 .tile svg { width: 19px; height: 19px; }
+.sec4 h3 { font-size: 18px; }
+.sec4 p { color: var(--color-text-secondary); font-size: 15px; margin-top: 4px; }
+.offices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.office { padding: 20px; display: grid; gap: 8px; align-content: start; }
+.office h3 { font-size: 17px; }
+.office .l { display: flex; gap: 8px; color: var(--color-text-secondary); font-size: 14px; }
+.office .l svg { margin-top: 3px; color: var(--color-text-tertiary); }
+.placeholder-note { margin-top: 16px; }
+@media (max-width: 1000px) { .team, .offices { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 800px) { .story, .sec4 { grid-template-columns: minmax(0, 1fr); gap: 28px; } .stats { grid-template-columns: 1fr 1fr; gap: 28px 0; } .stat:nth-child(3) { border-left: 0; padding-left: 0; } }
+@media (max-width: 560px) { .team, .offices { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body data-area="site" data-active="about">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="band-wrap">
+  <header class="band">
+    <div class="band-copy">
+      <span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-building"/></svg></span>About us</span>
+      <h1>A neighborhood firm, <em>now online.</em></h1>
+      <p class="lead">For more than 26 years, Okojie &amp; Associates has prepared returns for Philadelphia and Baltimore families and small businesses.</p>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+  <section class="section" aria-labelledby="story-t">
+    <div class="container">
+      <div class="story">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-spark"/></svg></span>Our story</span><h2 id="story-t">The same people, a lot less hassle</h2></div>
+        <div class="body">
+          <p>We’ve always helped neighbors make sense of their taxes face to face.</p>
+          <p>Today we have three Philadelphia offices and one in Baltimore, and a secure online portal so you can upload, review, sign and pay without taking time off work.</p>
+          <p>What hasn’t changed: every return is prepared by a credentialed professional who knows Pennsylvania and Maryland, and you can always talk to a real person.</p>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>26+</b><span>Years in business</span></div>
+        <div class="stat"><b>40,000+</b><span>Returns filed</span></div>
+        <div class="stat"><b>12</b><span>Credentialed preparers</span></div>
+        <div class="stat"><b>4</b><span>Offices in PA &amp; MD</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="team-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-users"/></svg></span>The team</span><h2 id="team-t">Meet your preparers</h2></div>
+        <p>Enrolled Agents and experienced preparers, many of whom have served the same families for years.</p>
+      </div>
+      <div class="team">
+        <div class="card person"><div class="portrait" style="background:linear-gradient(160deg in oklab,#C7D2FB,#F6C2A3)">AO</div><div class="meta"><b>Adaeze Okojie, EA</b><small>Enrolled Agent · Germantown Ave</small></div></div>
+        <div class="card person"><div class="portrait" style="background:linear-gradient(160deg in oklab,#B8E5A8,#A8C3FF)">KB</div><div class="meta"><b>Kofi Boateng</b><small>Senior preparer · Baltimore</small></div></div>
+        <div class="card person"><div class="portrait" style="background:linear-gradient(160deg in oklab,#FFD2A1,#F7A9C4)">NM</div><div class="meta"><b>Ngozi Mbah, EA</b><small>Small business · N. Broad St</small></div></div>
+        <div class="card person"><div class="portrait" style="background:linear-gradient(160deg in oklab,#C9B8FF,#9FD5FF)">TA</div><div class="meta"><b>Tobi Adeyemi</b><small>Client success · Chelten Ave</small></div></div>
+      </div>
+      <p class="note placeholder-note"><svg class="i i-sm"><use href="#i-info"/></svg>Sample team. Replace with real names, titles and photos.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="sec-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-shield"/></svg></span>Security</span><h2 id="sec-t">Your data is protected</h2></div>
+        <p>Security isn’t an afterthought. It’s built into every step of how we work.</p>
+      </div>
+      <div class="sec4">
+        <div class="card"><span class="tile t-indigo"><svg class="i"><use href="#i-doc"/></svg></span><span><h3>IRS Publication 4557</h3><p>We follow the IRS guide to safeguarding taxpayer data.</p></span></div>
+        <div class="card"><span class="tile t-green"><svg class="i"><use href="#i-shield"/></svg></span><span><h3>FTC Safeguards Rule</h3><p>A written information security plan (WISP) governs how we protect client data.</p></span></div>
+        <div class="card"><span class="tile t-amber"><svg class="i"><use href="#i-lock"/></svg></span><span><h3>Multi-factor authentication</h3><p>Every client account is protected with MFA.</p></span></div>
+        <div class="card"><span class="tile t-rose"><svg class="i"><use href="#i-pen"/></svg></span><span><h3>IRS-compliant e-signature</h3><p>Form 8879 e-file authorization with Form 7216 consent.</p></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="off-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-pin"/></svg></span>Offices</span><h2 id="off-t">Find us in person</h2></div>
+        <p>Three Philadelphia offices and one in Baltimore, or work with us entirely online.</p>
+      </div>
+      <div class="offices">
+        <div class="card office"><span class="chip chip-neutral" style="justify-self:start">Philadelphia, PA</span><h3>5601 Germantown Ave</h3><a class="l num" href="tel:+12155550142"><svg class="i i-sm"><use href="#i-phone"/></svg>(215) 555-0142</a><span class="l"><svg class="i i-sm"><use href="#i-clock"/></svg>Mon–Fri 9am–6pm · Sat 10am–2pm</span></div>
+        <div class="card office"><span class="chip chip-neutral" style="justify-self:start">Philadelphia, PA</span><h3>2301 N. Broad St</h3><a class="l num" href="tel:+12155550178"><svg class="i i-sm"><use href="#i-phone"/></svg>(215) 555-0178</a><span class="l"><svg class="i i-sm"><use href="#i-clock"/></svg>Mon–Fri 9am–6pm</span></div>
+        <div class="card office"><span class="chip chip-neutral" style="justify-self:start">Philadelphia, PA</span><h3>6300 W. Chelten Ave</h3><a class="l num" href="tel:+12155550193"><svg class="i i-sm"><use href="#i-phone"/></svg>(215) 555-0193</a><span class="l"><svg class="i i-sm"><use href="#i-clock"/></svg>Mon–Fri 9am–5pm · Sat 10am–1pm</span></div>
+        <div class="card office"><span class="chip chip-neutral" style="justify-self:start">Baltimore, MD</span><h3>4100 Liberty Heights Ave</h3><a class="l num" href="tel:+14105550166"><svg class="i i-sm"><use href="#i-phone"/></svg>(410) 555-0166</a><span class="l"><svg class="i i-sm"><use href="#i-clock"/></svg>Mon–Fri 9am–6pm</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="shared/app.js"></script>
+</body>
+</html>

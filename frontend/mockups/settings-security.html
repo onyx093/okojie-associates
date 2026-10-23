@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings — Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.settings { display: grid; grid-template-columns: 200px minmax(0, 720px); gap: 24px; align-items: start; }
+.subnav { display: grid; gap: 2px; position: sticky; top: 24px; }
+.subnav a { display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 10px; border-radius: 10px; color: var(--color-text-secondary); font-size: 14px; }
+.subnav a svg { color: var(--color-text-tertiary); }
+.subnav a[aria-current="page"] { background: var(--color-surface); color: var(--color-text-primary); font-weight: 500; box-shadow: var(--shadow-card); }
+.subnav a[aria-current="page"] svg { color: var(--color-accent-text); }
+@media (hover: hover) { .subnav a:not([aria-current]):hover { background: rgb(127 127 127 / .08); color: var(--color-text-primary); } }
+.sec-desc { color: var(--color-text-tertiary); font-size: 13.5px; margin: -4px 0 4px; }
+.avatar-row { display: flex; align-items: center; gap: 16px; }
+.avatar-row .avatar { width: 64px; height: 64px; font-size: 20px; }
+.avatar-row .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.danger { box-shadow: inset 0 0 0 1px rgb(185 50 42 / .25); }
+.btn-danger { background: var(--color-danger-text); color: #fff; }
+.themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.theme-opt { cursor: pointer; display: grid; gap: 10px; }
+.theme-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.theme-prev { height: 108px; border-radius: 12px; overflow: hidden; display: grid; grid-template-columns: 30% 1fr; box-shadow: inset 0 0 0 1px var(--color-border-strong); transition: box-shadow 120ms ease; }
+.theme-opt:has(input:checked) .theme-prev { box-shadow: 0 0 0 2px var(--color-accent-solid), 0 0 0 5px var(--color-accent-soft); }
+.theme-opt:has(input:focus-visible) .theme-prev { outline: 2px solid var(--color-accent-solid); outline-offset: 4px; }
+.theme-prev .s { padding: 10px 8px; display: grid; gap: 5px; align-content: start; }
+.theme-prev .s i, .theme-prev .m i { display: block; height: 6px; border-radius: 3px; }
+.theme-prev .m { padding: 12px; display: grid; gap: 8px; align-content: start; }
+.theme-prev .m b { display: block; height: 30px; border-radius: 7px; }
+.tp-light .s { background: #EFF0F3; } .tp-light .m { background: #F5F6F8; } .tp-light i { background: #D7D9E0; } .tp-light b { background: #fff; box-shadow: 0 0 0 1px rgb(16 19 40 / .06); }
+.tp-dark .s { background: #151519; } .tp-dark .m { background: #0F0F12; } .tp-dark i { background: #2A2A31; } .tp-dark b { background: #1B1B20; }
+.tp-sys { position: relative; }
+.tp-sys > div { display: contents; }
+.theme-opt span.lbl { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+.theme-opt span.lbl svg { color: var(--color-text-tertiary); }
+.pref { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; border-top: 1px solid var(--color-border); }
+.pref:first-child { border-top: 0; padding-top: 0; }
+.pref b { display: block; font-weight: 500; font-size: 14px; }
+.pref small { display: block; color: var(--color-text-tertiary); font-size: 13px; }
+.session { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--color-border); }
+.session:first-child { border-top: 0; padding-top: 0; }
+.session .tile { width: 34px; height: 34px; border-radius: 9px; }
+.session .row-meta small { white-space: normal; }
+@media (max-width: 900px) { .settings { grid-template-columns: minmax(0, 1fr); } .subnav { position: static; grid-auto-flow: column; overflow-x: auto; justify-content: start; } .themes { grid-template-columns: 1fr 1fr 1fr; } }
+@media (max-width: 640px) { .themes { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-area="admin" data-active="settings">
+<a class="skip-link" href="#main">Skip to content</a>
+<main class="main" id="main">
+  <header class="page-head">
+    <div><span class="eyebrow">Account</span><h1>Settings</h1><div class="sub">Manage your profile, sign-in and display preferences.</div></div>
+    <div class="head-actions"><button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button></div>
+  </header>
+  <div class="settings">
+    <nav class="subnav" aria-label="Settings">
+      <a href="settings-profile.html"><svg class="i"><use href="#i-user"/></svg>Profile</a>
+      <a href="settings-security.html" aria-current="page"><svg class="i"><use href="#i-lock"/></svg>Security</a>
+      <a href="settings-appearance.html"><svg class="i"><use href="#i-monitor"/></svg>Appearance</a>
+    </nav>
+    <div class="col">
+      <section class="shell" aria-labelledby="pw-t">
+        <div class="shell-head"><h2 id="pw-t"><svg class="i i-sm"><use href="#i-key"/></svg>Update password</h2><span class="hint">Changed 2 months ago</span></div>
+        <div class="inner">
+          <form class="form" data-toast="Password updated">
+            <p class="sec-desc">Use a long, random password: at least 12 characters.</p>
+            <div class="field"><label for="c">Current password</label><input class="input" id="c" type="password" autocomplete="current-password"></div>
+            <div class="row-2">
+              <div class="field"><label for="np">New password</label><input class="input" id="np" type="password" autocomplete="new-password"></div>
+              <div class="field"><label for="cp">Confirm new password</label><input class="input" id="cp" type="password" autocomplete="new-password"></div>
+            </div>
+            <div class="form-foot"><span></span><button class="btn btn-primary" type="submit">Update password</button></div>
+          </form>
+        </div>
+      </section>
+      <section class="shell" aria-labelledby="mfa-t">
+        <div class="shell-head"><h2 id="mfa-t"><svg class="i i-sm"><use href="#i-shield"/></svg>Two-factor authentication</h2><span class="chip chip-success chip-dot">On</span></div>
+        <div class="inner">
+          <div class="pref"><span><b>Authenticator app</b><small>Required for all staff accounts. Set up Jan 4.</small></span><button class="btn btn-secondary" type="button">View recovery codes</button></div>
+          <div class="pref"><span><b>Passkeys</b><small>Sign in with Touch ID, Face ID or a security key.</small></span><button class="btn btn-secondary has-icon-l" type="button"><svg class="i i-sm"><use href="#i-plus"/></svg>Add passkey</button></div>
+        </div>
+      </section>
+      <section class="shell" aria-labelledby="ss-t">
+        <div class="shell-head"><h2 id="ss-t"><svg class="i i-sm"><use href="#i-monitor"/></svg>Signed-in devices</h2><button class="btn btn-ghost" type="button" style="height:32px;font-size:13px" onclick="Okojie.toast('Signed out of other devices')">Sign out others</button></div>
+        <div class="inner">
+          <div class="session"><span class="tile t-indigo"><svg class="i"><use href="#i-monitor"/></svg></span><span class="row-meta"><b>Chrome on macOS</b><small>Philadelphia, PA · This device</small></span><span class="chip chip-success chip-dot">Active now</span></div>
+          <div class="session"><span class="tile t-indigo"><svg class="i"><use href="#i-phone"/></svg></span><span class="row-meta"><b>Safari on iPhone</b><small>Philadelphia, PA · 2 hours ago</small></span></div>
+          <div class="session"><span class="tile t-indigo"><svg class="i"><use href="#i-monitor"/></svg></span><span class="row-meta"><b>Edge on Windows</b><small>Germantown Ave office · Yesterday</small></span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script src="shared/app.js"></script>
+</body>
+</html>

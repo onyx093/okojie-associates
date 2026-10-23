@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Documents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.type { width: 104px; flex: none; }
+.checklist { display: grid; gap: 2px; }
+.ck { display: flex; align-items: center; gap: 10px; padding: 9px 2px; font-size: 14px; border-top: 1px solid var(--color-border); }
+.ck:first-child { border-top: 0; }
+.ck .box { width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center; flex: none; box-shadow: inset 0 0 0 1.5px var(--color-border-strong); color: #fff; }
+.ck.done .box { background: var(--color-success-text); box-shadow: none; }
+.ck .box svg { width: 12px; height: 12px; stroke-width: 2.6; display: none; }
+.ck.done .box svg { display: block; }
+.ck span:last-child { margin-left: auto; color: var(--color-text-tertiary); font-size: 12.5px; }
+.ck:not(.done) b { font-weight: 400; color: var(--color-text-secondary); }
+.ck b { font-weight: 500; }
+.selected-file { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); }
+.selected-file .row-meta b { font-size: 13.5px; }
+.lockbar { display: none; }
+[data-locked="true"] .lockbar { display: flex; }
+[data-locked="true"] .del { display: none; }
+@media (max-width: 640px) { .type { display: none; } }
+</style>
+</head>
+<body data-area="portal" data-active="documents">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Your return</span>
+      <h1>Documents</h1>
+      <div class="sub">Only you and your preparer can see these files.</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+
+  <div class="grid-2 form-left" id="page">
+    <!-- Upload -->
+    <div class="col">
+      <section class="shell" aria-labelledby="up-title">
+        <div class="shell-head"><h2 id="up-title"><svg class="i i-sm"><use href="#i-upload"/></svg>Upload a document</h2></div>
+        <div class="inner">
+          <form class="form" data-toast="Document uploaded. We’re scanning it now.">
+            <div class="field">
+              <label for="doc-type">Document type</label>
+              <select class="select" id="doc-type">
+                <option>W-2</option><option>1099</option><option>ID</option><option>Prior return</option><option>Other</option>
+              </select>
+            </div>
+            <label class="drop" id="drop">
+              <input type="file" class="sr-only" id="file-in">
+              <span class="icon-tile"><svg class="i"><use href="#i-upload"/></svg></span>
+              <b>Drag a file here or <span style="color:var(--color-accent-text)">browse</span></b>
+              <small>PDF, image or spreadsheet · up to 20 MB</small>
+            </label>
+            <div class="selected-file" id="picked" hidden>
+              <span class="file">PDF</span>
+              <span class="row-meta"><b id="picked-name">1098-T_Temple.pdf</b><small>96 KB · ready to upload</small></span>
+              <button class="mini-btn" type="button" aria-label="Remove file" id="unpick"><svg class="i i-sm"><use href="#i-x"/></svg></button>
+            </div>
+            <button class="btn btn-primary btn-block has-icon-l" type="submit"><svg class="i i-sm"><use href="#i-upload"/></svg>Upload document</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="shell" aria-labelledby="ck-title">
+        <div class="shell-head"><h2 id="ck-title"><svg class="i i-sm"><use href="#i-check"/></svg>What we usually need</h2></div>
+        <div class="inner">
+          <div class="checklist" data-when="data">
+            <div class="ck done"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>W-2 from each job</b><span>1 uploaded</span></div>
+            <div class="ck done"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>1099s (interest, freelance)</b><span>1 uploaded</span></div>
+            <div class="ck done"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>Photo ID</b><span>1 uploaded</span></div>
+            <div class="ck done"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>Last year’s return</b><span>1 uploaded</span></div>
+            <div class="ck"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>1098-T or 1098 (if you have one)</b><span>Optional</span></div>
+          </div>
+          <div class="checklist" data-when="empty">
+            <div class="ck"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>W-2 from each job</b></div>
+            <div class="ck"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>1099s (interest, freelance)</b></div>
+            <div class="ck"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>Photo ID</b></div>
+            <div class="ck"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>Last year’s return</b></div>
+            <div class="ck"><span class="box"><svg class="i"><use href="#i-check"/></svg></span><b>1098-T or 1098 (if you have one)</b><span>Optional</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- List -->
+    <section class="shell" aria-labelledby="list-title">
+      <div class="shell-head">
+        <h2 id="list-title"><svg class="i i-sm"><use href="#i-doc"/></svg>Your documents</h2>
+        <span class="hint" data-when="data">5 files</span>
+      </div>
+      <div class="inner" style="padding:0" data-when="data">
+        <div class="note warn lockbar" style="margin:8px 8px 0;border-radius:10px"><svg class="i i-sm"><use href="#i-lock"/></svg>Your return is ready for review, so documents can’t be deleted now. Message your preparer if something needs to change.</div>
+        <div class="list">
+          <div class="row"><span class="file">PDF</span><span class="row-meta"><b>W2_2026_TempleUniversity.pdf</b><small>214 KB · Feb 2, 2027</small></span><span class="type"><span class="chip chip-neutral">W-2</span></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span>
+            <span class="row-actions"><a class="mini-btn" href="#" aria-label="Download W2_2026_TempleUniversity.pdf"><svg class="i i-sm"><use href="#i-download"/></svg></a><button class="mini-btn del" type="button" aria-label="Delete W2_2026_TempleUniversity.pdf"><svg class="i i-sm"><use href="#i-trash"/></svg></button></span></div>
+          <div class="row"><span class="file">PDF</span><span class="row-meta"><b>1099-INT_PNC.pdf</b><small>88 KB · Feb 2, 2027</small></span><span class="type"><span class="chip chip-neutral">1099</span></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span>
+            <span class="row-actions"><a class="mini-btn" href="#" aria-label="Download 1099-INT_PNC.pdf"><svg class="i i-sm"><use href="#i-download"/></svg></a><button class="mini-btn del" type="button" aria-label="Delete 1099-INT_PNC.pdf"><svg class="i i-sm"><use href="#i-trash"/></svg></button></span></div>
+          <div class="row"><span class="file">JPG</span><span class="row-meta"><b>drivers-license-front.jpg</b><small>1.2 MB · Feb 2, 2027</small></span><span class="type"><span class="chip chip-neutral">ID</span></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span>
+            <span class="row-actions"><a class="mini-btn" href="#" aria-label="Download drivers-license-front.jpg"><svg class="i i-sm"><use href="#i-download"/></svg></a><button class="mini-btn del" type="button" aria-label="Delete drivers-license-front.jpg"><svg class="i i-sm"><use href="#i-trash"/></svg></button></span></div>
+          <div class="row"><span class="file">PDF</span><span class="row-meta"><b>2025_federal_return.pdf</b><small>640 KB · Just now</small></span><span class="type"><span class="chip chip-neutral">Prior return</span></span><span class="status wait"><svg class="i"><use href="#i-clock"/></svg>Scanning…</span>
+            <span class="row-actions"><button class="mini-btn" type="button" disabled aria-label="Download available after scan"><svg class="i i-sm"><use href="#i-download"/></svg></button><button class="mini-btn del" type="button" aria-label="Delete 2025_federal_return.pdf"><svg class="i i-sm"><use href="#i-trash"/></svg></button></span></div>
+          <div class="row"><span class="file">ZIP</span><span class="row-meta"><b>receipts_bundle.zip</b><small>3.4 MB · Feb 1, 2027</small></span><span class="type"><span class="chip chip-neutral">Other</span></span><span class="status bad"><svg class="i"><use href="#i-ban"/></svg>Blocked</span>
+            <span class="row-actions"><button class="mini-btn" type="button" disabled aria-label="Blocked file can’t be downloaded"><svg class="i i-sm"><use href="#i-download"/></svg></button><button class="mini-btn del" type="button" aria-label="Delete receipts_bundle.zip"><svg class="i i-sm"><use href="#i-trash"/></svg></button></span></div>
+        </div>
+        <div class="list-foot"><span><svg class="i i-sm"><use href="#i-shield"/></svg>Every file is virus-scanned. Blocked files are never shared with anyone.</span></div>
+      </div>
+      <div class="inner flush-empty" data-when="empty">
+        <div class="empty" style="min-height:420px">
+          <span class="icon-tile"><svg class="i"><use href="#i-doc"/></svg></span>
+          <h3>No documents yet</h3>
+          <p>Upload your first file and it will appear here once it’s been scanned.</p>
+          <div class="acts"><label for="file-in" class="btn btn-primary has-icon-l" style="cursor:pointer"><svg class="i i-sm"><use href="#i-upload"/></svg>Upload a document</label></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  var fileIn = document.getElementById('file-in'), picked = document.getElementById('picked'), drop = document.getElementById('drop');
+  fileIn.addEventListener('change', function () {
+    if (!fileIn.files.length) return;
+    document.getElementById('picked-name').textContent = fileIn.files[0].name;
+    picked.hidden = false; drop.hidden = true;
+  });
+  document.getElementById('unpick').addEventListener('click', function () { picked.hidden = true; drop.hidden = false; fileIn.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('drag'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('drag'); }); });
+  document.querySelectorAll('.del').forEach(function (b) {
+    b.addEventListener('click', function () { b.closest('.row').remove(); Okojie.toast('Document deleted'); });
+  });
+  window.MOCK_CONTROLS = [
+    { label: 'Return status', value: 'open', options: [['open', 'Before review (can delete)'], ['locked', 'Ready for review (locked)']], onChange: function (v) { document.getElementById('page').dataset.locked = v === 'locked'; } }
+  ];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/site.css">
+<style>
+.compare { padding: 8px; }
+.compare table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 15px; }
+.compare th, .compare td { padding: 16px 18px; text-align: center; border-bottom: 1px solid var(--color-border); }
+.compare th:first-child, .compare td:first-child { text-align: left; }
+.compare thead th { vertical-align: bottom; border-bottom: 0; padding-top: 22px; }
+.compare thead th b { display: block; font-size: 19px; font-weight: 500; letter-spacing: -0.02em; }
+.compare thead th .pr { display: block; font-size: 30px; font-weight: 500; letter-spacing: -0.035em; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.compare thead th small { display: block; font-weight: 400; color: var(--color-text-tertiary); font-size: 13px; margin-top: 2px; }
+.compare thead th .btn { margin-top: 14px; width: 100%; }
+.compare .feat { background: var(--color-accent-soft); }
+.compare thead th.feat { border-radius: 14px 14px 0 0; }
+.compare tbody tr:last-child td.feat { border-radius: 0 0 14px 14px; }
+.compare .group td { text-align: left; font-family: var(--font-mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--color-text-tertiary); padding-top: 24px; border-bottom: 0; }
+.compare .group td.feat { background: var(--color-accent-soft); }
+.yes { color: var(--color-accent-text); }
+.no { color: var(--color-text-tertiary); }
+.compare td.lbl { color: var(--color-text-secondary); }
+.how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.how .card { padding: 24px; }
+.how .n { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-tertiary); }
+.how h3 { font-size: 19px; margin-top: 12px; }
+.how p { color: var(--color-text-secondary); font-size: 15px; margin-top: 6px; }
+.addon-strip { padding: 8px; display: grid; grid-template-columns: repeat(5, 1fr); }
+.addon-strip div { padding: 18px; display: grid; gap: 4px; }
+.addon-strip div + div { border-left: 1px solid var(--color-border); }
+.addon-strip b { font-weight: 500; }
+.addon-strip span { font-variant-numeric: tabular-nums; color: var(--color-accent-text); font-weight: 500; }
+.addon-strip small { color: var(--color-text-tertiary); font-size: 13px; }
+@media (max-width: 1000px) { .addon-strip { grid-template-columns: 1fr 1fr; } .addon-strip div + div { border-left: 0; } .addon-strip div { border-top: 1px solid var(--color-border); } .addon-strip div:nth-child(-n+2) { border-top: 0; } }
+@media (max-width: 800px) { .how { grid-template-columns: minmax(0, 1fr); } .compare { overflow-x: auto; } .compare table { min-width: 640px; } }
+</style>
+</head>
+<body data-area="site" data-active="pricing">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="band-wrap">
+  <header class="band">
+    <div class="band-copy">
+      <span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-card"/></svg></span>Pricing</span>
+      <h1>Clear prices. <em>No surprises.</em></h1>
+      <p class="lead">Fees are shown as starting ranges. You’ll always see your exact price in your portal before we file.</p>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+  <section class="section" aria-labelledby="cmp-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-grid"/></svg></span>Compare</span><h2 id="cmp-t">What each tier includes</h2></div>
+        <p>Every tier is prepared by a credentialed professional, not software.</p>
+      </div>
+      <div class="card compare">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:34%"><span class="sr-only">Feature</span></th>
+              <th><b>Upload &amp; Go</b><small>Fully remote</small><span class="pr">$150–$225</span><a href="auth-register.html" class="btn btn-secondary">Choose</a></th>
+              <th class="feat"><b>Hybrid</b><small>Most popular</small><span class="pr">$225–$350</span><a href="auth-register.html" class="btn btn-primary">Choose</a></th>
+              <th><b>Premium Remote</b><small>Year-round</small><span class="pr">$400–$900</span><a href="auth-register.html" class="btn btn-secondary">Choose</a></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="group"><td colspan="2">Preparation</td><td class="feat"></td><td></td></tr>
+            <tr><td class="lbl">Federal + state return by a credentialed preparer</td><td class="yes">✓</td><td class="feat yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">EITC and Child Tax Credit review</td><td class="yes">✓</td><td class="feat yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">Prior-year comparison</td><td class="no">—</td><td class="feat yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">Schedule C and E (business, rentals)</td><td class="no">—</td><td class="feat no">—</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">Multi-state (PA / MD / NJ / DE)</td><td class="no">—</td><td class="feat no">—</td><td class="yes">✓</td></tr>
+            <tr class="group"><td colspan="2">How you work with us</td><td class="feat"></td><td></td></tr>
+            <tr><td class="lbl">Secure portal upload</td><td class="yes">✓</td><td class="feat yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">In-office drop-off and review</td><td class="no">—</td><td class="feat yes">✓</td><td class="no">—</td></tr>
+            <tr><td class="lbl">Review by video or phone</td><td class="yes">✓</td><td class="feat yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">Dedicated preparer, year-round</td><td class="no">—</td><td class="feat no">—</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">Quarterly estimates and planning</td><td class="no">—</td><td class="feat no">—</td><td class="yes">✓</td></tr>
+            <tr><td class="lbl">Priority support</td><td class="no">—</td><td class="feat no">—</td><td class="yes">✓</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="ad-t">
+    <div class="container">
+      <div class="sec-head">
+        <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-plus"/></svg></span>Add-ons</span><h2 id="ad-t">Add to any tier</h2></div>
+        <p><a href="services.html" class="link">What each add-on covers <svg class="i i-sm"><use href="#i-arrow"/></svg></a></p>
+      </div>
+      <div class="card addon-strip">
+        <div><b>Amendments</b><span>$150–$500</span><small>Prior-year returns</small></div>
+        <div><b>IRS notices</b><span>$125–$400</span><small>We respond for you</small></div>
+        <div><b>ITIN</b><span>$150–$300</span><small>New or renewal</small></div>
+        <div><b>Bookkeeping</b><span>$100–$500</span><small>Per month</small></div>
+        <div><b>Quarterly estimates</b><span>$75–$250</span><small>Per quarter</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="how-t">
+    <div class="container">
+      <div class="sec-head center"><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-receipt"/></svg></span>How payment works</span><h2 id="how-t">You see the price before you pay</h2></div>
+      <div class="how">
+        <div class="card"><span class="n">01</span><h3>We review your documents</h3><p>Your preparer looks at what you uploaded and sets an exact fee inside your tier’s range.</p></div>
+        <div class="card"><span class="n">02</span><h3>You approve and pay online</h3><p>Pay by card in your portal before we e-file. Prefer the office? Pay in person.</p></div>
+        <div class="card"><span class="n">03</span><h3>Your receipt is saved</h3><p>Download or print it from your portal any time.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0" aria-labelledby="faq-t">
+    <div class="container faq-grid">
+      <div><span class="chip-eyebrow"><span class="g"><svg class="i"><use href="#i-msg"/></svg></span>FAQ</span><h2 id="faq-t">Pricing questions</h2><p class="lead">Clear answers about fees, payments and billing.</p></div>
+      <div class="faq-list">
+        <details class="faq-item" open><summary>How much will my return cost?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Fees start in these ranges by tier: Upload &amp; Go $150–$225, Hybrid $225–$350, Premium Remote $400–$900. They depend on the complexity of your return, and you’ll always know your exact price before we file.</p></details>
+        <details class="faq-item"><summary>When do I pay?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">After your preparer sets your fee and before we e-file. You can pay by card in your portal or in person at any office.</p></details>
+        <details class="faq-item"><summary>Can you help with back taxes or an IRS notice?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. Our IRS notice response add-on covers reading the notice, responding on your behalf, and keeping you informed. We can also prepare prior-year returns and amendments.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="shared/app.js"></script>
+</body>
+</html>

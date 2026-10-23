@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Okojie Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.wrap { max-width: 1120px; margin: 0 auto; padding: 40px 24px 80px; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 40px; }
+.top h1 { font-size: clamp(32px, 4vw, 44px); letter-spacing: -0.035em; margin-top: 10px; }
+.top p { color: var(--color-text-secondary); margin-top: 8px; max-width: 60ch; }
+.area { margin-top: 32px; }
+.area-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 4px 12px; }
+.area-head h2 { font-size: 20px; }
+.area-head span { color: var(--color-text-tertiary); font-size: 13.5px; }
+.screens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 6px; }
+.screen { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; transition: background-color 120ms ease; }
+@media (hover: hover) { .screen:hover { background: var(--color-surface-sunken); } }
+.screen .tile { width: 34px; height: 34px; border-radius: 9px; }
+.screen b { display: block; font-weight: 500; font-size: 14.5px; }
+.screen small { display: block; color: var(--color-text-tertiary); font-size: 12.5px; }
+.screen .states { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-tertiary); white-space: nowrap; }
+.legend-row { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 13px; color: var(--color-text-tertiary); }
+@media (max-width: 900px) { .screens { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .screens { grid-template-columns: minmax(0, 1fr); } .top { flex-direction: column-reverse; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="main">
+  <div class="top">
+    <div>
+      <span class="eyebrow">Okojie &amp; Associates · Redesign</span>
+      <h1>All screens</h1>
+      <p>Static mockups for review. Open any screen; the moon/sun button switches theme, and screens with several states have a dark “Mockup states” panel in the corner.</p>
+      <div class="legend-row"><span>31 screens</span><span>Light + dark</span><span>Desktop + phone</span><span>Sample data</span></div>
+    </div>
+    <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+  </div>
+  <div id="areas"></div>
+</div>
+<script>
+  var AREAS = [
+    ['Public website', 'Visitors and new clients', [
+      ['home.html', 'Homepage', 'globe', ''], ['services.html', 'Services', 'grid', 'tier guide'], ['pricing.html', 'Pricing', 'card', ''],
+      ['about.html', 'About', 'building', ''], ['contact.html', 'Contact', 'msg', 'quote · consult'], ['legal-privacy.html', 'Privacy policy', 'shield', ''],
+      ['legal-terms.html', 'Terms of service', 'note', ''], ['legal-security.html', 'Security (WISP)', 'lock', ''], ['error.html', 'Error page', 'alert', '404 · 419 · 500 · 503']]],
+    ['Sign in and account recovery', 'Before clients reach the portal', [
+      ['auth-login.html', 'Sign in', 'key', 'error'], ['auth-register.html', 'Create account', 'user', ''], ['auth-verify-email.html', 'Verify email', 'mail', 'resent'],
+      ['auth-2fa.html', 'Two-factor code', 'shield', 'recovery code'], ['auth-forgot.html', 'Forgot password', 'mail', 'sent'], ['auth-reset.html', 'Reset password', 'key', ''],
+      ['auth-confirm-password.html', 'Confirm password', 'lock', '']]],
+    ['Client portal', 'What clients see after signing in', [
+      ['portal-overview.html', 'Overview', 'grid', '5 stages · fee · empty'], ['portal-documents.html', 'Documents', 'doc', 'locked · empty'], ['portal-appointments.html', 'Appointments', 'cal', 'empty'],
+      ['portal-messages.html', 'Messages', 'msg', 'empty'], ['portal-referrals.html', 'Referrals', 'gift', 'empty'], ['portal-security.html', 'Security & 2FA', 'shield', 'off · setup · on'],
+      ['portal-sign.html', 'Review and e-sign', 'pen', 'signed'], ['portal-receipt.html', 'Receipt', 'receipt', '']]],
+    ['Staff admin', 'Preparers and admins', [
+      ['admin-clients.html', 'Clients', 'users', 'empty'], ['admin-client.html', 'Client detail', 'user', 'empty'], ['admin-leads.html', 'Leads', 'inbox', 'empty'],
+      ['admin-referrals.html', 'Referrals', 'gift', 'empty'], ['settings-profile.html', 'Settings: profile', 'user', ''], ['settings-security.html', 'Settings: security', 'lock', ''],
+      ['settings-appearance.html', 'Settings: appearance', 'monitor', '']]]
+  ];
+  var tints = ['t-indigo', 't-green', 't-amber', 't-rose'];
+  document.getElementById('areas').innerHTML = AREAS.map(function (a, ai) {
+    return '<section class="area"><div class="area-head"><h2>' + a[0] + '</h2><span>' + a[1] + ' · ' + a[2].length + ' screens</span></div>' +
+      '<div class="shell"><div class="inner screens">' + a[2].map(function (s) {
+        return '<a class="screen" href="' + s[0] + '"><span class="tile ' + tints[ai] + '"><svg class="i"><use href="#i-' + s[2] + '"/></svg></span><span><b>' + s[1] + '</b><small>' + s[0] + '</small></span>' + (s[3] ? '<span class="states hide-sm">' + s[3] + '</span>' : '') + '</a>';
+      }).join('') + '</div></div></section>';
+  }).join('');
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

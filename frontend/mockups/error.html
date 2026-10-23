@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/site.css">
+<style>
+.band { min-height: calc(100vh - 24px); display: flex; flex-direction: column; }
+.errpage { flex: 1; display: grid; place-items: center; text-align: center; padding: 40px 20px 80px; position: relative; z-index: 2; }
+.code { font-family: var(--font-sans); font-weight: 500; font-size: clamp(96px, 17vw, 200px); line-height: .9; letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 1.5px var(--color-text-primary); opacity: .9; }
+.errpage h1 { font-size: clamp(28px, 4vw, 44px); letter-spacing: -0.035em; margin-top: 18px; }
+.errpage p { margin: 12px auto 0; max-width: 46ch; color: var(--color-text-secondary); font-size: 16.5px; }
+.errpage .ctas { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.errpage .ctas .btn { height: 44px; padding: 0 18px; }
+.errpage .err-help { margin-top: 28px; font-size: 14px; color: var(--color-text-tertiary); }
+.errpage .err-help a { color: var(--color-text-primary); font-weight: 500; }
+.band::after { background: radial-gradient(60% 60% at 50% 45%, rgb(255 255 255 / .7), transparent 75%); }
+:root[data-theme="dark"] .band::after { background: radial-gradient(60% 60% at 50% 45%, rgb(9 9 12 / .75), transparent 75%); }
+</style>
+</head>
+<body data-area="site" data-active="" data-no-footer>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="band-wrap">
+  <div class="band">
+    <main class="errpage" id="main">
+      <div>
+        <div class="code" id="e-code" aria-hidden="true">404</div>
+        <h1 id="e-title">We can’t find that page</h1>
+        <p id="e-text">The link may be old or mistyped. Your documents and return are safe.</p>
+        <div class="ctas">
+          <a href="home.html" class="btn btn-primary" id="e-primary">Back to home</a>
+          <a href="auth-login.html" class="btn btn-secondary" id="e-secondary">Client portal</a>
+        </div>
+        <p class="err-help">Need help? Call <a class="num" href="tel:+12155550142">(215) 555-0142</a></p>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+  var E = {
+    '404': ['We can’t find that page', 'The link may be old or mistyped. Your documents and return are safe.', 'Back to home', 'home.html', 'Client portal'],
+    '419': ['Your session expired', 'For your security, we sign you out after a period of inactivity. Refresh the page and try again.', 'Refresh page', '#', 'Back to home'],
+    '500': ['Something went wrong on our end', 'We’ve been notified and are looking into it. Please try again in a few minutes.', 'Try again', '#', 'Back to home'],
+    '503': ['We’ll be right back', 'We’re doing scheduled maintenance on the portal. It should only take a few minutes.', 'Refresh page', '#', 'Call the office']
+  };
+  function setErr(c) {
+    var e = E[c];
+    document.getElementById('e-code').textContent = c;
+    document.getElementById('e-title').textContent = e[0];
+    document.getElementById('e-text').textContent = e[1];
+    var p = document.getElementById('e-primary'); p.textContent = e[2]; p.href = e[3];
+    p.onclick = e[3] === '#' ? function () { location.reload(); return false; } : null;
+    var s = document.getElementById('e-secondary'); s.textContent = e[4];
+    s.href = e[4] === 'Back to home' ? 'home.html' : e[4] === 'Call the office' ? 'tel:+12155550142' : 'auth-login.html';
+    document.title = e[0] + ' — Okojie Online';
+  }
+  window.MOCK_CONTROLS = [{ label: 'Error', value: '404', options: [['404', '404 Not found'], ['419', '419 Session expired'], ['500', '500 Server error'], ['503', '503 Maintenance']], onChange: setErr }];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

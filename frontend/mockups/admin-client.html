@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Client detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.client-head { display: flex; gap: 16px; align-items: center; }
+.client-head .avatar { width: 56px; height: 56px; font-size: 18px; }
+.client-head h1 { margin-top: 0; }
+.stages { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.stage { padding: 10px; border-radius: 10px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); font-size: 12.5px; color: var(--color-text-tertiary); display: grid; gap: 6px; }
+.stage .bar { height: 3px; border-radius: 3px; background: var(--color-border-strong); }
+.stage.done { color: var(--color-text-secondary); }
+.stage.done .bar { background: var(--color-accent-solid); }
+.stage.now { background: var(--color-accent-soft); box-shadow: inset 0 0 0 1.5px var(--color-accent-solid); color: var(--color-accent-text); font-weight: 500; }
+.stage.now .bar { background: var(--color-accent-solid); }
+.stage-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+.stage-actions .hint { flex: 1; min-width: 200px; }
+.thread { display: grid; gap: 12px; }
+.bubble { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 14px; }
+.bubble small { display: block; font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px; }
+.bubble.staff { justify-self: end; background: var(--color-accent-solid); color: #fff; border-bottom-right-radius: 4px; }
+.bubble.staff small { color: rgb(255 255 255 / .7); }
+.composer { margin-top: 14px; display: flex; gap: 8px; align-items: flex-end; }
+.composer textarea { height: 44px; min-height: 44px; }
+.tl { display: flex; gap: 12px; position: relative; padding-bottom: 14px; font-size: 13.5px; }
+.tl:last-child { padding-bottom: 0; }
+.tl::after { content: ""; position: absolute; left: 5px; top: 16px; bottom: 0; width: 2px; background: var(--color-border); }
+.tl:last-child::after { display: none; }
+.tl .pt { width: 12px; height: 12px; border-radius: 50%; margin-top: 4px; flex: none; background: var(--color-surface); box-shadow: inset 0 0 0 2px var(--color-accent-solid); }
+.tl .pt.back { box-shadow: inset 0 0 0 2px var(--color-warning-text); }
+.tl b { font-weight: 500; }
+.tl small { display: block; color: var(--color-text-tertiary); font-size: 12.5px; }
+.tl .reason { margin-top: 4px; font-size: 13px; color: var(--color-text-secondary); }
+.fee-row { display: flex; gap: 8px; align-items: flex-end; }
+.fee-row .field { flex: 1; }
+.money { position: relative; }
+.money span { position: absolute; left: 12px; top: 50%; translate: 0 -50%; color: var(--color-text-tertiary); }
+.money .input { padding-left: 24px; }
+.appt-mini { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--color-border); }
+.appt-mini:first-child { border-top: 0; padding-top: 0; }
+.appt-mini .row-meta b, .appt-mini .row-meta small { white-space: normal; }
+.appt-mini .btn { height: 30px; padding: 0 10px; font-size: 12.5px; }
+dialog { border: 0; padding: 0; border-radius: 20px; background: var(--color-shell); color: inherit; box-shadow: var(--shadow-raised); width: min(440px, calc(100% - 32px)); }
+dialog::backdrop { background: var(--overlay); }
+dialog .inner { margin: 6px; }
+dialog h3 { font-size: 17px; }
+dialog p { color: var(--color-text-secondary); font-size: 14px; margin-top: 6px; }
+@media (max-width: 640px) { .stages { grid-template-columns: 1fr 1fr; } .client-head .avatar { display: none; } }
+</style>
+</head>
+<body data-area="admin" data-active="clients">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <a href="admin-clients.html" class="back"><svg class="i i-sm"><use href="#i-arrow"/></svg>All clients</a>
+  <header class="page-head">
+    <div class="client-head">
+      <span class="avatar" aria-hidden="true">DR</span>
+      <div>
+        <h1>Denise Robinson</h1>
+        <div class="sub"><span class="chip chip-neutral">Hybrid</span><span>denise.r@example.com</span><span class="num">(267) 555-0118</span></div>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+      <div class="field" style="gap:4px"><label for="prep" class="sr-only">Assigned preparer</label>
+        <select class="select" id="prep" style="height:40px;min-width:200px"><option>Preparer: Adaeze Okojie</option><option>Preparer: Kofi Boateng</option><option>Unassigned</option></select></div>
+    </div>
+  </header>
+
+  <div class="grid-2">
+    <div class="col">
+      <!-- Return stage -->
+      <section class="shell" aria-labelledby="stage-title">
+        <div class="shell-head"><h2 id="stage-title"><svg class="i i-sm"><use href="#i-doc"/></svg>2026 return</h2><span class="chip chip-warning chip-dot">Ready for review</span></div>
+        <div class="inner">
+          <div class="stages">
+            <div class="stage done"><span class="bar"></span>Intake received</div>
+            <div class="stage done"><span class="bar"></span>In preparation</div>
+            <div class="stage now" aria-current="step"><span class="bar"></span>Ready for review</div>
+            <div class="stage"><span class="bar"></span>E-signed</div>
+            <div class="stage"><span class="bar"></span>E-filed</div>
+          </div>
+          <div class="stage-actions">
+            <span class="hint">Waiting for the client to e-sign. They were notified Feb 11.</span>
+            <button class="btn btn-ghost has-icon-l" type="button" onclick="document.getElementById('reverse').showModal()"><svg class="i i-sm" style="rotate:180deg"><use href="#i-arrow"/></svg>Move back</button>
+            <button class="btn btn-primary has-icon-r" type="button" onclick="document.getElementById('advance').showModal()">Mark as e-signed<svg class="i i-sm"><use href="#i-arrow"/></svg></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Documents -->
+      <section class="shell" aria-labelledby="docs-title">
+        <div class="shell-head"><h2 id="docs-title"><svg class="i i-sm"><use href="#i-upload"/></svg>Uploaded documents</h2><span class="hint" data-when="data">5 files</span></div>
+        <div class="inner" style="padding:6px" data-when="data">
+          <div class="table-wrap">
+            <table class="t">
+              <thead><tr><th>File</th><th>Type</th><th>Scan</th><th><span class="sr-only">Download</span></th></tr></thead>
+              <tbody>
+                <tr><td><span class="cell-2"><span class="file">PDF</span><span><b>W2_2026_TempleUniversity.pdf</b><small>214 KB · Feb 2</small></span></span></td><td><span class="chip chip-neutral">W-2</span></td><td><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></td><td><a class="mini-btn" href="#" aria-label="Download"><svg class="i i-sm"><use href="#i-download"/></svg></a></td></tr>
+                <tr><td><span class="cell-2"><span class="file">PDF</span><span><b>1099-INT_PNC.pdf</b><small>88 KB · Feb 2</small></span></span></td><td><span class="chip chip-neutral">1099</span></td><td><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></td><td><a class="mini-btn" href="#" aria-label="Download"><svg class="i i-sm"><use href="#i-download"/></svg></a></td></tr>
+                <tr><td><span class="cell-2"><span class="file">JPG</span><span><b>drivers-license-front.jpg</b><small>1.2 MB · Feb 2</small></span></span></td><td><span class="chip chip-neutral">ID</span></td><td><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></td><td><a class="mini-btn" href="#" aria-label="Download"><svg class="i i-sm"><use href="#i-download"/></svg></a></td></tr>
+                <tr><td><span class="cell-2"><span class="file">PDF</span><span><b>2025_federal_return.pdf</b><small>640 KB · Feb 3</small></span></span></td><td><span class="chip chip-neutral">Prior return</span></td><td><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></td><td><a class="mini-btn" href="#" aria-label="Download"><svg class="i i-sm"><use href="#i-download"/></svg></a></td></tr>
+                <tr><td><span class="cell-2"><span class="file">ZIP</span><span><b>receipts_bundle.zip</b><small>3.4 MB · Feb 1</small></span></span></td><td><span class="chip chip-neutral">Other</span></td><td><span class="status bad"><svg class="i"><use href="#i-ban"/></svg>Infected</span></td><td><button class="mini-btn" disabled aria-label="Blocked"><svg class="i i-sm"><use href="#i-download"/></svg></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="inner flush-empty" data-when="empty"><div class="empty sm"><span class="icon-tile"><svg class="i"><use href="#i-doc"/></svg></span><h3>No documents uploaded yet</h3><p>Files the client uploads in their portal appear here after scanning.</p></div></div>
+      </section>
+
+      <!-- Messages -->
+      <section class="shell" aria-labelledby="msg-title">
+        <div class="shell-head"><h2 id="msg-title"><svg class="i i-sm"><use href="#i-msg"/></svg>Messages to client</h2></div>
+        <div class="inner">
+          <div class="thread" data-when="data">
+            <div class="bubble staff">Welcome to Okojie Online! I’ll be your preparer this year.<small>Adaeze · Jan 28</small></div>
+            <div class="bubble staff">Thanks for uploading everything so quickly. I’ve started on your federal and PA return.<small>Adaeze · Feb 3</small></div>
+            <div class="bubble staff">Page 2 of your 1098-T is missing. Could you upload it before Thursday?<small>Adaeze · Today 9:12 AM · Unread</small></div>
+          </div>
+          <div class="empty sm" data-when="empty"><span class="icon-tile"><svg class="i"><use href="#i-msg"/></svg></span><h3>No messages yet</h3><p>Send the client an update. They’ll see it in their portal and get an email.</p></div>
+          <form class="composer" data-toast="Message posted to the client’s portal">
+            <label for="compose" class="sr-only">Message</label>
+            <textarea class="input" id="compose" placeholder="Write an update for Denise…"></textarea>
+            <button class="btn btn-primary has-icon-l" type="submit"><svg class="i i-sm"><use href="#i-send"/></svg>Post</button>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <div class="col side-col">
+      <!-- Invoice -->
+      <section class="shell" aria-labelledby="inv-title">
+        <div class="shell-head"><h2 id="inv-title"><svg class="i i-sm"><use href="#i-card"/></svg>Invoice</h2><span class="chip chip-warning chip-dot">Open</span></div>
+        <div class="inner">
+          <div class="kv"><div><span>Current fee</span><span class="num" style="font-weight:500">$275.00</span></div><div><span>Tier range</span><span class="num">$225–$350</span></div></div>
+          <div class="divider"></div>
+          <form class="form" data-toast="Fee updated. The client can now pay online.">
+            <div class="fee-row">
+              <div class="field"><label for="fee">Set amount (USD)</label><div class="money"><span>$</span><input class="input num" id="fee" inputmode="decimal" value="275.00"></div></div>
+              <button class="btn btn-secondary" type="submit" style="height:42px">Update fee</button>
+            </div>
+          </form>
+          <button class="btn btn-ghost btn-block" type="button" style="margin-top:8px" onclick="document.getElementById('paid').showModal()">Mark paid offline</button>
+        </div>
+      </section>
+
+      <!-- Appointments -->
+      <section class="shell" aria-labelledby="appt-title">
+        <div class="shell-head"><h2 id="appt-title"><svg class="i i-sm"><use href="#i-cal"/></svg>Appointments</h2></div>
+        <div class="inner">
+          <div data-when="data">
+            <div class="appt-mini"><span class="row-meta"><b>Question about my 1098-T</b><small>Phone · Wed, Feb 18 · Afternoon</small></span><button class="btn btn-primary" type="button" onclick="Okojie.toast('Appointment confirmed')">Confirm</button><button class="btn btn-ghost" type="button">Cancel</button></div>
+            <div class="appt-mini"><span class="row-meta"><b>Review call</b><small>Video · Thu, Feb 12 · 4:30 PM</small></span><span class="chip chip-success chip-dot">Confirmed</span></div>
+          </div>
+          <div class="empty sm" data-when="empty"><span class="icon-tile"><svg class="i"><use href="#i-cal"/></svg></span><h3>No appointments</h3><p>Requests from the client’s portal show up here to confirm.</p></div>
+        </div>
+      </section>
+
+      <!-- History -->
+      <section class="shell" aria-labelledby="hist-title">
+        <div class="shell-head"><h2 id="hist-title"><svg class="i i-sm"><use href="#i-clock"/></svg>Status history</h2></div>
+        <div class="inner">
+          <div class="tl"><span class="pt"></span><span><b>Ready for review</b><small>Adaeze Okojie · Feb 11, 3:02 PM</small></span></div>
+          <div class="tl"><span class="pt back"></span><span><b>Moved back to In preparation</b><small>Adaeze Okojie · Feb 10, 11:40 AM</small><p class="reason">“Missing 1098-T page 2, rechecking education credit.”</p></span></div>
+          <div class="tl"><span class="pt"></span><span><b>Ready for review</b><small>Adaeze Okojie · Feb 9, 5:15 PM</small></span></div>
+          <div class="tl"><span class="pt"></span><span><b>In preparation</b><small>Adaeze Okojie · Feb 3, 2:40 PM</small></span></div>
+          <div class="tl"><span class="pt"></span><span><b>Intake received</b><small>System · Jan 28, 10:58 AM</small></span></div>
+        </div>
+      </section>
+
+      <!-- Referral -->
+      <section class="shell" aria-labelledby="ref-title">
+        <div class="shell-head"><h2 id="ref-title"><svg class="i i-sm"><use href="#i-gift"/></svg>Referrals</h2></div>
+        <div class="inner"><div class="kv"><div><span>Referral code</span><span style="font-family:var(--font-mono)">DENISE-R</span></div><div><span>Referred by</span><span>None</span></div><div><span>Friends referred</span><span>3 · 1 filed</span></div></div></div>
+      </section>
+    </div>
+  </div>
+
+  <dialog id="advance" aria-labelledby="adv-t">
+    <div class="inner">
+      <h3 id="adv-t">Mark as e-signed?</h3>
+      <p>Only do this if Denise signed Form 8879 outside the portal. The client will be notified.</p>
+      <div class="form-foot" style="margin-top:18px;justify-content:flex-end"><button class="btn btn-ghost" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn btn-primary" type="button" onclick="this.closest('dialog').close();Okojie.toast('Status updated')">Mark as e-signed</button></div>
+    </div>
+  </dialog>
+  <dialog id="reverse" aria-labelledby="rev-t">
+    <div class="inner">
+      <h3 id="rev-t">Move back to In preparation?</h3>
+      <p>The client won’t be able to sign until you mark it ready again. A reason is required and is kept in the history.</p>
+      <div class="field" style="margin-top:14px"><label for="reason">Reason</label><textarea class="input" id="reason" placeholder="e.g. Missing a form, rechecking a credit"></textarea></div>
+      <div class="form-foot" style="margin-top:18px;justify-content:flex-end"><button class="btn btn-ghost" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn btn-primary" type="button" onclick="this.closest('dialog').close();Okojie.toast('Moved back to In preparation')">Move back</button></div>
+    </div>
+  </dialog>
+  <dialog id="paid" aria-labelledby="paid-t">
+    <div class="inner">
+      <h3 id="paid-t">Mark this invoice as paid?</h3>
+      <p>Use this when Denise paid in the office by cash, check or card. The $275.00 invoice will show as paid in her portal.</p>
+      <div class="form-foot" style="margin-top:18px;justify-content:flex-end"><button class="btn btn-ghost" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn btn-primary" type="button" onclick="this.closest('dialog').close();Okojie.toast('Invoice marked as paid')">Mark as paid</button></div>
+    </div>
+  </dialog>
+</main>
+<script src="shared/app.js"></script>
+</body>
+</html>

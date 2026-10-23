@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Leads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.lead-list { display: grid; }
+.lead { display: grid; grid-template-columns: minmax(160px, 1.1fr) minmax(0, 1.4fr) 110px minmax(150px, 1fr) 176px; gap: 16px; align-items: start; padding: 16px 12px; border-top: 1px solid var(--color-border); }
+.lead:first-child { border-top: 0; }
+.lead .kind { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 6px; }
+.lead .kind svg { width: 14px; height: 14px; }
+.lead b { font-weight: 500; display: block; }
+.lead small { display: block; color: var(--color-text-tertiary); font-size: 12.5px; overflow-wrap: anywhere; }
+.lead .detail { font-size: 13.5px; color: var(--color-text-secondary); }
+.lead .detail .chip { margin-bottom: 6px; }
+.lead .detail p { overflow-wrap: anywhere; }
+.notes { font-size: 13px; color: var(--color-text-secondary); padding: 8px 10px; border-radius: 8px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); min-height: 36px; }
+.notes.emptyn { color: var(--color-text-tertiary); font-style: normal; }
+.notes button { display: block; margin-top: 4px; border: 0; background: none; padding: 0; color: var(--color-accent-text); font: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer; }
+.lead .acts { display: flex; gap: 6px; justify-content: flex-end; }
+.lead .acts .btn { height: 32px; padding: 0 12px; font-size: 13px; }
+.col-head { display: grid; grid-template-columns: minmax(160px, 1.1fr) minmax(0, 1.4fr) 110px minmax(150px, 1fr) 176px; gap: 16px; padding: 10px 12px; font-size: 12.5px; color: var(--color-text-tertiary); font-weight: 500; background: var(--color-surface-sunken); border-radius: 10px; }
+dialog { border: 0; padding: 0; border-radius: 20px; background: var(--color-shell); color: inherit; box-shadow: var(--shadow-raised); width: min(440px, calc(100% - 32px)); }
+dialog::backdrop { background: var(--overlay); }
+dialog .inner { margin: 6px; }
+dialog h3 { font-size: 17px; }
+dialog p { color: var(--color-text-secondary); font-size: 14px; margin-top: 6px; }
+@media (max-width: 1200px) {
+  .col-head { display: none; }
+  .lead { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .lead .acts { justify-content: flex-start; }
+}
+@media (max-width: 640px) { .lead { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body data-area="admin" data-active="leads">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Workspace</span>
+      <h1>Leads</h1>
+      <div class="sub">Quote requests and consultation bookings from the website.</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+      <a href="#" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-download"/></svg>Export CSV</a>
+    </div>
+  </header>
+
+  <section class="shell" aria-labelledby="leads-title">
+    <div class="shell-head">
+      <h2 id="leads-title"><svg class="i i-sm"><use href="#i-inbox"/></svg>Inquiries</h2>
+      <div class="seg" role="tablist" aria-label="Status">
+        <button role="tab" aria-selected="true" type="button">New <span class="n">6</span></button>
+        <button role="tab" aria-selected="false" type="button">Contacted <span class="n">9</span></button>
+        <button role="tab" aria-selected="false" type="button">Converted <span class="n">31</span></button>
+        <button role="tab" aria-selected="false" type="button">Closed <span class="n">4</span></button>
+        <button role="tab" aria-selected="false" type="button">All</button>
+      </div>
+    </div>
+    <div class="inner" style="padding:8px">
+      <div class="toolbar">
+        <label class="search"><svg class="i i-sm"><use href="#i-search"/></svg><span class="sr-only">Search leads</span><input placeholder="Search name or email"></label>
+        <button class="filter-btn" type="button"><svg class="i"><use href="#i-filter"/></svg>Kind: All<svg class="i"><use href="#i-chev"/></svg></button>
+      </div>
+      <div data-when="data">
+        <div class="col-head"><span>Contact</span><span>Details</span><span>Status</span><span>Internal notes</span><span><span class="sr-only">Actions</span></span></div>
+        <div class="lead-list" id="leads"></div>
+        <div class="pager"><span>6 new leads</span></div>
+      </div>
+      <div data-when="empty">
+        <div class="empty" style="min-height:360px">
+          <span class="icon-tile"><svg class="i"><use href="#i-inbox"/></svg></span>
+          <h3>No new leads</h3>
+          <p>Quote requests and consultation bookings from the website land here.</p>
+          <div class="acts"><button class="btn btn-secondary" type="button">Show all leads</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="convert" aria-labelledby="cv-t">
+    <div class="inner">
+      <h3 id="cv-t">Convert to a client?</h3>
+      <p>This creates a client account and a 2026 return for <b id="cv-name" style="font-weight:500;color:var(--color-text-primary)"></b>, and emails them an invite to set up their portal.</p>
+      <div class="field" style="margin-top:14px"><label for="cv-prep">Assign preparer</label><select class="select" id="cv-prep"><option>Adaeze Okojie</option><option>Kofi Boateng</option><option>Assign later</option></select></div>
+      <div class="form-foot" style="margin-top:18px;justify-content:flex-end"><button class="btn btn-ghost" type="button" onclick="this.closest('dialog').close()">Cancel</button><button class="btn btn-primary" type="button" onclick="this.closest('dialog').close();Okojie.toast('Converted. Invite sent.')">Convert to client</button></div>
+    </div>
+  </dialog>
+</main>
+
+<script>
+  var LEADS = [
+    ['quote', 'Kwame Asante', 'kwame.asante@example.com', '(215) 555-0190', '<span class="chip chip-neutral">Premium Remote</span><p>Self-employed photographer, rental property in Delaware. Behind on quarterly estimates.</p>', 'new', '', '2h ago', 'REF: DENISE-R'],
+    ['consult', 'Grace Mensah', 'grace.mensah@example.com', '(410) 555-0133', '<p><b style="display:inline;font-weight:500">Fri, Feb 13</b> · Morning · In person</p><p>Baltimore office</p>', 'new', 'Called once, left voicemail.', '5h ago'],
+    ['quote', 'Daniel Park', 'd.park@example.com', '', '<span class="chip chip-neutral">Upload &amp; Go</span><p>W-2 only, student at Temple.</p>', 'new', '', 'Yesterday'],
+    ['consult', 'Ruth Adeyemi', 'ruth.a@example.com', '(215) 555-0164', '<p><b style="display:inline;font-weight:500">Any day</b> · Evening · Video</p><p>Got an IRS letter (CP2000) about 2025.</p>', 'new', '', 'Yesterday'],
+    ['quote', 'Olivia Carter', 'olivia.carter@example.com', '(267) 555-0141', '<span class="chip chip-neutral">Not sure</span><p>Two kids, first time filing with EITC.</p>', 'new', '', 'Feb 9'],
+    ['quote', 'Samuel Reyes', 's.reyes@example.com', '', '<span class="chip chip-neutral">Hybrid</span><p>Moved from NJ to PA mid-year.</p>', 'new', '', 'Feb 9']
+  ];
+  document.getElementById('leads').innerHTML = LEADS.map(function (l) {
+    var kind = l[0] === 'quote' ? '<span class="kind"><svg class="i"><use href="#i-card"/></svg>Quote request</span>' : '<span class="kind"><svg class="i"><use href="#i-cal"/></svg>Consultation</span>';
+    var notes = l[6] ? '<div class="notes">' + l[6] + '<button type="button">Edit</button></div>' : '<div class="notes emptyn">No notes<button type="button">Add note</button></div>';
+    return '<div class="lead">' +
+      '<div>' + kind + '<b>' + l[1] + '</b><small>' + l[2] + '</small>' + (l[3] ? '<small class="num">' + l[3] + '</small>' : '') + '<small>' + l[7] + (l[8] ? ' · ' + l[8] : '') + '</small></div>' +
+      '<div class="detail">' + l[4] + '</div>' +
+      '<div><span class="chip chip-accent chip-dot">New</span></div>' +
+      '<div>' + notes + '</div>' +
+      '<div class="acts"><button class="btn btn-secondary" type="button" onclick="Okojie.toast(\'Marked as contacted\')">Contacted</button><button class="btn btn-primary" type="button" data-name="' + l[1] + '">Convert</button></div></div>';
+  }).join('');
+  document.querySelectorAll('[data-name]').forEach(function (b) {
+    b.addEventListener('click', function () { document.getElementById('cv-name').textContent = b.dataset.name; document.getElementById('convert').showModal(); });
+  });
+  document.querySelectorAll('.seg button').forEach(function (b) {
+    b.addEventListener('click', function () { document.querySelectorAll('.seg button').forEach(function (x) { x.setAttribute('aria-selected', x === b); }); });
+  });
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

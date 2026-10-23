@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two-factor authentication — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/auth.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="auth">
+  <div class="auth-form">
+    <div class="auth-top">
+      <a href="home.html" class="ws"><span class="ws-mark" aria-hidden="true">O</span><span><b>Okojie Online</b><small>Okojie &amp; Associates</small></span></a>
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+    <main class="auth-body" id="main">
+      <span class="big-tile"><svg class="i"><use href="#i-shield"/></svg></span>
+      <div data-state="code">
+        <h1>Enter your 6-digit code</h1>
+        <p class="lead">Open your authenticator app and type the code for Okojie Online.</p>
+        <form class="form" action="portal-overview.html">
+          <div class="otp" role="group" aria-label="6-digit code">
+            <input class="input" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Digit 1"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 2"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 3"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 4"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 5"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 6">
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Continue</button>
+        </form>
+        <p class="switch-line">Lost your phone? <a href="#" onclick="setState('recovery');return false">Use a recovery code</a></p>
+      </div>
+      <div data-state="recovery" hidden>
+        <h1>Use a recovery code</h1>
+        <p class="lead">Enter one of the recovery codes you saved when you set up two-factor authentication. Each code works once.</p>
+        <form class="form" action="portal-overview.html">
+          <div class="field"><label for="rc">Recovery code</label><input class="input" id="rc" autocomplete="one-time-code" placeholder="XXXX-XXXX" style="font-family:var(--font-mono);letter-spacing:.06em"></div>
+          <button class="btn btn-primary btn-block" type="submit">Continue</button>
+        </form>
+        <p class="switch-line"><a href="#" onclick="setState('code');return false">Use your authenticator app instead</a></p>
+      </div>
+    </main>
+    <div class="auth-foot">
+      <span><svg class="i i-sm"><use href="#i-shield"/></svg>IRS Pub 4557 &amp; FTC Safeguards compliant</span>
+      <span><a href="legal-privacy.html">Privacy</a> · <a href="legal-terms.html">Terms</a></span>
+    </div>
+  </div>
+  <aside class="auth-art" aria-hidden="true">
+    <div class="art-trust"><span><svg class="i i-sm"><use href="#i-lock"/></svg>Encrypted portal</span><span><svg class="i i-sm"><use href="#i-shield"/></svg>2FA on every account</span></div>
+    <div class="art-card">
+      <div class="inner">
+        <div class="mini-head"><span>Your 2026 return</span><span class="chip chip-accent chip-dot">In preparation</span></div>
+        <div class="art-row"><span class="file">PDF</span><span class="row-meta"><b>W-2 · Temple University</b><small>214 KB</small></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+        <div class="art-row"><span class="file">PDF</span><span class="row-meta"><b>1099-INT · PNC Bank</b><small>88 KB</small></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+        <div class="art-row"><span class="file">JPG</span><span class="row-meta"><b>Photo ID</b><small>1.2 MB</small></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+      </div>
+    </div>
+  </aside>
+</div>
+<script>
+  function setState(v) { document.querySelectorAll('[data-state]').forEach(function (e) { e.hidden = e.dataset.state !== v; }); }
+  var otp = document.querySelectorAll('.otp input');
+  otp.forEach(function (inp, i) {
+    inp.addEventListener('input', function () { inp.value = inp.value.replace(/\D/g, '').slice(-1); if (inp.value && otp[i + 1]) otp[i + 1].focus(); });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Backspace' && !inp.value && otp[i - 1]) otp[i - 1].focus(); });
+    inp.addEventListener('paste', function (e) { var d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!d) return; e.preventDefault(); otp.forEach(function (o, j) { o.value = d[j] || ''; }); });
+  });
+  window.MOCK_CONTROLS = [{ label: 'Method', value: 'code', options: [['code', 'Authenticator code'], ['recovery', 'Recovery code']], onChange: setState }];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

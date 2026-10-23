@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Review and e-sign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.result { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.res { padding: 16px; border-radius: 12px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); }
+.res .eyebrow { display: block; }
+.res b { display: block; font-size: 26px; font-weight: 500; letter-spacing: -0.03em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+.res small { color: var(--color-text-tertiary); font-size: 12.5px; }
+.res.good b { color: var(--color-success-text); }
+.forms-list .row { padding: 10px 6px; }
+.legal { max-height: 220px; overflow-y: auto; padding: 16px; border-radius: 12px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); font-size: 13.5px; color: var(--color-text-secondary); line-height: 1.6; }
+.legal p + p { margin-top: 10px; }
+.legal h4 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.sig-input { font-size: 20px; height: 52px; letter-spacing: -0.01em; font-style: italic; }
+.audit { display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--color-text-tertiary); }
+.sign-btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.timeline { display: grid; gap: 0; }
+.tl { display: flex; gap: 12px; position: relative; padding-bottom: 16px; }
+.tl:last-child { padding-bottom: 0; }
+.tl::after { content: ""; position: absolute; left: 13px; top: 30px; bottom: 2px; width: 2px; background: var(--color-border-strong); }
+.tl:last-child::after { display: none; }
+.tl .tile { width: 28px; height: 28px; }
+.tl b { display: block; font-weight: 500; font-size: 14px; }
+.tl small { display: block; color: var(--color-text-tertiary); font-size: 13px; }
+.done-wrap { display: none; }
+[data-signed="true"] .done-wrap { display: block; }
+[data-signed="true"] .sign-wrap { display: none; }
+.done { display: grid; justify-items: center; text-align: center; padding: 40px 20px; }
+.done .icon-tile { color: var(--color-success-text); background: var(--color-success-soft); box-shadow: none; }
+.done h3 { margin-top: 16px; font-size: 20px; letter-spacing: -0.02em; }
+.done p { margin-top: 6px; color: var(--color-text-secondary); max-width: 46ch; }
+.done .acts { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+@media (max-width: 640px) { .result { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body data-area="portal" data-active="overview">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <a href="portal-overview.html" class="back"><svg class="i i-sm"><use href="#i-arrow"/></svg>Back to overview</a>
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Step 3 of 5 · Ready for review</span>
+      <h1>Review and e-sign your return</h1>
+      <div class="sub"><span class="chip chip-neutral"><svg class="i i-sm"><use href="#i-shield"/></svg>IRS Pub 4557 &amp; 1345 protected</span></div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+      <a href="portal-appointments.html" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-video"/></svg>Talk it through first</a>
+    </div>
+  </header>
+
+  <div class="grid-2" id="page" data-signed="false">
+    <div class="col">
+      <section class="shell" aria-labelledby="sum-title">
+        <div class="shell-head"><h2 id="sum-title"><svg class="i i-sm"><use href="#i-doc"/></svg>Your prepared return</h2><span class="chip chip-accent chip-dot">Ready to sign</span></div>
+        <div class="inner">
+          <div class="result">
+            <div class="res good"><span class="eyebrow">Federal refund</span><b>$2,418</b><small>Direct deposit · PNC ••••4471</small></div>
+            <div class="res"><span class="eyebrow">Pennsylvania</span><b>$0</b><small>Nothing owed, no refund</small></div>
+          </div>
+          <div class="kv">
+            <div><span>Taxpayer</span><span>Denise Robinson</span></div>
+            <div><span>Tax year</span><span>2026</span></div>
+            <div><span>Filing status</span><span>Head of household</span></div>
+            <div><span>Filing method</span><span>IRS e-file</span></div>
+            <div><span>Prepared by</span><span>Adaeze Okojie, EA</span></div>
+          </div>
+          <div class="divider"></div>
+          <p class="hint" style="margin-bottom:6px">Open each form and check it before you sign.</p>
+          <div class="list forms-list" style="padding:0">
+            <div class="row"><span class="file">PDF</span><span class="row-meta"><b>Form 1040 · U.S. Individual Income Tax Return</b><small>14 pages · includes schedules 1 and 3</small></span><a href="#" class="btn btn-secondary" style="height:32px;font-size:13px">Open</a></div>
+            <div class="row"><span class="file">PDF</span><span class="row-meta"><b>PA-40 · Pennsylvania Income Tax Return</b><small>4 pages</small></span><a href="#" class="btn btn-secondary" style="height:32px;font-size:13px">Open</a></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="shell sign-wrap" aria-labelledby="sign-title">
+        <div class="shell-head"><h2 id="sign-title"><svg class="i i-sm"><use href="#i-pen"/></svg>Sign Form 8879</h2></div>
+        <div class="inner">
+          <form class="form" id="sign-form">
+            <div class="legal" tabindex="0" aria-label="Form 8879 declaration">
+              <h4>IRS e-file Signature Authorization (Form 8879)</h4>
+              <p>Under penalties of perjury, I declare that I have examined a copy of the income tax return I am now authorizing, including accompanying schedules and statements, and to the best of my knowledge and belief, it is true, correct, and complete.</p>
+              <p>I authorize Okojie &amp; Associates, Inc., as my electronic return originator, to send my return to the IRS and to receive an acknowledgement of receipt or reason for rejection of the transmission, and the reason for any delay in processing the return or refund.</p>
+              <p>I am signing this authorization by typing my name below, which serves as my electronic signature.</p>
+            </div>
+            <label class="check"><input type="checkbox" id="c7216"><span><b style="font-weight:500">Consent to use my tax information (Form 7216).</b> <span style="color:var(--color-text-secondary)">I agree that Okojie &amp; Associates may use the information on my return to prepare and file it. This consent is valid for one year.</span></span></label>
+            <div class="field">
+              <label for="legal-name">Type your full legal name to sign</label>
+              <input class="input sig-input" id="legal-name" autocomplete="name" placeholder="Denise Robinson">
+              <span class="hint">By typing your name you declare, under penalties of perjury, that you’ve examined this return and authorize us to e-file it.</span>
+            </div>
+            <div class="form-foot">
+              <span class="audit"><svg class="i i-sm"><use href="#i-lock"/></svg>We record the time, IP address and browser with your signature.</span>
+              <button class="btn btn-primary has-icon-l sign-btn" type="submit" id="sign-btn" disabled><svg class="i i-sm"><use href="#i-pen"/></svg>Sign and authorize e-file</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="shell done-wrap" aria-labelledby="done-title">
+        <div class="inner">
+          <div class="done">
+            <span class="icon-tile"><svg class="i"><use href="#i-check"/></svg></span>
+            <h3 id="done-title">Signed. We’re e-filing your return.</h3>
+            <p>We’ll confirm in your portal as soon as the IRS accepts it. A copy of your signed Form 8879 is in Documents.</p>
+            <div class="acts"><a href="portal-overview.html" class="btn btn-primary">Back to overview</a><a href="portal-documents.html" class="btn btn-secondary">View documents</a></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="col side-col">
+      <section class="shell" aria-labelledby="after-title">
+        <div class="shell-head"><h2 id="after-title"><svg class="i i-sm"><use href="#i-clock"/></svg>After you sign</h2></div>
+        <div class="inner">
+          <div class="timeline">
+            <div class="tl"><span class="tile t-indigo"><svg class="i"><use href="#i-pen"/></svg></span><span><b>You sign Form 8879</b><small>Takes about a minute</small></span></div>
+            <div class="tl"><span class="tile t-indigo"><svg class="i"><use href="#i-send"/></svg></span><span><b>We e-file</b><small>Usually the same business day</small></span></div>
+            <div class="tl"><span class="tile t-green"><svg class="i"><use href="#i-check"/></svg></span><span><b>IRS accepts</b><small>We confirm it in your portal</small></span></div>
+            <div class="tl"><span class="tile t-green"><svg class="i"><use href="#i-card"/></svg></span><span><b>Refund arrives</b><small>Most within about 21 days</small></span></div>
+          </div>
+        </div>
+      </section>
+      <section class="shell" aria-labelledby="q-title">
+        <div class="shell-head"><h2 id="q-title"><svg class="i i-sm"><use href="#i-msg"/></svg>Something look wrong?</h2></div>
+        <div class="inner">
+          <p style="font-size:14px;color:var(--color-text-secondary)">Don’t sign yet. Tell your preparer what you noticed and they’ll fix it first.</p>
+          <a href="tel:+12155550142" class="btn btn-secondary btn-block has-icon-l num" style="margin-top:14px"><svg class="i i-sm"><use href="#i-phone"/></svg>(215) 555-0142</a>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  var c = document.getElementById('c7216'), n = document.getElementById('legal-name'), b = document.getElementById('sign-btn');
+  function check() { b.disabled = !(c.checked && n.value.trim().length > 3); }
+  c.addEventListener('change', check); n.addEventListener('input', check);
+  document.getElementById('sign-form').addEventListener('submit', function (e) { e.preventDefault(); setSigned('true'); });
+  function setSigned(v) { document.getElementById('page').dataset.signed = v; var s = document.querySelector('#mock-panel select'); if (s) s.value = v; }
+  window.MOCK_CONTROLS = [{ label: 'Signature', value: 'false', options: [['false', 'Not signed'], ['true', 'Signed']], onChange: setSigned }];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

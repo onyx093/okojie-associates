@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account — Okojie Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<link rel="stylesheet" href="shared/auth.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="auth">
+  <div class="auth-form">
+    <div class="auth-top">
+      <a href="home.html" class="ws"><span class="ws-mark" aria-hidden="true">O</span><span><b>Okojie Online</b><small>Okojie &amp; Associates</small></span></a>
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+    <main class="auth-body" id="main">
+      <span class="eyebrow">Start your return</span>
+      <h1>Create your account</h1>
+      <p class="lead">It takes a minute. You’ll set up two-factor authentication next to keep your documents safe.</p>
+      <form class="form" action="auth-verify-email.html">
+        <div class="field"><label for="name">Full name</label><input class="input" id="name" autocomplete="name" placeholder="As it appears on your tax return"></div>
+        <div class="field"><label for="email">Email address</label><input class="input" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div class="field">
+          <label for="pw">Password</label>
+          <div class="reveal"><input class="input" id="pw" type="password" autocomplete="new-password" aria-describedby="pw-hint"><button class="mini-btn eye" type="button" aria-label="Show password"><svg class="i i-sm"><use href="#i-eye"/></svg></button></div>
+          <span class="hint" id="pw-hint">At least 12 characters. A short phrase is easiest to remember.</span>
+        </div>
+        <div class="field"><label for="pw2">Confirm password</label><input class="input" id="pw2" type="password" autocomplete="new-password"></div>
+        <label class="check"><input type="checkbox"><span style="color:var(--color-text-secondary)">I agree to the <a href="legal-terms.html" style="color:var(--color-accent-text);font-weight:500">Terms</a> and <a href="legal-privacy.html" style="color:var(--color-accent-text);font-weight:500">Privacy Policy</a>.</span></label>
+        <button class="btn btn-primary btn-block" type="submit">Create account</button>
+      </form>
+      <p class="switch-line">Already have an account? <a href="auth-login.html">Sign in</a></p>
+    </main>
+    <div class="auth-foot">
+      <span><svg class="i i-sm"><use href="#i-shield"/></svg>IRS Pub 4557 &amp; FTC Safeguards compliant</span>
+      <span><a href="legal-privacy.html">Privacy</a> · <a href="legal-terms.html">Terms</a></span>
+    </div>
+  </div>
+  <aside class="auth-art" aria-hidden="true">
+    <div class="art-trust"><span><svg class="i i-sm"><use href="#i-lock"/></svg>Encrypted portal</span><span><svg class="i i-sm"><use href="#i-users"/></svg>Credentialed preparers</span><span><svg class="i i-sm"><use href="#i-pin"/></svg>PA &amp; MD offices</span></div>
+    <div class="art-quote">
+      <p>“This year I did everything online from my phone and still talked to my preparer. Same people, way less hassle.”</p>
+      <div class="who"><span class="avatar">DR</span><span><b>Denise R.</b>Germantown, Philadelphia</span></div>
+    </div>
+  </aside>
+</div>
+<script>
+  document.querySelectorAll('.eye').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.parentNode.querySelector('input'), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      b.querySelector('use').setAttribute('href', show ? '#i-eyeoff' : '#i-eye');
+    });
+  });
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

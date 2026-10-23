@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.mfa-state { display: none; }
+[data-mfa="off"] .mfa-off, [data-mfa="setup"] .mfa-setup, [data-mfa="on"] .mfa-on { display: block; }
+[data-mfa="off"] .gate, [data-mfa="setup"] .gate { display: flex; }
+.gate { display: none; margin-bottom: 16px; }
+.lead { color: var(--color-text-secondary); font-size: 14.5px; max-width: 60ch; }
+.apps { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.setup-grid { display: grid; grid-template-columns: 176px 1fr; gap: 24px; align-items: start; }
+.qr { width: 176px; height: 176px; border-radius: 14px; background: #fff; padding: 12px; box-shadow: var(--shadow-chip); display: grid; }
+.qr svg { width: 100%; height: 100%; }
+.step-label { font-weight: 500; font-size: 14.5px; }
+.step-label + p { color: var(--color-text-tertiary); font-size: 13.5px; margin-top: 2px; }
+.key { margin-top: 10px; display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 10px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); font-family: var(--font-mono); font-size: 13px; letter-spacing: .06em; }
+.key span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.otp { display: flex; gap: 8px; margin-top: 10px; }
+.otp input { width: 46px; height: 52px; text-align: center; font-size: 20px; font-family: var(--font-mono); padding: 0; }
+.codes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); font-family: var(--font-mono); font-size: 13.5px; letter-spacing: .04em; }
+.on-head { display: flex; align-items: center; gap: 14px; }
+.on-head .icon-tile { color: var(--color-success-text); background: var(--color-success-soft); box-shadow: none; }
+.on-head b { display: block; font-weight: 500; font-size: 15px; }
+.on-head small { display: block; color: var(--color-text-tertiary); font-size: 13.5px; margin-top: 2px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.btn-danger-ghost { background: transparent; color: var(--color-danger-text); }
+@media (hover: hover) { .btn-danger-ghost:hover { background: var(--color-danger-soft); } }
+.pw-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+.pw-meter i { height: 4px; border-radius: 4px; background: var(--color-border-strong); }
+.pw-meter i.on { background: var(--color-success-text); }
+.reveal { position: relative; }
+.reveal .mini-btn { position: absolute; right: 5px; top: 5px; }
+@media (max-width: 640px) { .setup-grid { grid-template-columns: 1fr; } .qr { margin: 0 auto; } .otp input { width: 40px; height: 48px; } }
+</style>
+</head>
+<body data-area="portal" data-active="security">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Account</span>
+      <h1>Security &amp; 2FA</h1>
+      <div class="sub">Keep your tax documents safe.</div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+    </div>
+  </header>
+
+  <div id="page" data-mfa="on">
+    <div class="note accent gate" role="alert"><svg class="i i-sm"><use href="#i-shield"/></svg><span><b style="font-weight:500">Turn on two-factor authentication to continue.</b> IRS guidance requires it on every client account that holds tax documents. It takes about two minutes.</span></div>
+
+    <div class="grid-even">
+      <section class="shell" aria-labelledby="mfa-title">
+        <div class="shell-head">
+          <h2 id="mfa-title"><svg class="i i-sm"><use href="#i-shield"/></svg>Two-factor authentication</h2>
+          <span class="mfa-state mfa-on"><span class="chip chip-success chip-dot">On</span></span>
+          <span class="mfa-state mfa-off"><span class="chip chip-warning chip-dot">Required</span></span>
+          <span class="mfa-state mfa-setup"><span class="chip chip-accent">Step 2 of 2</span></span>
+        </div>
+        <div class="inner">
+          <!-- Off -->
+          <div class="mfa-state mfa-off">
+            <p class="lead">Each time you sign in, you’ll enter a 6-digit code from an authenticator app on your phone, so nobody can get in with just your password.</p>
+            <div class="apps"><span class="chip chip-neutral">Google Authenticator</span><span class="chip chip-neutral">Microsoft Authenticator</span><span class="chip chip-neutral">1Password</span><span class="chip chip-neutral">Apple Passwords</span></div>
+            <button class="btn btn-primary" type="button" style="margin-top:20px" data-go="setup">Set up two-factor authentication</button>
+          </div>
+          <!-- Setup -->
+          <div class="mfa-state mfa-setup">
+            <div class="setup-grid">
+              <div class="qr" aria-label="QR code for your authenticator app" role="img">
+                <svg viewBox="0 0 29 29" shape-rendering="crispEdges"><path fill="#0E1020" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM22 0h7v7h-7zM23 1v5h5V1zM24 2h3v3h-3zM0 22h7v7H0zM1 23v5h5v-5zM2 24h3v3H2zM9 0h1v2H9zM11 1h2v1h-2zM14 0h1v3h-1zM16 1h2v2h-2zM19 0h1v1h-1zM9 4h2v1H9zM12 3h1v3h-1zM15 4h3v1h-3zM19 3h1v3h-1zM10 6h1v2h-1zM17 6h2v1h-2zM0 9h2v1H0zM3 8h1v3H3zM5 9h3v1H5zM9 9h2v2H9zM13 8h2v1h-2zM16 9h1v3h-1zM18 8h3v1h-3zM22 9h1v2h-1zM24 8h2v1h-2zM27 9h2v2h-2zM1 12h3v1H1zM6 11h1v3H6zM8 12h2v1H8zM11 11h1v2h-1zM13 12h2v2h-2zM18 11h2v1h-2zM21 12h1v3h-1zM23 11h3v1h-3zM0 15h2v1H0zM4 14h1v2H4zM7 15h3v1H7zM12 15h1v2h-1zM14 16h3v1h-3zM19 14h1v2h-1zM23 15h2v1h-2zM26 14h1v3h-1zM2 18h3v1H2zM6 17h1v2H6zM9 18h2v1H9zM13 19h1v1h-1zM15 18h1v3h-1zM17 19h3v1h-3zM22 17h2v2h-2zM25 19h3v1h-3zM9 21h1v3H9zM11 22h2v1h-2zM14 23h3v1h-3zM18 22h1v2h-1zM20 21h3v1h-3zM24 22h1v3h-1zM26 23h3v1h-3zM10 26h3v1h-3zM14 25h1v4h-1zM16 27h2v1h-2zM19 25h2v1h-2zM22 26h1v3h-1zM25 27h2v1h-2zM27 25h2v1h-2z"/></svg>
+              </div>
+              <div>
+                <p class="step-label">1. Scan the QR code</p>
+                <p>Open your authenticator app and scan it. Can’t scan? Enter this key instead.</p>
+                <div class="key"><span>JBSW Y3DP EHPK 3PXP</span><button class="mini-btn" type="button" aria-label="Copy setup key" data-copy="JBSWY3DPEHPK3PXP" data-copy-toast="Setup key copied"><svg class="i i-sm"><use href="#i-copy"/></svg></button></div>
+                <p class="step-label" style="margin-top:20px">2. Enter the 6-digit code</p>
+                <p>Type the code your app shows right now.</p>
+                <div class="otp" role="group" aria-label="6-digit code">
+                  <input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 1" value="4"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 2" value="8"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 3" value="2"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 4"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 5"><input class="input" inputmode="numeric" maxlength="1" aria-label="Digit 6">
+                </div>
+                <div class="btn-row"><button class="btn btn-primary" type="button" data-go="on">Turn on 2FA</button><button class="btn btn-ghost" type="button" data-go="off">Cancel</button></div>
+              </div>
+            </div>
+          </div>
+          <!-- On -->
+          <div class="mfa-state mfa-on">
+            <div class="on-head"><span class="icon-tile"><svg class="i"><use href="#i-shield"/></svg></span><span><b>Two-factor authentication is on</b><small>You’ll enter a code from your authenticator app each time you sign in.</small></span></div>
+            <div class="divider"></div>
+            <p class="step-label">Recovery codes</p>
+            <p class="hint" style="font-size:13.5px">If you lose your phone, each code signs you in once. Keep them in a password manager.</p>
+            <div class="codes num"><span>7KQ2-M9XD</span><span>H4TP-2WZR</span><span>Q8NV-6LCE</span><span>B3RY-K7FA</span><span>P5JD-X2MU</span><span>W9GS-4HTN</span><span>C6LE-8VQB</span><span>Z2FK-R5YP</span></div>
+            <div class="btn-row">
+              <button class="btn btn-secondary has-icon-l" type="button" data-copy="7KQ2-M9XD H4TP-2WZR Q8NV-6LCE B3RY-K7FA P5JD-X2MU W9GS-4HTN C6LE-8VQB Z2FK-R5YP" data-copy-toast="Recovery codes copied"><svg class="i i-sm"><use href="#i-copy"/></svg>Copy codes</button>
+              <button class="btn btn-ghost has-icon-l" type="button" onclick="Okojie.toast('New recovery codes created')"><svg class="i i-sm"><use href="#i-refresh"/></svg>Create new codes</button>
+            </div>
+            <div class="divider"></div>
+            <button class="btn btn-danger-ghost" type="button" data-go="off" style="padding:0 10px;margin-left:-10px">Turn off two-factor authentication</button>
+            <p class="hint">Client accounts need 2FA to use the portal, so you’ll be asked to set it up again.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="shell" aria-labelledby="pw-title">
+        <div class="shell-head"><h2 id="pw-title"><svg class="i i-sm"><use href="#i-key"/></svg>Password</h2><span class="hint">Changed 3 months ago</span></div>
+        <div class="inner">
+          <form class="form" data-toast="Password updated">
+            <p class="lead" style="font-size:14px">Use a long password you don’t use anywhere else: at least 12 characters.</p>
+            <div class="field"><label for="cur">Current password</label><div class="reveal"><input class="input" id="cur" type="password" autocomplete="current-password" value="correct-horse"><button class="mini-btn eye" type="button" aria-label="Show password"><svg class="i i-sm"><use href="#i-eye"/></svg></button></div></div>
+            <div class="field"><label for="new">New password</label><div class="reveal"><input class="input" id="new" type="password" autocomplete="new-password" value="battery-staple-2027"><button class="mini-btn eye" type="button" aria-label="Show password"><svg class="i i-sm"><use href="#i-eye"/></svg></button></div>
+              <div class="pw-meter" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><span class="hint">Strong · 19 characters</span></div>
+            <div class="field"><label for="conf">Confirm new password</label><input class="input" id="conf" type="password" autocomplete="new-password" value="battery-staple-2027"></div>
+            <div class="form-foot"><span></span><button class="btn btn-primary" type="submit">Update password</button></div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  var page = document.getElementById('page');
+  function setMfa(v) { page.dataset.mfa = v; var s = document.querySelector('#mock-panel select'); if (s && s.value !== v) s.value = v; }
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () { setMfa(b.dataset.go); if (b.dataset.go === 'on') Okojie.toast('Two-factor authentication is on'); });
+  });
+  document.querySelectorAll('.eye').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = b.parentNode.querySelector('input'), show = i.type === 'password';
+      i.type = show ? 'text' : 'password';
+      b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      b.querySelector('use').setAttribute('href', show ? '#i-eyeoff' : '#i-eye');
+    });
+  });
+  window.MOCK_CONTROLS = [
+    { label: '2FA', value: 'on', options: [['off', 'Not set up (required)'], ['setup', 'Setting up'], ['on', 'On']], onChange: setMfa }
+  ];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

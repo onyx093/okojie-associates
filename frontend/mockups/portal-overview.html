@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>(function(){var t=null;try{t=localStorage.getItem('okojie-theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t})();</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/app.css">
+<style>
+.year-chip { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-tertiary); }
+.stepper { display: grid; grid-template-columns: repeat(5, 1fr); position: relative; margin: 6px 0 4px; }
+.stepper .track, .stepper .fill { position: absolute; top: 12px; left: 10%; right: 10%; height: 2px; border-radius: 2px; background: var(--color-border-strong); }
+.stepper .fill { right: auto; background: var(--color-accent-solid); transition: width 400ms var(--ease-out); }
+.step { position: relative; display: grid; justify-items: center; text-align: center; gap: 8px; padding: 0 4px; }
+.dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--color-surface); box-shadow: inset 0 0 0 1.5px var(--color-border-strong); color: #fff; }
+.dot svg { width: 13px; height: 13px; stroke-width: 2.6; display: none; }
+.step.done .dot { background: var(--color-accent-solid); box-shadow: none; }
+.step.done .dot svg { display: block; }
+.step.now .dot { box-shadow: inset 0 0 0 1.5px var(--color-accent-solid), 0 0 0 5px var(--color-accent-soft); }
+.step.now .dot::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--color-accent-solid); }
+.step b { font-size: 13.5px; font-weight: 500; }
+.step:not(.done):not(.now) b { color: var(--color-text-tertiary); font-weight: 400; }
+.step small { font-size: 12px; color: var(--color-text-tertiary); margin-top: -4px; min-height: 18px; }
+.step.now small { color: var(--color-accent-text); font-weight: 500; }
+
+.next { margin-top: 22px; padding: 18px; border-radius: 12px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); display: flex; gap: 14px; align-items: flex-start; }
+.next.action { background: var(--color-accent-soft); box-shadow: inset 0 0 0 1px rgb(79 99 232 / .25); }
+.next-ico { width: 36px; height: 36px; border-radius: 10px; flex: none; display: grid; place-items: center; background: var(--color-surface); box-shadow: var(--shadow-chip); color: var(--color-accent-text); }
+.next-body { flex: 1; min-width: 0; }
+.next-body .eyebrow { color: var(--color-accent-text); }
+.next-body h3 { font-size: 16px; margin-top: 4px; letter-spacing: -0.01em; }
+.next-body p { color: var(--color-text-secondary); font-size: 14px; margin-top: 4px; max-width: 60ch; }
+.next-body .btn { margin-top: 14px; }
+
+.type { width: 96px; flex: none; }
+.amount { font-size: 34px; font-weight: 500; letter-spacing: -0.035em; line-height: 1.1; }
+.amount.muted { font-size: 22px; color: var(--color-text-secondary); letter-spacing: -0.02em; }
+.inv-note { color: var(--color-text-tertiary); font-size: 13.5px; margin-top: 6px; }
+.inv-rows { margin: 16px 0; padding-top: 14px; border-top: 1px solid var(--color-border); }
+.inv-secure { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--color-text-tertiary); }
+
+.appt { display: flex; gap: 14px; align-items: center; }
+.cal { width: 52px; flex: none; border-radius: 12px; overflow: hidden; text-align: center; background: var(--color-surface); box-shadow: var(--shadow-chip); }
+.cal span { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; padding: 4px 0 3px; background: var(--color-accent-solid); color: #fff; }
+.cal b { display: block; font-size: 20px; font-weight: 500; padding: 4px 0 6px; letter-spacing: -0.02em; }
+.appt-meta b { display: block; font-weight: 500; font-size: 14.5px; }
+.appt-meta small { display: flex; align-items: center; gap: 6px; color: var(--color-text-tertiary); font-size: 13px; margin-top: 2px; }
+.appt-actions { display: flex; gap: 8px; margin-top: 16px; }
+.appt-actions .btn { flex: 1; height: 36px; font-size: 13.5px; }
+
+@media (max-width: 640px) {
+  .stepper { grid-template-columns: 1fr; gap: 0; margin-left: 2px; }
+  .stepper .track, .stepper .fill { display: none; }
+  .step { grid-template-columns: 26px 1fr; justify-items: start; text-align: left; column-gap: 12px; row-gap: 0; padding: 0 0 18px; }
+  .step::after { content: ""; position: absolute; left: 12px; top: 28px; bottom: 0; width: 2px; background: var(--color-border-strong); }
+  .step.done::after { background: var(--color-accent-solid); }
+  .step:last-child { padding-bottom: 0; } .step:last-child::after { display: none; }
+  .step .dot { grid-row: span 2; }
+  .step small { margin-top: 0; min-height: 0; }
+  .type { display: none; }
+  .next { flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) { .stepper .fill { transition: none; } }
+</style>
+</head>
+<body data-area="portal" data-active="overview">
+<a class="skip-link" href="#main">Skip to content</a>
+
+<main class="main" id="main">
+  <header class="page-head">
+    <div>
+      <span class="eyebrow">Overview</span>
+      <h1>Welcome back, Denise</h1>
+      <div class="sub"><span class="chip chip-accent">Hybrid</span><span>2026 federal + PA return</span></div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn theme-btn" type="button" aria-label="Switch theme"><svg class="i ico ico-moon"><use href="#i-moon"/></svg><svg class="i ico ico-sun"><use href="#i-sun"/></svg></button>
+      <a href="portal-appointments.html" class="btn btn-secondary has-icon-l"><svg class="i i-sm"><use href="#i-cal"/></svg>Book a call</a>
+      <a href="portal-documents.html" class="btn btn-primary has-icon-l"><svg class="i i-sm"><use href="#i-upload"/></svg>Upload documents</a>
+    </div>
+  </header>
+
+  <div class="grid-2">
+    <div class="col">
+      <!-- Return status -->
+      <section class="shell" aria-labelledby="status-title">
+        <div class="shell-head">
+          <h2 id="status-title"><svg class="i i-sm"><use href="#i-doc"/></svg>Your return</h2>
+          <span class="year-chip">Tax year 2026</span>
+        </div>
+        <div class="inner">
+          <div class="stepper" id="stepper" role="list">
+            <span class="track" aria-hidden="true"></span><span class="fill" id="fill" aria-hidden="true"></span>
+            <div class="step" role="listitem"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>Intake received</b><small></small></div>
+            <div class="step" role="listitem"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>In preparation</b><small></small></div>
+            <div class="step" role="listitem"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>Ready for review</b><small></small></div>
+            <div class="step" role="listitem"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>E-signed</b><small></small></div>
+            <div class="step" role="listitem"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>E-filed</b><small></small></div>
+          </div>
+          <div class="next" id="next" role="status">
+            <span class="next-ico"><svg class="i"><use id="next-ico" href="#i-hourglass"/></svg></span>
+            <div class="next-body">
+              <span class="eyebrow" id="next-eyebrow">What happens next</span>
+              <h3 id="next-title"></h3>
+              <p id="next-text"></p>
+              <a href="#" class="btn" id="next-cta"></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Metrics -->
+      <section class="shell" aria-label="At a glance">
+        <div class="inner metrics" data-when="data">
+          <a href="portal-documents.html" class="metric"><span class="top"><span class="tile t-indigo"><svg class="i"><use href="#i-doc"/></svg></span>Documents</span><span class="val num">4</span><span class="ctx">3 clean · 1 scanning</span></a>
+          <a href="portal-messages.html" class="metric"><span class="top"><span class="tile t-green"><svg class="i"><use href="#i-msg"/></svg></span>Messages</span><span class="val num">1</span><span class="ctx hot">Unread from your preparer</span></a>
+          <a href="portal-appointments.html" class="metric"><span class="top"><span class="tile t-amber"><svg class="i"><use href="#i-cal"/></svg></span>Next call</span><span class="val sm">Thu, Feb 12</span><span class="ctx">4:30 PM · Video</span></a>
+          <a href="portal-referrals.html" class="metric"><span class="top"><span class="tile t-rose"><svg class="i"><use href="#i-gift"/></svg></span>Referrals</span><span class="val num">2</span><span class="ctx">Earn $25–$50 each</span></a>
+        </div>
+        <div class="inner metrics" data-when="empty">
+          <a href="portal-documents.html" class="metric"><span class="top"><span class="tile t-indigo"><svg class="i"><use href="#i-doc"/></svg></span>Documents</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></a>
+          <a href="portal-messages.html" class="metric"><span class="top"><span class="tile t-green"><svg class="i"><use href="#i-msg"/></svg></span>Messages</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></a>
+          <a href="portal-appointments.html" class="metric"><span class="top"><span class="tile t-amber"><svg class="i"><use href="#i-cal"/></svg></span>Next call</span><span class="val sm muted">None booked</span><span class="ctx"><span>—</span><span>No data yet</span></span></a>
+          <a href="portal-referrals.html" class="metric"><span class="top"><span class="tile t-rose"><svg class="i"><use href="#i-gift"/></svg></span>Referrals</span><span class="val num muted">0</span><span class="ctx"><span>—</span><span>No data yet</span></span></a>
+        </div>
+      </section>
+
+      <!-- Recent documents -->
+      <section class="shell" aria-labelledby="docs-title">
+        <div class="shell-head">
+          <h2 id="docs-title"><svg class="i i-sm"><use href="#i-upload"/></svg>Recent documents</h2>
+          <a href="portal-documents.html" class="link" data-when="data">View all <svg class="i i-sm"><use href="#i-arrow"/></svg></a>
+        </div>
+        <div class="inner" style="padding:0" data-when="data">
+          <div class="list">
+            <div class="row"><span class="file">PDF</span><span class="row-meta"><b>W2_2026_TempleUniversity.pdf</b><small>214 KB · Feb 2</small></span><span class="type"><span class="chip chip-neutral">W-2</span></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+            <div class="row"><span class="file">PDF</span><span class="row-meta"><b>1099-INT_PNC.pdf</b><small>88 KB · Feb 2</small></span><span class="type"><span class="chip chip-neutral">1099</span></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+            <div class="row"><span class="file">JPG</span><span class="row-meta"><b>drivers-license-front.jpg</b><small>1.2 MB · Feb 2</small></span><span class="type"><span class="chip chip-neutral">ID</span></span><span class="status ok"><svg class="i"><use href="#i-check"/></svg>Clean</span></div>
+            <div class="row"><span class="file">PDF</span><span class="row-meta"><b>2025_federal_return.pdf</b><small>640 KB · Just now</small></span><span class="type"><span class="chip chip-neutral">Prior return</span></span><span class="status wait"><svg class="i"><use href="#i-clock"/></svg>Pending scan</span></div>
+          </div>
+          <div class="list-foot"><span><svg class="i i-sm"><use href="#i-lock"/></svg>Encrypted and visible only to you and your preparer</span></div>
+        </div>
+        <div class="inner flush-empty" data-when="empty">
+          <div class="empty">
+            <span class="icon-tile"><svg class="i"><use href="#i-doc"/></svg></span>
+            <h3>No documents yet</h3>
+            <p>Upload your W-2s, 1099s and ID, and your preparer can start on your return.</p>
+            <div class="acts"><a href="portal-documents.html" class="btn btn-primary has-icon-l"><svg class="i i-sm"><use href="#i-upload"/></svg>Upload documents</a></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="col side-col">
+      <!-- Fee -->
+      <section class="shell" aria-labelledby="inv-title">
+        <div class="shell-head">
+          <h2 id="inv-title"><svg class="i i-sm"><use href="#i-card"/></svg>Your fee</h2>
+          <span id="inv-chip"></span>
+        </div>
+        <div class="inner"><div id="inv-body"></div></div>
+      </section>
+
+      <!-- Appointment -->
+      <section class="shell" aria-labelledby="appt-title">
+        <div class="shell-head">
+          <h2 id="appt-title"><svg class="i i-sm"><use href="#i-cal"/></svg>Upcoming call</h2>
+          <span class="chip chip-success chip-dot" data-when="data">Confirmed</span>
+        </div>
+        <div class="inner" data-when="data">
+          <div class="appt">
+            <span class="cal" aria-hidden="true"><span>Feb</span><b class="num">12</b></span>
+            <span class="appt-meta"><b>Review call with your preparer</b><small><svg class="i i-sm"><use href="#i-video"/></svg>Video · Thu 4:30 PM</small></span>
+          </div>
+          <div class="appt-actions">
+            <a href="#" class="btn btn-primary">Join call</a>
+            <a href="portal-appointments.html" class="btn btn-secondary">Reschedule</a>
+          </div>
+        </div>
+        <div class="inner flush-empty" data-when="empty">
+          <div class="empty sm">
+            <span class="icon-tile"><svg class="i"><use href="#i-cal"/></svg></span>
+            <h3>No calls booked</h3>
+            <p>Talk through your return by video, phone or in person.</p>
+            <div class="acts"><a href="portal-appointments.html" class="btn btn-secondary">Book a call</a></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  var DATES = ['Jan 28', 'Feb 2', 'Feb 11', 'Feb 12', 'Feb 13'];
+  var NEXT = [
+    { icon: 'upload', eyebrow: 'What happens next', title: 'We have your intake', text: 'A preparer will look over your details within one business day. Upload anything that’s missing so we can start sooner.', cta: 'Upload documents', href: 'portal-documents.html', kind: 'btn-secondary' },
+    { icon: 'hourglass', eyebrow: 'What happens next', title: 'Your preparer is working on your return', text: 'Nothing for you to do right now. We’ll message you here as soon as it’s ready to review.', cta: 'Open messages', href: 'portal-messages.html', kind: 'btn-secondary' },
+    { icon: 'pen', eyebrow: 'Action needed', title: 'Your return is ready to review', text: 'Look it over, ask anything you’re unsure about, then sign Form 8879 so we can e-file.', cta: 'Review and e-sign', href: 'portal-sign.html', kind: 'btn-primary', action: true },
+    { icon: 'send', eyebrow: 'What happens next', title: 'Signed. We’re e-filing your return', text: 'We’ll confirm here as soon as it’s filed. You don’t need to do anything else.' },
+    { icon: 'check', eyebrow: 'All done', title: 'Your return has been e-filed', text: 'Thank you for filing with Okojie. Most IRS refunds arrive within about 21 days of e-filing.', cta: 'View documents', href: 'portal-documents.html', kind: 'btn-secondary' }
+  ];
+  function renderStatus(idx) {
+    document.querySelectorAll('#stepper .step').forEach(function (s, i) {
+      var done = i < idx || (idx === 4 && i === 4);
+      s.classList.toggle('done', done);
+      s.classList.toggle('now', i === idx && idx !== 4);
+      if (i === idx) s.setAttribute('aria-current', 'step'); else s.removeAttribute('aria-current');
+      s.querySelector('small').textContent = done ? DATES[i] : i === idx ? 'Now' : '';
+    });
+    document.getElementById('fill').style.width = (idx / 4 * 80) + '%';
+    var n = NEXT[idx];
+    document.getElementById('next').classList.toggle('action', !!n.action);
+    document.getElementById('next-ico').setAttribute('href', '#i-' + n.icon);
+    document.getElementById('next-eyebrow').textContent = n.eyebrow;
+    document.getElementById('next-title').textContent = n.title;
+    document.getElementById('next-text').textContent = n.text;
+    var cta = document.getElementById('next-cta');
+    cta.hidden = !n.cta;
+    if (n.cta) {
+      cta.href = n.href;
+      cta.className = 'btn ' + n.kind + (n.action ? ' has-icon-r' : '');
+      cta.innerHTML = n.cta + (n.action ? ' <svg class="i i-sm"><use href="#i-arrow"/></svg>' : '');
+    }
+  }
+  function renderInvoice(state) {
+    var chip = document.getElementById('inv-chip'), body = document.getElementById('inv-body');
+    if (state === 'quote') {
+      chip.innerHTML = '<span class="chip chip-neutral">Awaiting quote</span>';
+      body.innerHTML = '<div class="amount muted">Not set yet</div>' +
+        '<p class="inv-note">Your preparer sets your fee after reviewing your documents. Hybrid returns usually cost <span class="num">$225–$350</span>.</p>' +
+        '<div class="inv-rows kv"><div><span>You pay</span><span>Before we e-file</span></div><div><span>Payment</span><span>Card, online</span></div></div>' +
+        '<p class="hint">You’ll always see the exact price before we file.</p>';
+    } else if (state === 'open') {
+      chip.innerHTML = '<span class="chip chip-warning chip-dot">Due</span>';
+      body.innerHTML = '<div class="amount num">$275</div><p class="inv-note">Hybrid · 2026 federal + PA return</p>' +
+        '<div class="inv-rows kv"><div><span>Preparation</span><span class="num">$275.00</span></div><div><span>Due</span><span>Before we e-file</span></div></div>' +
+        '<a href="#" class="btn btn-primary btn-block has-icon-l"><svg class="i i-sm"><use href="#i-card"/></svg>Pay $275</a>' +
+        '<p class="inv-secure"><svg class="i i-sm"><use href="#i-lock"/></svg>Secure checkout</p>';
+    } else {
+      chip.innerHTML = '<span class="chip chip-success chip-dot">Paid</span>';
+      body.innerHTML = '<div class="amount num">$275</div><p class="inv-note">Paid Feb 12 · Visa ending 4242</p>' +
+        '<div class="inv-rows kv"><div><span>Preparation</span><span class="num">$275.00</span></div><div><span>Status</span><span>Paid in full</span></div></div>' +
+        '<a href="portal-receipt.html" class="btn btn-secondary btn-block has-icon-l"><svg class="i i-sm"><use href="#i-receipt"/></svg>View receipt</a>';
+    }
+  }
+  window.MOCK_CONTROLS = [
+    { label: 'Return status', value: '1', options: [['0', 'Intake received'], ['1', 'In preparation'], ['2', 'Ready for review'], ['3', 'E-signed'], ['4', 'E-filed']], onChange: function (v) { renderStatus(+v); } },
+    { label: 'Fee', value: 'quote', options: [['quote', 'Awaiting quote'], ['open', 'Open (due)'], ['paid', 'Paid']], onChange: renderInvoice }
+  ];
+</script>
+<script src="shared/app.js"></script>
+</body>
+</html>

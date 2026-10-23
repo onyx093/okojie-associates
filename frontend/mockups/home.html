@@ -1,0 +1,1270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Okojie Online — Homepage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // Resolve theme before paint: saved choice, else system preference.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem('okojie-theme'); } catch (e) {}
+    if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+/* ───────── Tokens ───────── */
+:root {
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #F5F6F8;
+  --color-surface: #FFFFFF;
+  --color-surface-sunken: #F1F2F5;
+  --color-surface-raised: #FFFFFF;
+  --color-border: rgb(16 19 40 / .08);
+  --color-border-strong: rgb(16 19 40 / .14);
+  --color-dots: rgb(16 19 40 / .09);
+
+  --color-text-primary: #0E1020;
+  --color-text-secondary: #4B5066;
+  --color-text-tertiary: #7E8398;
+
+  --color-accent-solid: #4F63E8;
+  --color-accent-solid-hover: #4253D6;
+  --color-accent-soft: #EEF0FE;
+  --color-accent-text: #3446C9;
+  --color-on-accent: #FFFFFF;
+
+  --color-success-text: #127A49;
+  --color-success-soft: #E7F6EE;
+  --color-warning-text: #A65A0B;
+  --color-warning-soft: #FDF1E2;
+  --color-danger-text: #B9322A;
+  --color-danger-soft: #FCEBEA;
+
+  --color-inverse-bg: #0E1020;
+  --color-inverse-text: #F3F4F8;
+
+  --shadow-card: 0 0 0 1px rgb(16 19 40 / .06), 0 1px 2px rgb(16 19 40 / .04), 0 10px 28px -14px rgb(16 19 40 / .14);
+  --shadow-raised: 0 0 0 1px rgb(16 19 40 / .06), 0 2px 4px rgb(16 19 40 / .04), 0 18px 44px -16px rgb(16 19 40 / .22);
+  --shadow-chip: 0 0 0 1px rgb(16 19 40 / .07), 0 1px 2px rgb(16 19 40 / .06), 0 4px 10px -4px rgb(16 19 40 / .10);
+  --shadow-btn: inset 0 1px 0 rgb(255 255 255 / .22), 0 1px 2px rgb(30 40 140 / .3), 0 6px 16px -6px rgb(79 99 232 / .55);
+
+  --hero-sky: linear-gradient(180deg in oklab,
+      #C7D2FB 0%, #DCD9FB 22%, #F1DCEB 40%, #FBD5BF 52%, #F6C2A3 58%,
+      #D9C3E2 68%, #B9C4F1 80%, #E9EDFB 100%);
+  --hero-veil: linear-gradient(90deg, rgb(255 255 255 / .82) 0%, rgb(255 255 255 / .45) 45%, rgb(255 255 255 / 0) 75%);
+  --frame-glass: rgb(255 255 255 / .42);
+  --frame-ring: rgb(255 255 255 / .7);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #09090C;
+  --color-surface: #121217;
+  --color-surface-sunken: #0D0D11;
+  --color-surface-raised: #18181F;
+  --color-border: rgb(255 255 255 / .07);
+  --color-border-strong: rgb(255 255 255 / .12);
+  --color-dots: rgb(255 255 255 / .07);
+
+  --color-text-primary: #F2F3F7;
+  --color-text-secondary: #A6A9BA;
+  --color-text-tertiary: #6F7286;
+
+  --color-accent-solid: #5E70F0;
+  --color-accent-solid-hover: #7181F4;
+  --color-accent-soft: rgb(110 126 245 / .14);
+  --color-accent-text: #A8B2FF;
+  --color-on-accent: #FFFFFF;
+
+  --color-success-text: #5BD49A;
+  --color-success-soft: rgb(60 200 130 / .12);
+  --color-warning-text: #F2B266;
+  --color-warning-soft: rgb(240 160 70 / .13);
+  --color-danger-text: #FF8A80;
+  --color-danger-soft: rgb(255 110 100 / .12);
+
+  --color-inverse-bg: #16161D;
+  --color-inverse-text: #F2F3F7;
+
+  --shadow-card: 0 0 0 1px rgb(255 255 255 / .06), inset 0 1px 0 rgb(255 255 255 / .03), 0 12px 32px -16px rgb(0 0 0 / .7);
+  --shadow-raised: 0 0 0 1px rgb(255 255 255 / .08), inset 0 1px 0 rgb(255 255 255 / .05), 0 24px 60px -20px rgb(0 0 0 / .85);
+  --shadow-chip: 0 0 0 1px rgb(255 255 255 / .08), inset 0 1px 0 rgb(255 255 255 / .05), 0 6px 14px -6px rgb(0 0 0 / .6);
+  --shadow-btn: inset 0 1px 0 rgb(255 255 255 / .2), 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px -8px rgb(94 112 240 / .7);
+
+  --hero-sky: linear-gradient(180deg in oklab,
+      #0B0C14 0%, #11132A 24%, #1D1B3D 40%, #43294A 50%, #8A4A3E 56%,
+      #3A2A4C 64%, #181B38 76%, #0A0B12 100%);
+  --hero-veil: linear-gradient(90deg, rgb(9 9 12 / .9) 0%, rgb(9 9 12 / .55) 45%, rgb(9 9 12 / 0) 78%);
+  --frame-glass: rgb(255 255 255 / .05);
+  --frame-ring: rgb(255 255 255 / .12);
+}
+
+/* Disable transitions while the theme flips */
+.theme-switching *, .theme-switching *::before, .theme-switching *::after { transition: none !important; }
+
+/* ───────── Base ───────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: -0.025em; font-weight: 500; }
+p { text-wrap: pretty; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--color-accent-solid); outline-offset: 2px; border-radius: 6px; }
+.num { font-variant-numeric: tabular-nums; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip-link {
+  position: absolute; left: 16px; top: -48px; z-index: 100;
+  background: var(--color-surface); padding: 10px 14px; border-radius: 10px; box-shadow: var(--shadow-chip);
+}
+.skip-link:focus-visible { top: 16px; }
+[id] { scroll-margin-top: 96px; }
+
+.container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+section { position: relative; }
+.section { padding: 120px 0; }
+
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+svg.i-sm { width: 15px; height: 15px; }
+
+/* ───────── Shared pieces ───────── */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 10px 5px 5px;
+  background: var(--color-surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-chip);
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 500;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.eyebrow .glyph {
+  width: 18px; height: 18px; border-radius: 5px;
+  display: grid; place-items: center;
+  background: var(--color-text-primary); color: var(--color-bg);
+}
+.eyebrow .glyph svg { width: 11px; height: 11px; stroke-width: 2.2; }
+
+.section-head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 32px; margin-bottom: 56px; }
+.section-head h2 { font-size: clamp(34px, 4.4vw, 52px); line-height: 1.04; margin-top: 20px; max-width: 14ch; }
+.section-head p { color: var(--color-text-secondary); max-width: 38ch; font-size: 17px; text-align: right; }
+.section-head.center { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+.section-head.center h2 { max-width: 20ch; }
+.section-head.center p { text-align: center; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 20px;
+  border: 0; border-radius: 12px; cursor: pointer;
+  font-size: 15px; font-weight: 500; white-space: nowrap;
+  transition: background-color 150ms ease, box-shadow 150ms ease, scale 200ms var(--ease-out);
+}
+.btn:active { scale: .97; }
+.btn.has-icon-r { padding-right: 16px; }
+.btn.has-icon-l { padding-left: 16px; }
+.btn-primary { background: var(--color-accent-solid); color: var(--color-on-accent); box-shadow: var(--shadow-btn); }
+.btn-secondary { background: var(--color-surface); color: var(--color-text-primary); box-shadow: var(--shadow-chip); }
+.btn-ghost { background: transparent; color: var(--color-text-primary); }
+.btn-sm { height: 36px; padding: 0 14px; font-size: 14px; border-radius: 10px; }
+@media (hover: hover) {
+  .btn-primary:hover { background: var(--color-accent-solid-hover); }
+  .btn-secondary:hover { background: var(--color-surface-sunken); }
+  .btn-ghost:hover { background: var(--color-surface-sunken); }
+}
+
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 22px; padding: 0 8px; border-radius: 999px;
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+}
+.chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.chip.no-dot::before { display: none; }
+.chip-success { background: var(--color-success-soft); color: var(--color-success-text); }
+.chip-warning { background: var(--color-warning-soft); color: var(--color-warning-text); }
+.chip-danger  { background: var(--color-danger-soft); color: var(--color-danger-text); }
+.chip-accent  { background: var(--color-accent-soft); color: var(--color-accent-text); }
+.chip-neutral { background: var(--color-surface-sunken); color: var(--color-text-secondary); box-shadow: inset 0 0 0 1px var(--color-border); }
+
+.card { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.dotted {
+  background-image: radial-gradient(var(--color-dots) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+}
+
+/* ───────── Nav ───────── */
+.nav {
+  position: relative; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 20px 28px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  width: 32px; height: 32px; border-radius: 9px;
+  display: grid; place-items: center;
+  background: var(--color-accent-solid); color: #fff;
+  font-weight: 600; font-size: 16px; letter-spacing: -0.02em;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 2px 6px -2px rgb(79 99 232 / .6);
+}
+.brand-name { font-weight: 600; font-size: 15px; line-height: 1.1; letter-spacing: -0.01em; }
+.brand-name small { display: block; font-weight: 400; font-size: 12px; color: var(--color-text-tertiary); letter-spacing: 0; }
+.nav-links { display: flex; gap: 4px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+.nav-links a { padding: 8px 12px; border-radius: 8px; color: var(--color-text-secondary); transition: color 120ms ease, background-color 120ms ease; }
+.nav-links a[aria-current="page"] { color: var(--color-text-primary); font-weight: 500; }
+@media (hover: hover) { .nav-links a:hover { color: var(--color-text-primary); background: rgb(127 127 127 / .08); } }
+.nav-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 11px; border: 0; cursor: pointer;
+  display: grid; place-items: center;
+  background: var(--color-surface); box-shadow: var(--shadow-chip); color: var(--color-text-primary);
+  transition: scale 200ms var(--ease-out);
+}
+.icon-btn:active { scale: .95; }
+.icon-btn .ico { grid-area: 1 / 1; transition: opacity 200ms ease, scale 200ms var(--ease-out), filter 200ms ease; }
+:root[data-theme="light"] .icon-btn .ico-sun,
+:root[data-theme="dark"] .icon-btn .ico-moon { opacity: 0; scale: .25; filter: blur(4px); }
+.menu-btn { display: none; }
+
+/* ───────── Hero ───────── */
+.hero-wrap { padding: 12px; }
+.hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  border-radius: var(--radius-xl);
+  background: var(--hero-sky);
+}
+.hero::before { /* long-exposure streaks */
+  content: ""; position: absolute; inset: -20px; z-index: -2; pointer-events: none;
+  background:
+    repeating-linear-gradient(180deg, rgb(255 255 255 / .10) 0 3px, transparent 3px 11px),
+    repeating-linear-gradient(180deg, rgb(0 0 0 / .04) 0 1px, transparent 1px 23px);
+  filter: blur(1.5px);
+}
+.hero::after { /* legibility veil */
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--hero-veil);
+}
+.hero-copy { position: relative; z-index: 2; padding: 64px 56px 0; max-width: 760px; }
+.hero-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 8px; border-radius: 999px;
+  background: var(--frame-glass); box-shadow: inset 0 0 0 1px var(--frame-ring);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  font-size: 13px; color: var(--color-text-secondary);
+}
+.hero-pill .pulse { width: 8px; height: 8px; border-radius: 50%; background: #3CC487; box-shadow: 0 0 0 3px rgb(60 196 135 / .2); }
+.hero h1 {
+  margin-top: 24px;
+  font-size: clamp(42px, 6.4vw, 80px); line-height: .98; letter-spacing: -0.04em;
+}
+.hero h1 em { font-style: normal; color: var(--color-accent-text); }
+.hero-sub { margin-top: 24px; font-size: 18px; color: var(--color-text-secondary); max-width: 52ch; }
+.hero-ctas { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 10px; }
+.hero-ctas .btn { height: 48px; padding: 0 22px; font-size: 15.5px; }
+.trust { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13.5px; color: var(--color-text-secondary); }
+.trust span { display: inline-flex; align-items: center; gap: 7px; }
+.trust svg { color: var(--color-accent-text); }
+
+/* Portal preview inside hero */
+.preview {
+  position: relative; z-index: 1;
+  margin: 80px auto -2px; width: min(1160px, calc(100% - 112px));
+  padding: 8px; border-radius: 26px 26px 0 0;
+  background: var(--frame-glass);
+  box-shadow: inset 0 0 0 1px var(--frame-ring);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+}
+.app {
+  display: grid; grid-template-columns: 196px 1fr;
+  border-radius: 18px 18px 0 0; overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-border), 0 30px 80px -30px rgb(16 19 60 / .45);
+  font-size: 13px; min-height: 400px;
+}
+.app-side { padding: 16px 12px; background: var(--color-surface-sunken); border-right: 1px solid var(--color-border); }
+.app-side .brand { padding: 2px 6px 16px; }
+.app-side .brand-mark { width: 24px; height: 24px; border-radius: 7px; font-size: 12px; }
+.side-label { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-text-tertiary); padding: 10px 8px 6px; }
+.side-item { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 8px; color: var(--color-text-secondary); }
+.side-item.active { background: var(--color-surface); color: var(--color-text-primary); box-shadow: var(--shadow-chip); font-weight: 500; }
+.side-item .count { margin-left: auto; font-size: 11px; color: var(--color-text-tertiary); }
+.app-main { padding: 18px 20px 24px; display: grid; gap: 14px; grid-template-columns: 1.35fr 1fr; align-content: start; }
+.app-top { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.app-top h3 { font-size: 17px; letter-spacing: -0.015em; }
+.app-top p { color: var(--color-text-tertiary); font-size: 12.5px; }
+.mini { background: var(--color-surface); border-radius: 14px; box-shadow: var(--shadow-card); padding: 14px; }
+.mini-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-weight: 500; }
+.mini-head span:last-child { color: var(--color-text-tertiary); font-weight: 400; font-size: 12px; }
+
+.track { grid-column: 1 / -1; }
+.stepper { display: grid; grid-template-columns: repeat(5, 1fr); position: relative; }
+.stepper::before, .stepper .fill {
+  content: ""; position: absolute; top: 10px; left: 10%; right: 10%; height: 2px; border-radius: 2px;
+  background: var(--color-border-strong);
+}
+.stepper .fill { right: auto; width: 40%; background: var(--color-accent-solid); }
+.step { position: relative; display: grid; justify-items: center; text-align: center; gap: 6px; }
+.dot {
+  width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--color-surface); box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+}
+.dot svg { width: 12px; height: 12px; stroke-width: 2.6; }
+.step.done .dot { background: var(--color-accent-solid); color: #fff; box-shadow: none; }
+.step.now .dot { box-shadow: inset 0 0 0 1.5px var(--color-accent-solid), 0 0 0 4px var(--color-accent-soft); }
+.step.now .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent-solid); }
+.step b { font-weight: 500; font-size: 12.5px; }
+.step small { font-size: 11.5px; color: var(--color-text-tertiary); }
+.step.now small { color: var(--color-accent-text); }
+
+.doc-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--color-border); }
+.doc-row:first-of-type { border-top: 0; padding-top: 0; }
+.file-ico { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); color: var(--color-text-secondary); flex: none; }
+.doc-meta { min-width: 0; flex: 1; }
+.doc-meta b { display: block; font-weight: 500; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-meta small { color: var(--color-text-tertiary); font-size: 11.5px; }
+.bar { height: 4px; border-radius: 4px; background: var(--color-surface-sunken); margin-top: 6px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 64%; border-radius: inherit; background: var(--color-accent-solid); }
+
+.preparer { display: flex; gap: 12px; align-items: center; }
+.avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-weight: 600; font-size: 14px;
+  background: linear-gradient(135deg in oklab, #A9B4FF, #F6C7B0); color: #1B1D3A;
+  outline: 1px solid rgb(0 0 0 / .06); outline-offset: -1px;
+}
+.preparer b { display: block; font-weight: 500; }
+.preparer small { color: var(--color-text-tertiary); font-size: 12px; }
+.next-call { margin-top: 12px; padding: 10px 12px; border-radius: 9px; background: var(--color-accent-soft); color: var(--color-accent-text); display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+.next-call b { font-weight: 500; }
+
+/* Floating annotations */
+.float {
+  position: absolute; z-index: 3;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 12px 7px 8px; border-radius: 10px;
+  background: var(--color-surface); box-shadow: var(--shadow-raised);
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .02em; white-space: nowrap;
+}
+.float .glyph { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; background: var(--color-text-primary); color: var(--color-bg); }
+.float .glyph svg { width: 12px; height: 12px; stroke-width: 2.2; }
+.float-a { right: 40px; top: -18px; }
+.float-b { right: 220px; top: -18px; }
+
+/* ───────── Stats ───────── */
+.stats { margin-top: 72px; display: grid; grid-template-columns: repeat(4, 1fr); }
+.stat { padding: 8px 28px; border-left: 1px solid var(--color-border-strong); }
+.stat:first-child { border-left: 0; padding-left: 0; }
+.stat b { display: block; font-size: clamp(36px, 4vw, 48px); font-weight: 500; letter-spacing: -0.04em; line-height: 1.05; }
+.stat span { display: block; margin-top: 6px; line-height: 1.4; font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-tertiary); }
+
+/* ───────── Tiers ───────── */
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+.tier { display: flex; flex-direction: column; padding: 8px; }
+.tier.featured { box-shadow: 0 0 0 1.5px var(--color-accent-solid), 0 24px 56px -24px rgb(79 99 232 / .45); }
+.tier-visual {
+  position: relative; height: 188px; border-radius: 12px; overflow: hidden;
+  background-color: var(--color-surface-sunken);
+  display: grid; place-items: center;
+}
+.tier-body { padding: 22px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+.tier-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tier h3 { font-size: 22px; }
+.tier-tag { color: var(--color-text-tertiary); font-size: 14px; margin-top: 2px; }
+.price { margin-top: 20px; display: flex; align-items: baseline; gap: 8px; }
+.price small { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-tertiary); }
+.price b { font-size: 34px; font-weight: 500; letter-spacing: -0.035em; }
+.tier-desc { margin-top: 10px; color: var(--color-text-secondary); font-size: 14.5px; }
+.features { list-style: none; margin: 20px 0 0; padding: 18px 0 0; border-top: 1px solid var(--color-border); display: grid; gap: 10px; font-size: 14.5px; }
+.features li { display: flex; gap: 10px; align-items: flex-start; }
+.features svg { color: var(--color-accent-text); margin-top: 2px; }
+.best-for { margin-top: 20px; padding: 12px 14px; border-radius: 10px; background: var(--color-surface-sunken); font-size: 13.5px; color: var(--color-text-secondary); }
+.best-for b { color: var(--color-text-primary); font-weight: 500; }
+.tier .btn { margin-top: 18px; width: 100%; }
+.tier-spacer { flex: 1; }
+.see-all { margin-top: 28px; display: flex; justify-content: center; }
+.link-arrow { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--color-accent-text); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; text-underline-position: from-font; transition: text-decoration-color 150ms ease; }
+@media (hover: hover) { .link-arrow:hover { text-decoration-color: currentColor; } }
+
+/* tier mini-UIs */
+.stack { display: grid; gap: 8px; width: 78%; }
+.stack .row { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; background: var(--color-surface); box-shadow: var(--shadow-chip); font-size: 13px; }
+.stack .row:nth-child(2) { translate: 14px 0; }
+.stack .row:nth-child(3) { translate: -6px 0; opacity: .75; }
+.stack .row .chip { margin-left: auto; }
+.pdf { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-size: 8.5px; font-weight: 600; color: #fff; background: #E25B4B; letter-spacing: .02em; flex: none; }
+.pdf.blue { background: var(--color-accent-solid); }
+
+.either { display: flex; align-items: center; gap: 0; }
+.either .opt { display: grid; justify-items: center; gap: 8px; padding: 14px 16px; border-radius: 14px; background: var(--color-surface); box-shadow: var(--shadow-chip); font-size: 12.5px; text-align: center; width: 120px; }
+.either .opt small { color: var(--color-text-tertiary); font-size: 11.5px; display: block; }
+.either .opt .badge-ico { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--color-text-primary); color: var(--color-bg); }
+.either .or { position: relative; width: 44px; height: 2px; background: repeating-linear-gradient(90deg, var(--color-border-strong) 0 4px, transparent 4px 8px); }
+.either .or span { position: absolute; left: 50%; top: 50%; translate: -50% -50%; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; padding: 2px 6px; border-radius: 6px; background: var(--color-surface-sunken); color: var(--color-text-tertiary); box-shadow: inset 0 0 0 1px var(--color-border); }
+
+.quarters { width: 82%; background: var(--color-surface); border-radius: 12px; box-shadow: var(--shadow-chip); padding: 10px 12px; font-size: 12.5px; }
+.quarters .q-head { display: flex; justify-content: space-between; color: var(--color-text-tertiary); font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; padding-bottom: 6px; }
+.quarters .q { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 8px; padding: 6px 0; border-top: 1px solid var(--color-border); }
+.quarters .q b { font-weight: 500; }
+.quarters .q span { color: var(--color-text-tertiary); }
+
+/* ───────── How it works ───────── */
+.how { background: var(--color-surface); border-radius: var(--radius-xl); margin: 0 12px; box-shadow: var(--shadow-card); }
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; position: relative; }
+.steps::before {
+  content: ""; position: absolute; left: 28px; right: 28px; top: 27px; height: 2px;
+  background: repeating-linear-gradient(90deg, var(--color-border-strong) 0 6px, transparent 6px 12px);
+}
+.hstep { position: relative; display: flex; flex-direction: column; gap: 16px; }
+.hstep-num {
+  width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center;
+  background: var(--color-surface); box-shadow: var(--shadow-raised); color: var(--color-text-primary);
+}
+.hstep-num svg { width: 22px; height: 22px; }
+.hstep:last-child .hstep-num { background: var(--color-accent-solid); color: #fff; box-shadow: var(--shadow-btn); }
+.hstep .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-tertiary); }
+.hstep h3 { font-size: 20px; margin-top: 4px; }
+.hstep p { color: var(--color-text-secondary); font-size: 14.5px; margin-top: 6px; }
+.hstep .chip { align-self: flex-start; }
+
+/* ───────── Testimonials ───────── */
+.quotes { display: grid; grid-template-columns: 1.15fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; }
+.quote { padding: 28px; display: flex; flex-direction: column; gap: 24px; }
+.quote p { font-size: 16.5px; line-height: 1.55; }
+.quote.big { grid-row: span 2; justify-content: space-between; background: var(--color-inverse-bg); color: var(--color-inverse-text); position: relative; overflow: hidden; }
+.quote.big::before { content: ""; position: absolute; width: 420px; height: 420px; right: -160px; top: -160px; border-radius: 50%; background: radial-gradient(closest-side, rgb(94 112 240 / .55), transparent); pointer-events: none; }
+.quote.big::after { content: ""; position: absolute; width: 360px; height: 360px; left: -140px; bottom: -180px; border-radius: 50%; background: radial-gradient(closest-side, rgb(246 170 130 / .35), transparent); pointer-events: none; }
+.quote.big p { font-size: clamp(22px, 2.3vw, 28px); line-height: 1.3; letter-spacing: -0.02em; position: relative; }
+.quote.big .who small { color: rgb(242 243 247 / .6); }
+.quote-mark { font-size: 64px; line-height: .6; height: 28px; color: var(--color-accent-text); font-family: Georgia, serif; position: relative; }
+.who { display: flex; align-items: center; gap: 12px; position: relative; }
+.who .avatar { width: 38px; height: 38px; font-size: 13px; }
+.who b { display: block; font-weight: 500; font-size: 14.5px; }
+.who small { color: var(--color-text-tertiary); font-size: 13px; }
+.av-2 { background: linear-gradient(135deg in oklab, #9EE2C4, #A8C3FF) !important; }
+.av-3 { background: linear-gradient(135deg in oklab, #FFD2A1, #F7A9C4) !important; }
+.av-4 { background: linear-gradient(135deg in oklab, #C9B8FF, #9FD5FF) !important; }
+.av-5 { background: linear-gradient(135deg in oklab, #FFE29A, #B8E5A8) !important; }
+
+/* ───────── Videos ───────── */
+.tabs { display: inline-flex; padding: 4px; gap: 2px; border-radius: 12px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); margin-bottom: 24px; max-width: 100%; overflow-x: auto; }
+.tab { height: 36px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; color: var(--color-text-secondary); font-size: 14px; font-weight: 500; white-space: nowrap; transition: color 120ms ease; }
+.tab[aria-selected="true"] { background: var(--color-surface); color: var(--color-text-primary); box-shadow: var(--shadow-chip); }
+.videos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.video { padding: 8px; display: grid; gap: 0; cursor: pointer; text-align: left; border: 0; background: var(--color-surface); color: inherit; }
+.thumb {
+  position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
+  background: var(--hero-sky); display: grid; place-items: center;
+  outline: 1px solid var(--color-border); outline-offset: -1px;
+}
+.thumb::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgb(255 255 255 / .10) 0 3px, transparent 3px 11px); filter: blur(1px); pointer-events: none; }
+.thumb .play {
+  position: relative; width: 64px; height: 64px; border-radius: 50%;
+  display: grid; place-items: center; background: rgb(255 255 255 / .9); color: #0E1020;
+  box-shadow: 0 10px 30px -8px rgb(16 19 60 / .45), inset 0 0 0 1px rgb(255 255 255 / .8);
+  transition: scale 250ms var(--ease-out);
+}
+.thumb .play svg { width: 22px; height: 22px; fill: currentColor; stroke: none; translate: 2px 0; }
+.video:nth-child(2) .thumb { background-position: 0 30%; background-size: 100% 160%; }
+.thumb .tag { position: absolute; left: 12px; top: 12px; }
+@media (hover: hover) { .video:hover .play { scale: 1.06; } }
+.video-body { padding: 16px 10px 10px; }
+.video-body h3 { font-size: 18px; }
+.video-body p { margin-top: 4px; color: var(--color-text-secondary); font-size: 14.5px; }
+
+/* ───────── Offices ───────── */
+.offices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.office { padding: 8px; display: flex; flex-direction: column; }
+.office-map { position: relative; height: 120px; border-radius: 12px; background-color: var(--color-surface-sunken); overflow: hidden; }
+.office-map .road { position: absolute; background: var(--color-surface); box-shadow: 0 0 0 1px var(--color-border); }
+.office-map .pin { position: absolute; left: 50%; top: 50%; translate: -50% -70%; width: 34px; height: 34px; border-radius: 50% 50% 50% 4px; rotate: -45deg; background: var(--color-accent-solid); box-shadow: var(--shadow-btn); display: grid; place-items: center; }
+.office-map .pin::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+.office-body { padding: 16px 10px 10px; display: grid; gap: 10px; flex: 1; align-content: start; }
+.office-body h3 { font-size: 17px; letter-spacing: -0.01em; }
+.office-body .line { display: flex; gap: 9px; align-items: flex-start; color: var(--color-text-secondary); font-size: 14px; }
+.office-body .line svg { margin-top: 3px; color: var(--color-text-tertiary); }
+.office-body a.line { color: var(--color-text-primary); }
+.remote-card { grid-column: 1 / -1; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; background: var(--color-accent-soft); box-shadow: inset 0 0 0 1px var(--color-border); }
+.remote-card h3 { font-size: 20px; }
+.remote-card p { color: var(--color-text-secondary); font-size: 15px; margin-top: 2px; }
+
+/* ───────── Referral ───────── */
+.referral {
+  position: relative; overflow: hidden; isolation: isolate;
+  border-radius: var(--radius-xl); padding: 56px;
+  background: #0C0D16; color: #F2F3F7;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08);
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center;
+}
+.referral::before { content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 80% at 100% 0%, rgb(94 112 240 / .45), transparent 60%),
+    radial-gradient(50% 70% at 85% 110%, rgb(246 150 110 / .35), transparent 60%);
+}
+.referral .eyebrow { background: rgb(255 255 255 / .08); color: #F2F3F7; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .1); }
+.referral .eyebrow .glyph { background: #F2F3F7; color: #0C0D16; }
+.referral h2 { font-size: clamp(32px, 4vw, 48px); line-height: 1.04; margin-top: 20px; }
+.referral p { color: rgb(242 243 247 / .7); margin-top: 16px; font-size: 16.5px; max-width: 46ch; }
+.referral .hero-ctas { margin-top: 28px; }
+.referral .btn-secondary { background: rgb(255 255 255 / .08); color: #F2F3F7; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .12); }
+@media (hover: hover) { .referral .btn-secondary:hover { background: rgb(255 255 255 / .14); } }
+.ref-panel { background: rgb(255 255 255 / .06); border-radius: 20px; padding: 8px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.ref-inner { background: #15161F; border-radius: 12px; padding: 18px; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .06); }
+.ref-label { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: rgb(242 243 247 / .5); }
+.ref-link { margin-top: 8px; display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 10px; background: #0C0D16; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); font-family: var(--font-mono); font-size: 13px; }
+.ref-link span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ref-link button { height: 32px; padding: 0 12px; border-radius: 7px; border: 0; cursor: pointer; background: #F2F3F7; color: #0C0D16; font-size: 13px; font-weight: 500; font-family: var(--font-sans); display: inline-flex; align-items: center; gap: 6px; transition: scale 200ms var(--ease-out); }
+.ref-link button:active { scale: .96; }
+.ref-steps { display: grid; gap: 2px; margin-top: 16px; }
+.ref-step { display: flex; gap: 12px; align-items: flex-start; padding: 12px 4px; border-top: 1px solid rgb(255 255 255 / .07); }
+.ref-step .n { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: rgb(255 255 255 / .08); font-family: var(--font-mono); font-size: 11px; flex: none; }
+.ref-step b { display: block; font-weight: 500; font-size: 14.5px; }
+.ref-step small { color: rgb(242 243 247 / .6); font-size: 13.5px; }
+
+/* ───────── Intake ───────── */
+.intake { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: start; }
+.intake h2 { font-size: clamp(34px, 4.4vw, 52px); line-height: 1.04; margin-top: 20px; }
+.intake .lead { margin-top: 16px; color: var(--color-text-secondary); font-size: 17px; max-width: 42ch; }
+.checks { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 14px; }
+.checks li { display: flex; gap: 12px; align-items: center; font-size: 15.5px; }
+.checks .ci { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--color-surface); box-shadow: var(--shadow-chip); color: var(--color-accent-text); }
+.contact-alt { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: 14.5px; }
+.contact-alt a { color: var(--color-text-primary); font-weight: 500; }
+.form { padding: 28px; display: grid; gap: 18px; }
+.field { display: grid; gap: 7px; }
+.field label, .legend { font-size: 13.5px; font-weight: 500; }
+.field label .opt, .legend .opt { color: var(--color-text-tertiary); font-weight: 400; }
+.input {
+  height: 46px; padding: 0 14px; border-radius: 11px; border: 0; width: 100%;
+  background: var(--color-surface-sunken); color: var(--color-text-primary); font: inherit; font-size: 15px;
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  transition: box-shadow 150ms ease, background-color 150ms ease;
+}
+textarea.input { height: 104px; padding: 12px 14px; resize: vertical; }
+.input::placeholder { color: var(--color-text-tertiary); }
+.input:focus-visible { outline: none; background: var(--color-surface); box-shadow: inset 0 0 0 1.5px var(--color-accent-solid), 0 0 0 4px var(--color-accent-soft); }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.tier-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 7px; }
+.tier-pick label {
+  position: relative; display: grid; gap: 2px; padding: 12px 14px 12px 40px; border-radius: 11px; cursor: pointer;
+  background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border);
+  font-size: 14px; font-weight: 500; transition: box-shadow 120ms ease, background-color 120ms ease;
+}
+.tier-pick label small { font-weight: 400; color: var(--color-text-tertiary); font-size: 12.5px; }
+.tier-pick input { position: absolute; left: 14px; top: 14px; width: 16px; height: 16px; margin: 0; accent-color: var(--color-accent-solid); }
+.tier-pick label:has(input:checked) { background: var(--color-accent-soft); box-shadow: inset 0 0 0 1.5px var(--color-accent-solid); }
+.tier-pick label:has(input:focus-visible) { outline: 2px solid var(--color-accent-solid); outline-offset: 2px; }
+.form-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 4px; }
+.form-foot small { color: var(--color-text-tertiary); font-size: 13px; display: inline-flex; gap: 6px; align-items: center; }
+.form .btn { height: 48px; }
+
+/* ───────── FAQ ───────── */
+.faq { display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px; align-items: start; }
+.faq h2 { font-size: clamp(34px, 4.4vw, 52px); line-height: 1.04; margin-top: 20px; }
+.faq .lead { margin-top: 16px; color: var(--color-text-secondary); font-size: 17px; max-width: 34ch; }
+.faq-list { display: grid; gap: 8px; }
+.faq-item { background: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-card); }
+.faq-item summary {
+  list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 18px 20px; font-weight: 500; font-size: 16px; border-radius: 16px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary .plus { width: 28px; height: 28px; border-radius: 8px; flex: none; display: grid; place-items: center; background: var(--color-surface-sunken); color: var(--color-text-secondary); transition: rotate 250ms var(--ease-out), background-color 150ms ease; }
+.faq-item[open] summary .plus { rotate: 45deg; background: var(--color-accent-soft); color: var(--color-accent-text); }
+.faq-item .answer { padding: 0 20px 20px; color: var(--color-text-secondary); font-size: 15px; max-width: 65ch; }
+
+/* ───────── Final CTA + footer ───────── */
+.final {
+  position: relative; overflow: hidden; isolation: isolate;
+  margin: 0 12px; border-radius: var(--radius-xl); padding: 96px 56px;
+  background: var(--hero-sky); text-align: center;
+}
+.final::before { content: ""; position: absolute; inset: -20px; z-index: -1; pointer-events: none; background: repeating-linear-gradient(180deg, rgb(255 255 255 / .1) 0 3px, transparent 3px 11px); filter: blur(1.5px); }
+.final h2 { font-size: clamp(36px, 5vw, 64px); line-height: 1; letter-spacing: -0.04em; max-width: 16ch; margin: 20px auto 0; }
+.final p { margin: 18px auto 0; max-width: 46ch; font-size: 17px; color: var(--color-text-secondary); }
+.final .hero-ctas { justify-content: center; }
+.final .eyebrow { background: var(--frame-glass); box-shadow: inset 0 0 0 1px var(--frame-ring); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+
+footer { margin: 12px; border-radius: var(--radius-xl); background: var(--color-surface); box-shadow: var(--shadow-card); padding: 56px 48px 28px; }
+.foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 40px; }
+.foot-grid p { margin-top: 16px; color: var(--color-text-secondary); font-size: 14.5px; max-width: 36ch; }
+.foot-col h4 { font-family: var(--font-mono); font-size: 11.5px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 16px; }
+.foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 14.5px; }
+.foot-col li small { display: block; color: var(--color-text-tertiary); font-size: 13px; }
+@media (hover: hover) { .foot-col a:hover { color: var(--color-accent-text); } }
+.subscribe { margin-top: 24px; display: flex; gap: 6px; padding: 5px; border-radius: 13px; background: var(--color-surface-sunken); box-shadow: inset 0 0 0 1px var(--color-border); max-width: 360px; }
+.subscribe input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 0 10px; font: inherit; font-size: 14.5px; color: var(--color-text-primary); }
+.subscribe input:focus-visible { outline: none; }
+.subscribe:focus-within { box-shadow: inset 0 0 0 1.5px var(--color-accent-solid), 0 0 0 4px var(--color-accent-soft); }
+.foot-bottom { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--color-text-tertiary); }
+.foot-bottom nav { display: flex; gap: 20px; flex-wrap: wrap; }
+.compliance { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ───────── Responsive ───────── */
+@media (max-width: 1080px) {
+  .nav-links { display: none; }
+  .menu-btn { display: grid; }
+  .float { display: none; }
+  .app { grid-template-columns: 1fr; }
+  .app-side { display: none; }
+  .steps { grid-template-columns: 1fr; gap: 0; }
+  .steps::before { left: 27px; right: auto; top: 28px; bottom: 28px; width: 2px; height: auto; background: repeating-linear-gradient(180deg, var(--color-border-strong) 0 6px, transparent 6px 12px); }
+  .hstep { flex-direction: row; gap: 20px; padding-bottom: 28px; }
+  .hstep:last-child { padding-bottom: 0; }
+  .offices { grid-template-columns: 1fr 1fr; }
+  .quotes { grid-template-columns: 1fr 1fr; }
+  .quote.big { grid-column: 1 / -1; grid-row: auto; }
+  .referral { grid-template-columns: 1fr; padding: 40px; }
+  .intake, .faq { grid-template-columns: 1fr; gap: 40px; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .tiers { grid-template-columns: 1fr; max-width: 560px; margin: 0 auto; }
+}
+@media (max-width: 720px) {
+  .section { padding: 80px 0; }
+  .container { padding: 0 16px; }
+  .hero-wrap { padding: 8px; }
+  .hero { min-height: 0; border-radius: 22px; }
+  .nav { padding: 14px 16px; }
+  .nav-actions .btn-secondary, .nav-actions .btn-primary { display: none; }
+  .hero-copy { padding: 36px 20px 0; }
+  .hero-sub { font-size: 16.5px; }
+  .hero-ctas .btn { flex: 1 1 100%; }
+  .preview { margin: 48px 0 0 16px; width: calc(100% - 16px); border-radius: 20px 0 0 0; padding: 6px 0 0 6px; }
+  .app { border-radius: 14px 0 0 0; min-height: 0; }
+  .app-main { grid-template-columns: 1fr; padding: 14px; }
+  .app-main > .mini:last-child { display: none; }
+  .step small { display: none; }
+  .stats { grid-template-columns: 1fr 1fr; gap: 28px 0; margin-top: 48px; }
+  .stat:nth-child(3) { border-left: 0; padding-left: 0; }
+  .section-head { grid-template-columns: 1fr; margin-bottom: 36px; }
+  .section-head p { text-align: left; }
+  .section-head.center p { text-align: center; }
+  .how, .final { margin: 0 8px; }
+  .quotes, .videos, .offices { grid-template-columns: 1fr; }
+  .quote { padding: 22px; }
+  .referral { padding: 28px 20px; border-radius: 22px; }
+  .row-2, .tier-pick { grid-template-columns: 1fr; }
+  .form { padding: 20px; }
+  .form-foot { flex-direction: column-reverse; align-items: stretch; }
+  .remote-card { flex-direction: column; align-items: flex-start; padding: 22px; }
+  .final { padding: 64px 20px; border-radius: 22px; }
+  footer { margin: 8px; padding: 36px 20px 24px; border-radius: 22px; }
+  .foot-grid { grid-template-columns: 1fr; gap: 32px; }
+  .either .opt { width: 104px; padding: 12px 10px; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8.3-7.5 9.5-4.3-1.2-7.5-5-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-badge" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.5L7 21l5-2.5 5 2.5-1.5-7.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11A6.5 6.5 0 0 1 18.5 10c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3.5h2.6l1.4 4-2 1.3a11 11 0 0 0 6.6 6.6l1.3-2 4 1.4v2.6a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8.5 3v4M15.5 3v4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4.5M7.5 9L12 4.5 16.5 9"/><path d="M4.5 15v2.5A2.5 2.5 0 0 0 7 20h10a2.5 2.5 0 0 0 2.5-2.5V15"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3.5H7.5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/><path d="M14 3.5V8h4.5M9 13h6M9 16.5h4"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z"/><path d="M13.5 7l3 3"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5L10 14M20.5 3.5l-6.5 17-4-6.5-6.5-4z"/></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><rect x="3.5" y="6.5" width="12" height="11" rx="2.5"/><path d="M15.5 10.5l5-3v9l-5-3"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><path d="M4.5 20.5V5.5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v15M14.5 9.5h4a1 1 0 0 1 1 1v10M3 20.5h18M8 8h3M8 11.5h3M8 15h3"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M4.5 6.5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H10l-4.5 3.5v-3.5h0a2 2 0 0 1-1-1.7z"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M3.5 10h17M7 14.5h3"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3.5 9h17M12 9v11M12 9S10.5 4.5 8 4.5a2 2 0 0 0 0 4.5M12 9s1.5-4.5 4-4.5a2 2 0 0 1 0 4.5"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.8v14.4a1 1 0 0 0 1.5.9l11.5-7.2a1 1 0 0 0 0-1.8L8.5 3.9A1 1 0 0 0 7 4.8z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6.5a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M5 18v-5a6 6 0 0 1 4-5.6M14 18v-5a6 6 0 0 1 4-5.6"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M3 19.5a6 6 0 0 1 12 0M15.5 5.2a3.5 3.5 0 0 1 0 6.6M17.5 14a6 6 0 0 1 3.5 5.5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4 7l8 6 8-6"/></symbol>
+</svg>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ───────── HERO ───────── -->
+<div class="hero-wrap">
+  <header class="hero">
+    <nav class="nav" aria-label="Primary">
+      <a href="#" class="brand" aria-label="Okojie & Associates home">
+        <span class="brand-mark" aria-hidden="true">O</span>
+        <span class="brand-name">Okojie &amp; Associates<small>Okojie Online</small></span>
+      </a>
+      <div class="nav-links">
+        <a href="#" aria-current="page">Home</a>
+        <a href="services.html">Services</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to dark theme">
+          <svg class="i ico ico-moon"><use href="#i-moon"/></svg>
+          <svg class="i ico ico-sun"><use href="#i-sun"/></svg>
+        </button>
+        <a href="auth-login.html" class="btn btn-secondary btn-sm">Client login</a>
+        <a href="#start" class="btn btn-primary btn-sm">Start my return</a>
+        <button class="icon-btn menu-btn" type="button" aria-label="Open menu"><svg class="i"><use href="#i-menu"/></svg></button>
+      </div>
+    </nav>
+
+    <div class="hero-copy">
+      <span class="hero-pill"><span class="pulse" aria-hidden="true"></span>26+ years · Philadelphia &amp; Baltimore</span>
+      <h1>The convenience of online filing, with a <em>real tax professional.</em></h1>
+      <p class="hero-sub">Upload your documents, review with your preparer by video, e-sign and file — all from home, backed by a team that knows Pennsylvania and Maryland.</p>
+      <div class="hero-ctas">
+        <a href="#start" class="btn btn-primary has-icon-r">Start my return online <svg class="i i-sm"><use href="#i-arrow"/></svg></a>
+        <a href="#start" class="btn btn-secondary">Book a free consultation</a>
+      </div>
+      <div class="trust">
+        <span><svg class="i i-sm"><use href="#i-lock"/></svg>Secure client portal</span>
+        <span><svg class="i i-sm"><use href="#i-badge"/></svg>Credentialed preparers</span>
+        <span><svg class="i i-sm"><use href="#i-pin"/></svg>Local PA &amp; MD knowledge</span>
+      </div>
+    </div>
+
+
+    <!-- Portal preview -->
+    <div class="preview" role="img" aria-label="Preview of the Okojie Online client portal showing return progress, uploaded documents and an upcoming review call with your preparer.">
+      <span class="float float-a" aria-hidden="true"><span class="glyph"><svg class="i"><use href="#i-lock"/></svg></span>Encrypted upload</span>
+    <span class="float float-b" aria-hidden="true"><span class="glyph"><svg class="i"><use href="#i-pen"/></svg></span>IRS Form 8879 e-sign</span>
+      <div class="app" aria-hidden="true">
+        <aside class="app-side">
+          <div class="brand"><span class="brand-mark">O</span><span class="brand-name" style="font-size:13.5px">Okojie Online</span></div>
+          <div class="side-label">Your return</div>
+          <div class="side-item active"><svg class="i i-sm"><use href="#i-grid"/></svg>Overview</div>
+          <div class="side-item"><svg class="i i-sm"><use href="#i-doc"/></svg>Documents<span class="count">4</span></div>
+          <div class="side-item"><svg class="i i-sm"><use href="#i-msg"/></svg>Messages<span class="count">1</span></div>
+          <div class="side-item"><svg class="i i-sm"><use href="#i-pen"/></svg>E-sign</div>
+          <div class="side-item"><svg class="i i-sm"><use href="#i-card"/></svg>Payments</div>
+          <div class="side-label">Account</div>
+          <div class="side-item"><svg class="i i-sm"><use href="#i-gift"/></svg>Refer a friend</div>
+          <div class="side-item"><svg class="i i-sm"><use href="#i-cal"/></svg>Appointments</div>
+        </aside>
+        <div class="app-main">
+          <div class="app-top">
+            <div><h3>Welcome back, Denise</h3><p>2026 federal + PA return · Hybrid</p></div>
+            <span class="chip chip-accent">In preparation</span>
+          </div>
+          <div class="mini track">
+            <div class="mini-head"><span>Return progress</span><span>Updated 2h ago</span></div>
+            <div class="stepper">
+              <span class="fill"></span>
+              <div class="step done"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>Book</b><small>Jan 28</small></div>
+              <div class="step done"><span class="dot"><svg class="i"><use href="#i-check"/></svg></span><b>Upload</b><small>Feb 2</small></div>
+              <div class="step now"><span class="dot"></span><b>Prepare</b><small>In progress</small></div>
+              <div class="step"><span class="dot"></span><b>Review &amp; e-sign</b><small>Feb 12</small></div>
+              <div class="step"><span class="dot"></span><b>E-file</b><small>—</small></div>
+            </div>
+          </div>
+          <div class="mini">
+            <div class="mini-head"><span>Documents</span><span>3 of 4 ready</span></div>
+            <div class="doc-row"><span class="file-ico"><svg class="i i-sm"><use href="#i-doc"/></svg></span><span class="doc-meta"><b>W-2 · Temple University</b><small>W2_2026.pdf · 214 KB</small></span><span class="chip chip-success">Verified</span></div>
+            <div class="doc-row"><span class="file-ico"><svg class="i i-sm"><use href="#i-doc"/></svg></span><span class="doc-meta"><b>1099-INT · PNC Bank</b><small>1099INT.pdf · 88 KB</small></span><span class="chip chip-success">Verified</span></div>
+            <div class="doc-row"><span class="file-ico"><svg class="i i-sm"><use href="#i-upload"/></svg></span><span class="doc-meta"><b>Photo ID</b><small>license-front.jpg · 64%</small><span class="bar"><i></i></span></span></div>
+            <div class="doc-row"><span class="file-ico"><svg class="i i-sm"><use href="#i-doc"/></svg></span><span class="doc-meta"><b>1098-T · Tuition</b><small>Page 2 is missing</small></span><span class="chip chip-warning">Needs attention</span></div>
+          </div>
+          <div class="mini">
+            <div class="mini-head"><span>Your preparer</span><span></span></div>
+            <div class="preparer"><span class="avatar">AO</span><span><b>Adaeze Okojie, EA</b><small>Germantown Ave office</small></span></div>
+            <div class="next-call"><svg class="i i-sm"><use href="#i-video"/></svg><span><b>Video review</b> · Thu, Feb 12 · 4:30 PM</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</div>
+
+<main id="main">
+
+<!-- ───────── STATS ───────── -->
+<div class="container">
+  <div class="stats">
+    <div class="stat"><b class="num">26+</b><span>Years in business</span></div>
+    <div class="stat"><b class="num">40,000+</b><span>Returns filed</span></div>
+    <div class="stat"><b class="num">12</b><span>Credentialed preparers</span></div>
+    <div class="stat"><b class="num">4</b><span>Offices in PA &amp; MD</span></div>
+  </div>
+</div>
+
+<!-- ───────── TIERS ───────── -->
+<section class="section" id="tiers" aria-labelledby="tiers-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-card"/></svg></span>Service tiers</span>
+        <h2 id="tiers-title">Three ways to file</h2>
+      </div>
+      <p>Pick the level of support that fits. Every tier includes a real, credentialed preparer.</p>
+    </div>
+
+    <div class="tiers">
+      <!-- Upload & Go -->
+      <article class="card tier">
+        <div class="tier-visual dotted" aria-hidden="true">
+          <div class="stack">
+            <div class="row"><span class="pdf">PDF</span>W-2_2026.pdf<span class="chip chip-success">Verified</span></div>
+            <div class="row"><span class="pdf blue">PDF</span>1099-NEC.pdf<span class="chip chip-success">Verified</span></div>
+            <div class="row"><span class="pdf">JPG</span>ID-front.jpg<span class="chip chip-neutral no-dot">Uploading</span></div>
+          </div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-top"><h3>Upload &amp; Go</h3></div>
+          <p class="tier-tag">Fully remote, start to finish</p>
+          <div class="price"><small>From</small><b class="num">$150–$225</b></div>
+          <p class="tier-desc">Book online, upload to the secure portal, and a credentialed preparer handles the rest. Review by video or phone, e-sign, and e-file.</p>
+          <ul class="features">
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Secure portal document upload</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Preparer-prepared federal + state return</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Review by video or phone</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>IRS-compliant e-signature (Form 8879)</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>E-file and online payment</li>
+          </ul>
+          <span class="tier-spacer"></span>
+          <p class="best-for"><b>Best for</b> W-2 households, students, gig workers, and out-of-area clients</p>
+          <a href="#start" class="btn btn-secondary">Choose Upload &amp; Go</a>
+        </div>
+      </article>
+
+      <!-- Hybrid -->
+      <article class="card tier featured">
+        <div class="tier-visual dotted" aria-hidden="true">
+          <div class="either">
+            <div class="opt"><span class="badge-ico"><svg class="i i-sm"><use href="#i-building"/></svg></span><span>In office<small>Germantown Ave</small></span></div>
+            <div class="or"><span>or</span></div>
+            <div class="opt"><span class="badge-ico"><svg class="i i-sm"><use href="#i-video"/></svg></span><span>By video<small>Thu · 4:30 PM</small></span></div>
+          </div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-top"><h3>Hybrid</h3><span class="chip chip-accent no-dot">Most popular</span></div>
+          <p class="tier-tag">Drop off or upload, review in office or by video</p>
+          <div class="price"><small>From</small><b class="num">$225–$350</b></div>
+          <p class="tier-desc">Bring your documents to a Philadelphia or Baltimore office, or upload them online. Sit down with your preparer in person or meet by video.</p>
+          <ul class="features">
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>In-office drop-off or secure upload</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>In-person or video review</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>EITC and Child Tax Credit maximization</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Prior-year comparison</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>IRS-compliant e-signature and e-file</li>
+          </ul>
+          <span class="tier-spacer"></span>
+          <p class="best-for"><b>Best for</b> families, EITC/CTC filers, and first-time clients</p>
+          <a href="#start" class="btn btn-primary">Choose Hybrid</a>
+        </div>
+      </article>
+
+      <!-- Premium Remote -->
+      <article class="card tier">
+        <div class="tier-visual dotted" aria-hidden="true">
+          <div class="quarters">
+            <div class="q-head"><span>Quarterly estimates</span><span>2026</span></div>
+            <div class="q"><b>Q1</b><span>Due Apr 15</span><span class="chip chip-success">Paid</span></div>
+            <div class="q"><b>Q2</b><span>Due Jun 15</span><span class="chip chip-success">Paid</span></div>
+            <div class="q"><b>Q3</b><span>Due Sep 15</span><span class="chip chip-success">Paid</span></div>
+            <div class="q"><b>Q4</b><span>Due Jan 15</span><span class="chip chip-accent">Scheduled</span></div>
+          </div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-top"><h3>Premium Remote</h3></div>
+          <p class="tier-tag">A dedicated preparer, year-round</p>
+          <div class="price"><small>From</small><b class="num">$400–$900</b></div>
+          <p class="tier-desc">For complex returns and ongoing strategy. Schedule C/E, multi-state filings, and year-round planning so there are no surprises.</p>
+          <ul class="features">
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Dedicated preparer</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Schedule C and Schedule E support</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Multi-state (PA / MD / NJ / DE)</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Quarterly estimates and year-round planning</li>
+            <li><svg class="i i-sm"><use href="#i-check"/></svg>Priority support</li>
+          </ul>
+          <span class="tier-spacer"></span>
+          <p class="best-for"><b>Best for</b> self-employed, landlords, and small business owners</p>
+          <a href="#start" class="btn btn-secondary">Choose Premium Remote</a>
+        </div>
+      </article>
+    </div>
+    <div class="see-all"><a href="pricing.html" class="link-arrow">See full pricing and what’s included <svg class="i i-sm"><use href="#i-arrow"/></svg></a></div>
+  </div>
+</section>
+
+<!-- ───────── HOW IT WORKS ───────── -->
+<section class="section how" aria-labelledby="how-title">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-spark"/></svg></span>How it works</span>
+      <h2 id="how-title">From start to filed, without an office visit</h2>
+      <p>Five steps, all tracked in your portal.</p>
+    </div>
+    <ol class="steps" style="list-style:none;margin:0;padding:0">
+      <li class="hstep">
+        <span class="hstep-num"><svg class="i"><use href="#i-cal"/></svg></span>
+        <div><span class="label">Step 01</span><h3>Book</h3><p>Choose a service tier and book online in minutes.</p></div>
+        <span class="chip chip-neutral no-dot">~5 minutes</span>
+      </li>
+      <li class="hstep">
+        <span class="hstep-num"><svg class="i"><use href="#i-upload"/></svg></span>
+        <div><span class="label">Step 02</span><h3>Upload</h3><p>Securely upload your documents to your private portal.</p></div>
+        <span class="chip chip-neutral no-dot">Encrypted</span>
+      </li>
+      <li class="hstep">
+        <span class="hstep-num"><svg class="i"><use href="#i-doc"/></svg></span>
+        <div><span class="label">Step 03</span><h3>Prepare</h3><p>A credentialed preparer builds your federal and state return.</p></div>
+        <span class="chip chip-neutral no-dot">Real person</span>
+      </li>
+      <li class="hstep">
+        <span class="hstep-num"><svg class="i"><use href="#i-pen"/></svg></span>
+        <div><span class="label">Step 04</span><h3>Review &amp; e-sign</h3><p>Review by video or phone, then sign electronically (Form 8879).</p></div>
+        <span class="chip chip-neutral no-dot">Video or phone</span>
+      </li>
+      <li class="hstep">
+        <span class="hstep-num"><svg class="i"><use href="#i-send"/></svg></span>
+        <div><span class="label">Step 05</span><h3>E-file</h3><p>We e-file your return and you pay online. Track every step.</p></div>
+        <span class="chip chip-accent no-dot">Done</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ───────── TESTIMONIALS ───────── -->
+<section class="section" aria-labelledby="quotes-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-quote"/></svg></span>Client stories</span>
+        <h2 id="quotes-title">What clients say</h2>
+      </div>
+      <p>Families and business owners across Philadelphia and Baltimore.</p>
+    </div>
+    <div class="quotes">
+      <figure class="card quote big" style="margin:0">
+        <span class="quote-mark" aria-hidden="true">“</span>
+        <blockquote style="margin:0"><p>I have been coming to Okojie for years. This year I did everything online from my phone and still talked to my preparer. Same people, way less hassle.</p></blockquote>
+        <figcaption class="who"><span class="avatar">DR</span><span><b>Denise R.</b><small>Germantown, Philadelphia</small></span></figcaption>
+      </figure>
+      <figure class="card quote" style="margin:0">
+        <blockquote style="margin:0"><p>“They caught a credit my old preparer missed and handled an IRS letter for me. Worth every penny.”</p></blockquote>
+        <figcaption class="who"><span class="avatar av-2">MT</span><span><b>Marcus T.</b><small>Baltimore, MD</small></span></figcaption>
+      </figure>
+      <figure class="card quote" style="margin:0">
+        <blockquote style="margin:0"><p>“I am self-employed with income in three states. Premium Remote made it painless and I finally understand my quarterly estimates.”</p></blockquote>
+        <figcaption class="who"><span class="avatar av-3">PS</span><span><b>Priya S.</b><small>Cherry Hill, NJ</small></span></figcaption>
+      </figure>
+      <figure class="card quote" style="margin:0">
+        <blockquote style="margin:0"><p>“Booking the consultation and uploading my 1099s took less than ten minutes. Having a real human review everything gave my family total peace of mind.”</p></blockquote>
+        <figcaption class="who"><span class="avatar av-4">TW</span><span><b>Terrence W.</b><small>West Philadelphia, PA</small></span></figcaption>
+      </figure>
+      <figure class="card quote" style="margin:0">
+        <blockquote style="margin:0"><p>“The hybrid option let me drop off my paperwork and finish the review via video. Professional, transparent pricing, and zero stress.”</p></blockquote>
+        <figcaption class="who"><span class="avatar av-5">AM</span><span><b>Alicia M.</b><small>Towson, MD</small></span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── VIDEOS ───────── -->
+<section class="section" style="padding-top:0" aria-labelledby="videos-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-play"/></svg></span>Watch &amp; learn</span>
+        <h2 id="videos-title">See how it works before you start</h2>
+      </div>
+      <p>Short videos on getting started, using your portal, and hearing from clients.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Video categories">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="v-start" id="t-start">Getting started</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="v-guides" id="t-guides" tabindex="-1">Portal guides</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="v-stories" id="t-stories" tabindex="-1">Client stories</button>
+    </div>
+    <div class="videos" role="tabpanel" id="v-start" aria-labelledby="t-start">
+      <button class="card video" type="button"><span class="thumb"><span class="chip chip-neutral no-dot tag" style="background:var(--color-surface)">2 min</span><span class="play"><svg class="i"><use href="#i-play"/></svg></span></span><span class="video-body"><h3>How Okojie Online works</h3><p>A walkthrough of the online service, from booking to e-file.</p></span></button>
+      <button class="card video" type="button"><span class="thumb"><span class="play"><svg class="i"><use href="#i-play"/></svg></span></span><span class="video-body"><h3>Choosing the right service tier</h3><p>Upload &amp; Go, Hybrid, or Premium Remote? Here’s how to pick.</p></span></button>
+    </div>
+    <div class="videos" role="tabpanel" id="v-guides" aria-labelledby="t-guides" hidden>
+      <button class="card video" type="button"><span class="thumb"><span class="play"><svg class="i"><use href="#i-play"/></svg></span></span><span class="video-body"><h3>How to upload your documents</h3><p>Uploading W-2s, 1099s, and IDs to your secure portal, step by step.</p></span></button>
+      <button class="card video" type="button"><span class="thumb"><span class="play"><svg class="i"><use href="#i-play"/></svg></span></span><span class="video-body"><h3>How to e-sign Form 8879</h3><p>What the e-file authorization means and how to sign it in your portal.</p></span></button>
+    </div>
+    <div class="videos" role="tabpanel" id="v-stories" aria-labelledby="t-stories" hidden>
+      <button class="card video" type="button"><span class="thumb"><span class="play"><svg class="i"><use href="#i-play"/></svg></span></span><span class="video-body"><h3>Denise’s story</h3><p>A long-time Germantown client on filing online without losing her preparer.</p></span></button>
+      <button class="card video" type="button"><span class="thumb"><span class="play"><svg class="i"><use href="#i-play"/></svg></span></span><span class="video-body"><h3>Marcus on IRS notices</h3><p>How a Baltimore client got an IRS letter resolved without the stress.</p></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── OFFICES ───────── -->
+<section class="section" id="offices" style="padding-top:0" aria-labelledby="offices-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-pin"/></svg></span>Offices</span>
+        <h2 id="offices-title">Find us in person</h2>
+      </div>
+      <p>Three Philadelphia offices and one in Baltimore — or work with us entirely online.</p>
+    </div>
+    <div class="offices">
+      <article class="card office">
+        <div class="office-map dotted" aria-hidden="true"><span class="road" style="left:-10px;right:-10px;top:58%;height:10px;rotate:-8deg"></span><span class="road" style="top:-10px;bottom:-10px;left:30%;width:8px;rotate:12deg"></span><span class="pin"></span></div>
+        <div class="office-body">
+          <span class="chip chip-neutral no-dot" style="justify-self:start">Philadelphia, PA</span>
+          <h3>5601 Germantown Ave</h3>
+          <a class="line" href="tel:+12155550142"><svg class="i i-sm"><use href="#i-phone"/></svg><span class="num">(215) 555-0142</span></a>
+          <span class="line"><svg class="i i-sm"><use href="#i-clock"/></svg><span>Mon–Fri 9am–6pm<br>Sat 10am–2pm</span></span>
+        </div>
+      </article>
+      <article class="card office">
+        <div class="office-map dotted" aria-hidden="true"><span class="road" style="left:-10px;right:-10px;top:40%;height:8px;rotate:4deg"></span><span class="road" style="top:-10px;bottom:-10px;left:62%;width:10px;rotate:-6deg"></span><span class="pin"></span></div>
+        <div class="office-body">
+          <span class="chip chip-neutral no-dot" style="justify-self:start">Philadelphia, PA</span>
+          <h3>2301 N. Broad St</h3>
+          <a class="line" href="tel:+12155550178"><svg class="i i-sm"><use href="#i-phone"/></svg><span class="num">(215) 555-0178</span></a>
+          <span class="line"><svg class="i i-sm"><use href="#i-clock"/></svg><span>Mon–Fri 9am–6pm</span></span>
+        </div>
+      </article>
+      <article class="card office">
+        <div class="office-map dotted" aria-hidden="true"><span class="road" style="left:-10px;right:-10px;top:66%;height:9px;rotate:-14deg"></span><span class="road" style="top:-10px;bottom:-10px;left:44%;width:8px;rotate:20deg"></span><span class="pin"></span></div>
+        <div class="office-body">
+          <span class="chip chip-neutral no-dot" style="justify-self:start">Philadelphia, PA</span>
+          <h3>6300 W. Chelten Ave</h3>
+          <a class="line" href="tel:+12155550193"><svg class="i i-sm"><use href="#i-phone"/></svg><span class="num">(215) 555-0193</span></a>
+          <span class="line"><svg class="i i-sm"><use href="#i-clock"/></svg><span>Mon–Fri 9am–5pm<br>Sat 10am–1pm</span></span>
+        </div>
+      </article>
+      <article class="card office">
+        <div class="office-map dotted" aria-hidden="true"><span class="road" style="left:-10px;right:-10px;top:50%;height:10px;rotate:10deg"></span><span class="road" style="top:-10px;bottom:-10px;left:24%;width:9px;rotate:-4deg"></span><span class="pin"></span></div>
+        <div class="office-body">
+          <span class="chip chip-neutral no-dot" style="justify-self:start">Baltimore, MD</span>
+          <h3>4100 Liberty Heights Ave</h3>
+          <a class="line" href="tel:+14105550166"><svg class="i i-sm"><use href="#i-phone"/></svg><span class="num">(410) 555-0166</span></a>
+          <span class="line"><svg class="i i-sm"><use href="#i-clock"/></svg><span>Mon–Fri 9am–6pm</span></span>
+        </div>
+      </article>
+      <div class="card remote-card">
+        <div><h3>Prefer to stay home?</h3><p>Our remote tiers work anywhere in the U.S., with multi-state support for PA, MD, NJ, and DE.</p></div>
+        <a href="#start" class="btn btn-primary has-icon-r">Start online <svg class="i i-sm"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── REFERRAL ───────── -->
+<section class="container" aria-labelledby="ref-title">
+  <div class="referral">
+    <div>
+      <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-gift"/></svg></span>Refer a friend</span>
+      <h2 id="ref-title">Earn $25–$50 for every friend you refer</h2>
+      <p>Know someone who dreads tax season? When they file with Okojie Online, you earn a reward — and they get a real tax professional who knows Philadelphia and Baltimore.</p>
+      <div class="hero-ctas">
+        <a href="#" class="btn btn-primary">Get my referral link</a>
+        <a href="#" class="btn btn-secondary">Refer someone now</a>
+      </div>
+    </div>
+    <div class="ref-panel">
+      <div class="ref-inner">
+        <span class="ref-label">Your referral link</span>
+        <div class="ref-link"><span>okojie.online/r/DENISE-R</span><button type="button" id="copy-btn"><svg class="i i-sm"><use href="#i-copy"/></svg><span>Copy</span></button></div>
+        <span class="sr-only" role="status" id="copy-status"></span>
+        <div class="ref-steps">
+          <div class="ref-step"><span class="n">01</span><span><b>Share your link</b><small>Every client gets a unique code and link in their portal.</small></span></div>
+          <div class="ref-step"><span class="n">02</span><span><b>They file, you earn</b><small>When your friend becomes a client, you earn $25–$50.</small></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── INTAKE ───────── -->
+<section class="section" id="start" aria-labelledby="start-title">
+  <div class="container intake">
+    <div>
+      <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-spark"/></svg></span>Fast intake</span>
+      <h2 id="start-title">Start your return online</h2>
+      <p class="lead">Tell us about your situation and a preparer will follow up within one business day.</p>
+      <ul class="checks">
+        <li><span class="ci"><svg class="i i-sm"><use href="#i-check"/></svg></span>No obligation, no pressure</li>
+        <li><span class="ci"><svg class="i i-sm"><use href="#i-users"/></svg></span>A real preparer reviews your situation</li>
+        <li><span class="ci"><svg class="i i-sm"><use href="#i-lock"/></svg></span>Your information stays private and secure</li>
+      </ul>
+      <p class="contact-alt">Rather talk it through? Call <a href="tel:+12155550142" class="num">(215) 555-0142</a> or visit any office.</p>
+    </div>
+    <form class="card form" novalidate onsubmit="event.preventDefault()">
+      <div class="field"><label for="f-name">Full name</label><input class="input" id="f-name" name="name" autocomplete="name" required></div>
+      <div class="row-2">
+        <div class="field"><label for="f-email">Email</label><input class="input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" required></div>
+        <div class="field"><label for="f-phone">Phone <span class="opt">(optional)</span></label><input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel"></div>
+      </div>
+      <fieldset>
+        <legend class="legend">Which tier interests you? <span class="opt">(optional)</span></legend>
+        <div class="tier-pick">
+          <label><input type="radio" name="tier" value="upload">Upload &amp; Go<small>From $150–$225</small></label>
+          <label><input type="radio" name="tier" value="hybrid" checked>Hybrid<small>From $225–$350</small></label>
+          <label><input type="radio" name="tier" value="premium">Premium Remote<small>From $400–$900</small></label>
+          <label><input type="radio" name="tier" value="unsure">Not sure yet<small>We’ll recommend one</small></label>
+        </div>
+      </fieldset>
+      <div class="field"><label for="f-note">Your situation <span class="opt">(optional)</span></label><textarea class="input" id="f-note" name="note" placeholder="e.g. W-2 job plus a rental property in Maryland"></textarea></div>
+      <div class="form-foot">
+        <small><svg class="i i-sm"><use href="#i-lock"/></svg>Never share your SSN here.</small>
+        <button class="btn btn-primary has-icon-r" type="submit">Request my free quote <svg class="i i-sm"><use href="#i-arrow"/></svg></button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ───────── FAQ ───────── -->
+<section class="section" style="padding-top:0" aria-labelledby="faq-title">
+  <div class="container faq">
+    <div>
+      <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-msg"/></svg></span>FAQ</span>
+      <h2 id="faq-title">Questions, answered</h2>
+      <p class="lead">Filing online, security, and fees — here’s how it works.</p>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item" open><summary>Do I have to come into an office?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">No. Upload &amp; Go and Premium Remote are fully remote: you upload documents to your secure portal, review by video or phone, and e-sign. Hybrid lets you drop off documents or meet in person at one of our Philadelphia or Baltimore offices if you prefer.</p></details>
+      <details class="faq-item"><summary>How do I send my documents securely?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Through your private client portal. Files are encrypted in transit and at rest and are visible only to you and your preparer. Please don’t send W-2s, IDs, or Social Security numbers by regular email or text.</p></details>
+      <details class="faq-item"><summary>Is the e-signature legally valid?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. We use IRS Form 8879 (IRS e-file Signature Authorization), which the IRS permits for electronically filed returns. You’ll review your return and sign electronically in your portal before we file.</p></details>
+      <details class="faq-item"><summary>How much will my return cost?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Fees start in these ranges by tier — Upload &amp; Go $150–$225, Hybrid $225–$350, Premium Remote $400–$900 — and depend on the complexity of your return. You’ll always know your exact price before we file.</p></details>
+      <details class="faq-item"><summary>Can you help with back taxes or an IRS notice?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. Our IRS notice response add-on covers reading the notice, responding on your behalf, and keeping you informed. We can also prepare prior-year returns and amendments.</p></details>
+      <details class="faq-item"><summary>Do you serve clients outside Philadelphia and Baltimore?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">Yes. Our remote tiers work anywhere in the U.S., and Premium Remote supports multi-state filings including PA, MD, NJ, and DE.</p></details>
+      <details class="faq-item"><summary>How is my personal information protected?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">We follow IRS Publication 4557 and the FTC Safeguards Rule under a written information security plan (WISP). Every client account is protected with multi-factor authentication, and access to your files is limited and logged.</p></details>
+      <details class="faq-item"><summary>When will I get my refund?<span class="plus"><svg class="i i-sm"><use href="#i-plus"/></svg></span></summary><p class="answer">After we e-file, the IRS issues most refunds within about 21 days if there are no issues; direct deposit is fastest. Timing can vary with state processing, credits claimed (such as EITC/ACTC), and any IRS review.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── FINAL CTA ───────── -->
+<section class="final" aria-labelledby="final-title">
+  <span class="eyebrow"><span class="glyph"><svg class="i"><use href="#i-arrow"/></svg></span>Start now</span>
+  <h2 id="final-title">Same trusted preparers. No waiting room.</h2>
+  <p>Start online in minutes and track every step of your return in your portal.</p>
+  <div class="hero-ctas">
+    <a href="#start" class="btn btn-primary has-icon-r">Start my return online <svg class="i i-sm"><use href="#i-arrow"/></svg></a>
+    <a href="#start" class="btn btn-secondary">Book a free consultation</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <a href="#" class="brand"><span class="brand-mark" aria-hidden="true">O</span><span class="brand-name">Okojie &amp; Associates, Inc.<small>Okojie Online</small></span></a>
+      <p>Online filing with a real tax professional who knows Philadelphia and Baltimore. Serving individuals, families, and small businesses for 26+ years.</p>
+      <form class="subscribe" onsubmit="event.preventDefault()">
+        <label for="sub-email" class="sr-only">Email for tax tips and deadline reminders</label>
+        <input id="sub-email" type="email" inputmode="email" autocomplete="email" placeholder="Your email for deadline reminders">
+        <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
+      </form>
+    </div>
+    <div class="foot-col">
+      <h4>Explore</h4>
+      <ul><li><a href="#">Home</a></li><li><a href="services.html">Services</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="auth-login.html">Client login</a></li></ul>
+    </div>
+    <div class="foot-col">
+      <h4>Get in touch</h4>
+      <ul><li><a href="tel:+12155550142" class="num">(215) 555-0142</a></li><li><a href="tel:+14105550166" class="num">(410) 555-0166</a></li><li><a href="#start">Book a consultation</a></li></ul>
+    </div>
+    <div class="foot-col">
+      <h4>Offices</h4>
+      <ul>
+        <li>5601 Germantown Ave<small>Philadelphia, PA</small></li>
+        <li>2301 N. Broad St<small>Philadelphia, PA</small></li>
+        <li>6300 W. Chelten Ave<small>Philadelphia, PA</small></li>
+        <li>4100 Liberty Heights Ave<small>Baltimore, MD</small></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 Okojie &amp; Associates, Inc.</span>
+    <span class="compliance"><svg class="i i-sm"><use href="#i-shield"/></svg>IRS Publication 4557 &amp; FTC Safeguards compliant</span>
+    <nav aria-label="Legal"><a href="legal-privacy.html">Privacy policy</a><a href="legal-terms.html">Terms of service</a><a href="legal-security.html">Security (WISP)</a></nav>
+  </div>
+</footer>
+
+<script>
+  // Theme toggle
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('theme-toggle');
+    function label() { btn.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'); }
+    label();
+    btn.addEventListener('click', function () {
+      var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.classList.add('theme-switching');
+      root.dataset.theme = next;
+      try { localStorage.setItem('okojie-theme', next); } catch (e) {}
+      label();
+      requestAnimationFrame(function () { requestAnimationFrame(function () { root.classList.remove('theme-switching'); }); });
+      // keep icon crossfade: re-enable transitions on the toggle only
+    });
+  })();
+
+  // Video tabs
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    function select(t) {
+      tabs.forEach(function (x) {
+        var on = x === t;
+        x.setAttribute('aria-selected', on);
+        x.tabIndex = on ? 0 : -1;
+        document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+      });
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { select(t); });
+      t.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!d) return;
+        var n = tabs[(i + d + tabs.length) % tabs.length]; select(n); n.focus();
+      });
+    });
+  })();
+
+  // Copy referral link
+  (function () {
+    var b = document.getElementById('copy-btn'), s = document.getElementById('copy-status');
+    b.addEventListener('click', function () {
+      var text = 'okojie.online/r/DENISE-R';
+      var done = function () { b.lastElementChild.textContent = 'Copied'; s.textContent = 'Link copied'; setTimeout(function () { b.lastElementChild.textContent = 'Copy'; }, 1600); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done); else done();
+    });
+  })();
+
+</script>
+</body>
+</html>
