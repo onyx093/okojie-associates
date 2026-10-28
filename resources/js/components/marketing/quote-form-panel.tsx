@@ -1,7 +1,4 @@
-import { useForm } from '@inertiajs/react';
 import { CheckCircle2, ShieldCheck, UserCheck, ArrowRight } from 'lucide-react';
-import * as React from 'react';
-import { toast } from 'sonner';
 
 import { Reveal } from '@/components/reveal';
 import { Button } from '@/components/ui/button';
@@ -15,8 +12,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useQuoteForm } from '@/hooks/use-quote-form';
 import { cn } from '@/lib/utils';
-import { quote } from '@/routes/leads';
 import type { TierItem } from '@/types/marketing';
 
 interface QuoteFormPanelProps {
@@ -38,63 +35,17 @@ export function QuoteFormPanel({
 }: QuoteFormPanelProps) {
     const isServicesVariant = variant === 'services';
 
-    const { data, setData, post, processing, errors, reset, wasSuccessful } =
-        useForm({
-            name: '',
-            phone: '',
-            email: '',
-            tier_interest: initialTier || '',
-            situation: '',
-            ref: referralCode || '',
-            my_name: '', // honeypot
-        });
-
-    const [activeRef, setActiveRef] = React.useState(referralCode || '');
-
-    // Read ?ref= and ?tier= from query on mount
-    React.useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search);
-            const queryTier = params.get('tier');
-            const queryRef = params.get('ref');
-
-            if (queryTier && !data.tier_interest) {
-                setData('tier_interest', queryTier);
-            }
-            if (queryRef && !data.ref) {
-                setData('ref', queryRef);
-                setActiveRef(queryRef);
-            }
-        }
-    }, []);
-
-    // Update if initialTier prop changes
-    React.useEffect(() => {
-        if (initialTier) {
-            setData('tier_interest', initialTier);
-        }
-    }, [initialTier]);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        post(quote.url(), {
-            preserveScroll: true,
-            onSuccess: () => {
-                const firstName = data.name.trim().split(' ')[0] || 'there';
-                toast.success(
-                    `Thanks, ${firstName}! A preparer will follow up within one business day.`,
-                );
-            },
-            onError: () => {
-                toast.error(
-                    'Something went wrong. Please try again or call (215) 555-0142.',
-                );
-            },
-        });
-    };
-
-    const firstName = data.name.trim().split(' ')[0] || 'there';
+    const {
+        data,
+        setData,
+        processing,
+        errors,
+        submitted,
+        startOver,
+        activeRef,
+        firstName,
+        submit: handleSubmit,
+    } = useQuoteForm({ initialTier, referralCode });
 
     return (
         <section id={id} className={cn('scroll-mt-24', className)}>
@@ -161,7 +112,7 @@ export function QuoteFormPanel({
                     {/* Right Column: Interactive Form */}
                     <div className="lg:col-span-7">
                         <Reveal direction="up" delay={80}>
-                            {wasSuccessful ? (
+                            {submitted ? (
                                 <div className="rounded-xl border border-primary/30 bg-primary/5 p-8 text-center sm:p-10">
                                     <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/20 text-primary">
                                         <CheckCircle2 className="size-6" />
@@ -177,7 +128,7 @@ export function QuoteFormPanel({
                                         variant="outline"
                                         size="sm"
                                         className="mt-6"
-                                        onClick={() => reset()}
+                                        onClick={startOver}
                                     >
                                         Submit another request
                                     </Button>

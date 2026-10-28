@@ -22,6 +22,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useHoneypotFields } from '@/hooks/use-honeypot';
 import { cn } from '@/lib/utils';
 import { consult } from '@/routes/leads';
 
@@ -38,6 +39,7 @@ export function ConsultFormCard({
 }: ConsultFormCardProps) {
     const today = new Date().toISOString().split('T')[0];
 
+    const honeypot = useHoneypotFields();
     const { data, setData, post, processing, errors, reset, wasSuccessful } =
         useForm({
             name: '',
@@ -48,7 +50,7 @@ export function ConsultFormCard({
             format: 'video',
             notes: '',
             ref: referralCode || '',
-            my_name: '', // honeypot
+            ...honeypot,
         });
 
     React.useEffect(() => {

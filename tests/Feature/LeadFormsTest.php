@@ -147,6 +147,23 @@ test('honeypot rejects spam bot submissions', function () {
     Mail::assertNothingQueued();
 });
 
+test('quote submissions that send the shared honeypot fields are accepted', function () {
+    // Mirrors what the frontend sends: an empty honeypot plus the shared `valid_from` timestamp.
+    $honeypot = $this->get(route('home'))->viewData('page')['props']['honeypot'];
+
+    $this->travel(5)->seconds();
+
+    $response = $this->post(route('leads.quote'), [
+        'name' => 'Real Visitor',
+        'email' => 'visitor@example.com',
+        $honeypot['nameField'] => '',
+        $honeypot['validFromField'] => $honeypot['validFrom'],
+    ]);
+
+    $response->assertRedirect();
+    expect(Lead::where('email', 'visitor@example.com')->exists())->toBeTrue();
+});
+
 test('public forms are throttled to 5 requests per hour', function () {
     for ($i = 1; $i <= 5; $i++) {
         $res = $this->post(route('leads.quote'), [

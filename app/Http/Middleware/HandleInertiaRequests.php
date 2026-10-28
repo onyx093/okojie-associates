@@ -82,6 +82,16 @@ class HandleInertiaRequests extends Middleware
             'navCounts' => fn (): ?array => $this->resolveNavCounts($request),
             'honeypot' => fn (): ?array => $this->resolveHoneypot(),
             'cspNonce' => fn () => Vite::cspNonce(),
+            // Public forms send these back so ProtectAgainstSpam doesn't reject real visitors.
+            'honeypot' => function () {
+                $honeypot = app(Honeypot::class);
+
+                return [
+                    'nameField' => $honeypot->nameFieldName(),
+                    'validFromField' => $honeypot->validFromFieldName(),
+                    'validFrom' => $honeypot->encryptedValidFrom(),
+                ];
+            },
         ];
     }
 

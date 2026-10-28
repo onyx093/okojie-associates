@@ -40,14 +40,17 @@ class SecurityHeaders
             $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         }
 
+        // In local dev, CSS, fonts and HMR are served by the Vite dev server on its own origin.
+        $vite = $this->viteDevServerOrigin();
+
         // Content Security Policy
         $csp = [
             "default-src 'self'",
             "script-src 'self' 'nonce-{$nonce}' https://js.stripe.com https://challenges.cloudflare.com".(app()->environment('local', 'testing') ? " 'unsafe-eval'" : ''),
-            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.bunny.net https://fonts.googleapis.com{$vite}",
             "img-src 'self' data: https: blob:",
-            "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com",
-            "connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com ws: wss:",
+            "font-src 'self' data: https://fonts.bunny.net https://fonts.gstatic.com{$vite}",
+            "connect-src 'self' https://api.stripe.com https://challenges.cloudflare.com ws: wss:{$vite}",
             "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
             "object-src 'none'",
             "base-uri 'self'",
@@ -57,6 +60,26 @@ class SecurityHeaders
         $response->headers->set('Content-Security-Policy', implode('; ', $csp));
 
         return $response;
+    }
+
+    /**
+     * The Vite dev server origin (with a leading space) when running hot locally, otherwise an empty string.
+     */
+    protected function viteDevServerOrigin(): string
+    {
+        if (! app()->environment('local') || ! Vite::isRunningHot()) {
+            return '';
+        }
+
+        $origin = trim((string) file_get_contents(Vite::hotFile()));
+
+        if ($origin === '') {
+            return '';
+        }
+
+        // CSP host sources can't express IPv6 literals (Vite often binds to http://[::1]:5173),
+        // so fall back to the plain scheme. Local only, never reaches production.
+        return str_contains($origin, '[') ? ' '.parse_url($origin, PHP_URL_SCHEME).':' : ' '.$origin;
     }
 
     /**

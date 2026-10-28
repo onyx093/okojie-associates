@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { BrandLogo } from '@/components/brand-logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useHoneypotFields } from '@/hooks/use-honeypot';
 import {
     about,
     contact,
@@ -83,6 +84,7 @@ export function SiteFooter() {
             ? site.offices
             : defaultOffices;
     const currentYear = new Date().getFullYear();
+    const honeypot = useHoneypotFields();
 
     const {
         data: newsletterData,
@@ -94,7 +96,7 @@ export function SiteFooter() {
         reset: resetNewsletter,
     } = useForm({
         email: '',
-        my_name: '', // honeypot
+        ...honeypot,
     });
 
     const handleSubscribe = (e: React.FormEvent) => {

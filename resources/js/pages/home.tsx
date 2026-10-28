@@ -24,6 +24,8 @@ import type {
     TierItem,
     VideoGroup,
 } from '@/types/marketing';
+import { HomeTheme } from '@/components/home/home-nav';
+import { useAppearance } from '@/hooks/use-appearance';
 
 export interface HomeProps {
     tiers: TierItem[];
@@ -38,6 +40,7 @@ export interface HomeProps {
 }
 
 export default function Home({
+    theme: initialTheme,
     tiers,
     steps,
     testimonials,
@@ -48,6 +51,17 @@ export default function Home({
     photoSrc,
     userOverride,
 }: HomeProps) {
+    // The homepage supports light and dark; the theme comes from the
+    // `appearance` cookie so the server render matches the client.
+    const [theme, setTheme] = React.useState<HomeTheme>(initialTheme);
+    const { updateAppearance } = useAppearance();
+
+    const toggleTheme = () => {
+        const next = theme === 'dark' ? 'light' : 'dark';
+        setTheme(next);
+        updateAppearance(next);
+    };
+
     return (
         <SiteLayout
             seo={{
