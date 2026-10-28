@@ -7,6 +7,7 @@ use App\Enums\TimeWindow;
 use App\Mail\AppointmentRequested;
 use App\Models\Appointment;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
@@ -329,4 +330,67 @@ test('staff can cancel any user appointment while Requested', function () {
 
     $appointment->refresh();
     expect($appointment->status)->toBe(ApptStatus::Cancelled);
+});
+
+test('appointment resource formats scheduled_at and only exposes join_url for confirmed video appointments', function () {
+    config(['app.timezone' => 'UTC']);
+
+    $user = User::factory()->withTwoFactor()->create();
+    $scheduledTime = Carbon::parse('2026-02-18 16:30:00', 'UTC');
+
+    $confirmedVideo = Appointment::factory()->create([
+        'user_id' => $user->id,
+        'preferred_date' => '2026-02-18',
+        'format' => ApptFormat::Video,
+        'status' => ApptStatus::Confirmed,
+        'confirmed_at' => now(),
+        'scheduled_at' => $scheduledTime,
+        'join_url' => 'https://meet.example.com/confirmed-video',
+    ]);
+
+    $confirmedPhone = Appointment::factory()->create([
+        'user_id' => $user->id,
+        'preferred_date' => '2026-02-17',
+        'format' => ApptFormat::Phone,
+        'status' => ApptStatus::Confirmed,
+        'confirmed_at' => now(),
+        'scheduled_at' => $scheduledTime,
+        'join_url' => 'https://meet.example.com/confirmed-phone',
+    ]);
+
+    $requestedVideo = Appointment::factory()->create([
+        'user_id' => $user->id,
+        'preferred_date' => '2026-02-16',
+        'format' => ApptFormat::Video,
+        'status' => ApptStatus::Requested,
+        'scheduled_at' => $scheduledTime,
+        'join_url' => 'https://meet.example.com/requested-video',
+    ]);
+
+    $completedVideo = Appointment::factory()->create([
+        'user_id' => $user->id,
+        'preferred_date' => '2026-02-15',
+        'format' => ApptFormat::Video,
+        'status' => ApptStatus::Completed,
+        'scheduled_at' => $scheduledTime,
+        'join_url' => 'https://meet.example.com/completed-video',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('portal.appointments'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('portal/appointments')
+        ->has('appointments', 4)
+        ->where('appointments.0.id', $confirmedVideo->id)
+        ->where('appointments.0.scheduled_at', $scheduledTime->toIso8601String())
+        ->where('appointments.0.scheduled_at_formatted', 'Wed, Feb 18 · 4:30 PM')
+        ->where('appointments.0.join_url', 'https://meet.example.com/confirmed-video')
+        ->where('appointments.1.id', $confirmedPhone->id)
+        ->where('appointments.1.join_url', null)
+        ->where('appointments.2.id', $requestedVideo->id)
+        ->where('appointments.2.join_url', null)
+        ->where('appointments.3.id', $completedVideo->id)
+        ->where('appointments.3.join_url', null)
+    );
 });

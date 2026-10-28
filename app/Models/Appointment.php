@@ -23,10 +23,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $notes
  * @property ApptStatus $status
  * @property Carbon|null $confirmed_at
+ * @property Carbon|null $scheduled_at
+ * @property string|null $join_url
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['user_id', 'preferred_date', 'time_window', 'format', 'topic', 'notes', 'status', 'confirmed_at'])]
+#[Fillable(['user_id', 'preferred_date', 'time_window', 'format', 'topic', 'notes', 'status', 'confirmed_at', 'scheduled_at', 'join_url'])]
 class Appointment extends Model
 {
     /** @use HasFactory<AppointmentFactory> */
@@ -43,6 +45,7 @@ class Appointment extends Model
             'format' => ApptFormat::class,
             'status' => ApptStatus::class,
             'confirmed_at' => 'datetime',
+            'scheduled_at' => 'datetime',
         ];
     }
 

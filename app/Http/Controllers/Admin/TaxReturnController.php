@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Admin\AdvanceReturnStatus;
 use App\Enums\ReturnStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateReturnSummaryRequest;
+use App\Models\AuditLog;
 use App\Models\TaxReturn;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,5 +40,72 @@ class TaxReturnController extends Controller
         );
 
         return back()->with('success', "Return status updated to {$updatedReturn->status->label()}.");
+    }
+
+    /**
+     * Save the prepared return summary (allowed while status < e_signed).
+     */
+    public function updateSummary(
+        UpdateReturnSummaryRequest $request,
+        TaxReturn $taxReturn,
+    ): RedirectResponse {
+        Gate::authorize('update', $taxReturn);
+
+        abort_if(
+            $taxReturn->status->order() >= ReturnStatus::ESigned->order(),
+            403,
+            'Return summary cannot be modified after the return has been e-signed.',
+        );
+
+        /** @var array{
+         *     federal: array{result: string, amount_cents: int|string},
+         *     state?: array{code: string, result: string, amount_cents: int|string}|null,
+         *     bank_last4?: string|null,
+         *     filing_status: string,
+         *     filing_method: string,
+         *     forms?: list<array{name: string, pages: int|string, document_id?: string|null}>|null
+         * } $validated
+         */
+        $validated = $request->validated();
+
+        $summary = [
+            'federal' => [
+                'result' => (string) $validated['federal']['result'],
+                'amount_cents' => (int) $validated['federal']['amount_cents'],
+            ],
+            'state' => isset($validated['state']) ? [
+                'code' => (string) $validated['state']['code'],
+                'result' => (string) $validated['state']['result'],
+                'amount_cents' => (int) $validated['state']['amount_cents'],
+            ] : null,
+            'bank_last4' => $validated['bank_last4'] ?? null,
+            'filing_status' => (string) $validated['filing_status'],
+            'filing_method' => (string) $validated['filing_method'],
+            'forms' => array_map(static fn (array $form): array => [
+                'name' => (string) $form['name'],
+                'pages' => (int) $form['pages'],
+                'document_id' => $form['document_id'] ?? null,
+            ], $validated['forms'] ?? []),
+        ];
+
+        $taxReturn->update([
+            'return_summary' => $summary,
+        ]);
+
+        AuditLog::record(
+            action: 'admin.return_summary_updated',
+            entity: 'TaxReturn',
+            meta: [
+                'tax_year' => $taxReturn->tax_year,
+                'filing_status' => $summary['filing_status'],
+                'federal_result' => $summary['federal']['result'],
+                'federal_amount_cents' => $summary['federal']['amount_cents'],
+                'state_code' => $summary['state']['code'] ?? null,
+                'forms_count' => count($summary['forms']),
+            ],
+            entityId: $taxReturn->id,
+        );
+
+        return back()->with('success', 'Return summary updated.');
     }
 }

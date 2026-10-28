@@ -293,3 +293,78 @@ test('IDOR: user A only sees their own referrals on index', function () {
         ->where('referrals.0.friend_name', 'Friend of A')
     );
 });
+
+test('referrals index and invite mail use the short referral.redirect link', function () {
+    Mail::fake();
+
+    $user = User::factory()->withTwoFactor()->create([
+        'referral_code' => 'OKJ-674SU5',
+    ]);
+
+    $expectedLink = route('referral.redirect', ['code' => 'OKJ-674SU5']);
+    expect($expectedLink)->toEndWith('/r/OKJ-674SU5');
+
+    $this->actingAs($user)
+        ->get(route('portal.referrals'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('portal/referrals')
+            ->where('referralCode', 'OKJ-674SU5')
+            ->where('referralLink', $expectedLink)
+            ->where('rewardRange', '$25–$50')
+        );
+
+    $this->actingAs($user)
+        ->post(route('portal.referrals.store'), [
+            'friend_name' => 'Devon Miles',
+            'friend_email' => 'devon@example.com',
+        ])
+        ->assertRedirect();
+
+    Mail::assertQueued(ReferralInvite::class, function (ReferralInvite $mail) use ($expectedLink): bool {
+        return $mail->hasTo('devon@example.com')
+            && $mail->referralLink === $expectedLink;
+    });
+});
+
+test('referral redirect route redirects valid and unknown codes identically while preserving extra query params and setting attribution cookie', function () {
+    $referrer = User::factory()->create([
+        'referral_code' => 'OKJ-674SU5',
+    ]);
+
+    // 1. Existing referral code redirects 302 to /contact?ref=OKJ-674SU5
+    $knownResponse = $this->get(route('referral.redirect', ['code' => $referrer->referral_code]));
+    $knownResponse->assertRedirect(route('contact', ['ref' => 'OKJ-674SU5']));
+
+    // Following the redirect sets the 30-day attribution cookie on /contact
+    $contactResponse = $this->get($knownResponse->headers->get('Location'));
+    $contactResponse->assertOk();
+    $contactResponse->assertPlainCookie('okojie_referral', 'OKJ-674SU5');
+
+    // 2. Unknown referral code with valid shape redirects identically (no enumeration)
+    $unknownResponse = $this->get(route('referral.redirect', ['code' => 'OKJ-999ZZZ']));
+    $unknownResponse->assertRedirect(route('contact', ['ref' => 'OKJ-999ZZZ']));
+
+    // 3. Extra query parameters (e.g. utm_*) are preserved
+    $utmResponse = $this->get(route('referral.redirect', [
+        'code' => 'OKJ-674SU5',
+        'utm_source' => 'email',
+        'utm_campaign' => 'spring-tax',
+    ]));
+    $utmResponse->assertRedirect(route('contact', [
+        'ref' => 'OKJ-674SU5',
+        'utm_source' => 'email',
+        'utm_campaign' => 'spring-tax',
+    ]));
+});
+
+test('referral redirect route strips ref when code shape is invalid', function (string $invalidCode) {
+    $response = $this->get("/r/{$invalidCode}?utm_source=social&ref=INJECTED");
+
+    $response->assertRedirect(route('contact', ['utm_source' => 'social']));
+})->with([
+    'too short' => ['ab'],
+    'too long' => [str_repeat('A', 31)],
+    'special chars' => ['OKJ!123'],
+    'underscore' => ['OKJ_123456'],
+]);

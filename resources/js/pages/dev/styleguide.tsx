@@ -1,24 +1,25 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import {
-    Sparkles,
-    Calendar,
-    CreditCard,
-    Send,
-    Copy,
-    ChevronDown,
-    Layers,
-    Palette,
-    Type,
-    Maximize2,
     Bell,
-    HelpCircle,
-    Building,
+    Calendar,
     CheckCircle2,
-    Video,
+    ChevronDown,
+    Copy,
+    CreditCard,
+    FileText,
+    Layers,
+    Monitor,
+    Palette,
+    Send,
+    Sparkles,
+    Trash2,
+    Type,
+    Upload,
 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
+import { BrandLogo } from '@/components/brand-logo';
 import {
     AddOnCards,
     AddOnTable,
@@ -31,24 +32,64 @@ import {
     TierGrid,
     VideoLibrary,
 } from '@/components/marketing';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-} from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+    AppIcon,
+    Avatar,
+    Button,
+    CalendarTile,
+    Check,
+    Chip,
+    ChipEyebrow,
+    ChoiceGroup,
+    ConfirmDialog,
+    DataTable,
+    Divider,
+    EmptyState,
+    Eyebrow,
+    Field,
+    FileBadge,
+    FileDropzone,
+    FilterButton,
+    ICON_MAP,
+    IconButton,
+    Inner,
+    KeyValue,
+    Metric,
+    MetricStrip,
+    NextStepCard,
+    Note,
+    Pager,
+    PasswordInput,
+    ReturnStepper,
+    Row,
+    RowList,
+    SearchInput,
+    Seg,
+    SegLinks,
+    Shell,
+    ShellHead,
+    SkipLink,
+    StatusLabel,
+    Switch,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+    TableToolbar,
+    ThemeToggle,
+    Timeline,
+    type IconName,
+    type StepperStage,
+} from '@/components/primitives';
 import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    DialogFooter,
 } from '@/components/ui/dialog';
 import {
     DropdownMenu,
@@ -73,7 +114,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import {
     Sheet,
     SheetContent,
@@ -82,8 +122,19 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { getFixtures, type FixtureDefinition } from '@/dev/fixtures';
+import '@/dev/fixtures/layouts';
+import '@/dev/fixtures/pages/home';
+import '@/dev/fixtures/pages/services';
+import '@/dev/fixtures/pages/pricing';
+import '@/dev/fixtures/pages/about';
+import '@/dev/fixtures/pages/contact';
+import '@/dev/fixtures/pages/legal';
+import { useAppearance, type Appearance } from '@/hooks/use-appearance';
 import { MarketingLayout } from '@/layouts/marketing-layout';
+import { cn } from '@/lib/utils';
 import type {
     AddOnItem,
     FaqItem,
@@ -104,6 +155,16 @@ interface StyleguideProps {
     steps?: StepItem[];
     offices?: OfficeItem[];
 }
+
+type ViewportPreset = '390' | '768' | '1024' | '1440' | 'full';
+
+const VIEWPORT_WIDTHS: Record<ViewportPreset, string> = {
+    '390': 'max-w-[390px]',
+    '768': 'max-w-[768px]',
+    '1024': 'max-w-[1024px]',
+    '1440': 'max-w-[1440px]',
+    full: 'max-w-none',
+};
 
 const fallbackTiers: TierItem[] = [
     {
@@ -217,26 +278,6 @@ const fallbackFaqs: FaqItem[] = [
         question: 'Is the e-signature legally valid?',
         answer: "Yes. We use IRS Form 8879 (IRS e-file Signature Authorization), which the IRS permits for electronically filed returns. You'll review your return and sign electronically in your portal before we file.",
     },
-    {
-        question: 'How much will my return cost?',
-        answer: "Fees start in these ranges by tier — Upload & Go $150–$225, Hybrid $225–$350, Premium Remote $400–$900 — and depend on the complexity of your return. You'll always know your exact price before we file.",
-    },
-    {
-        question: 'Can you help with back taxes or an IRS notice?',
-        answer: 'Yes. Our IRS notice response add-on covers reading the notice, responding on your behalf, and keeping you informed. We can also prepare prior-year returns and amendments.',
-    },
-    {
-        question: 'Do you serve clients outside Philadelphia and Baltimore?',
-        answer: 'Yes. Our remote tiers work anywhere in the U.S., and Premium Remote supports multi-state filings including PA, MD, NJ, and DE.',
-    },
-    {
-        question: 'How is my personal information protected?',
-        answer: 'We follow IRS Publication 4557 and the FTC Safeguards Rule under a written information security plan (WISP). Every client account is protected with multi-factor authentication, and access to your files is limited and logged.',
-    },
-    {
-        question: 'When will I get my refund?',
-        answer: 'After we e-file, the IRS issues most refunds within about 21 days if there are no issues; direct deposit is fastest. Timing can vary with state processing, credits claimed (such as EITC/ACTC), and any IRS review.',
-    },
 ];
 
 const fallbackTestimonials: TestimonialItem[] = [
@@ -257,18 +298,6 @@ const fallbackTestimonials: TestimonialItem[] = [
         quote: 'I am self-employed with income in three states. The Premium Remote tier made it painless and I finally understand my quarterly estimates.',
         name: 'Priya S.',
         location: 'Cherry Hill, NJ',
-    },
-    {
-        stars: 5,
-        quote: 'Booking the consultation and uploading my 1099s took less than ten minutes. Having a real human review everything gave my family total peace of mind.',
-        name: 'Terrence W.',
-        location: 'West Philadelphia, PA',
-    },
-    {
-        stars: 5,
-        quote: 'The hybrid option let me drop off my paperwork and finish the review via video. Professional, transparent pricing, and zero stress.',
-        name: 'Alicia M.',
-        location: 'Towson, MD',
     },
 ];
 
@@ -335,57 +364,91 @@ const fallbackVideos: VideoGroup[] = [
                 id: 'how-it-works',
                 title: 'How Okojie Online Works',
                 description:
-                    'A two-minute walkthrough of the online service line — from booking to e-file. Sample video; replace with your own.',
+                    'A two-minute walkthrough of the online service line — from booking to e-file.',
                 url: null,
             },
             {
                 id: 'choosing-tier',
                 title: 'Choosing the Right Service Tier',
                 description:
-                    'Upload & Go, Hybrid, or Premium Remote? Here is how to pick. Sample video; replace with your own.',
-                url: null,
-            },
-        ],
-    },
-    {
-        category: 'How-To / Portal Guides',
-        videos: [
-            {
-                id: 'how-to-upload',
-                title: 'How to Upload Your Documents',
-                description:
-                    'A step-by-step guide to uploading W-2s, 1099s, and IDs to your secure portal. Sample video; replace with your own.',
-                url: null,
-            },
-            {
-                id: 'how-to-esign',
-                title: 'How to E-Sign Form 8879',
-                description:
-                    'What the e-file authorization means and how to sign it in your portal. Sample video; replace with your own.',
-                url: null,
-            },
-        ],
-    },
-    {
-        category: 'Client Stories',
-        videos: [
-            {
-                id: 'denise-story',
-                title: "Denise's Story",
-                description:
-                    'A long-time Germantown client on filing online without losing her preparer. Sample video; replace with your own.',
-                url: null,
-            },
-            {
-                id: 'marcus-story',
-                title: 'Marcus on IRS Notices',
-                description:
-                    'How a Baltimore client got an IRS letter resolved without the stress. Sample video; replace with your own.',
+                    'Upload & Go, Hybrid, or Premium Remote? Here is how to pick.',
                 url: null,
             },
         ],
     },
 ];
+
+interface SampleInvoiceRow {
+    id: string;
+    invoiceNumber: string;
+    description: string;
+    status: 'paid' | 'open';
+    amount: string;
+}
+
+const sampleInvoiceRows: SampleInvoiceRow[] = [
+    {
+        id: 'inv-1',
+        invoiceNumber: 'INV-2026-0104',
+        description: 'TY 2025 Hybrid Preparation — Federal + PA',
+        status: 'open',
+        amount: '$275.00',
+    },
+    {
+        id: 'inv-2',
+        invoiceNumber: 'INV-2025-0882',
+        description: 'TY 2024 Upload & Go — Federal + PA',
+        status: 'paid',
+        amount: '$185.00',
+    },
+    {
+        id: 'inv-3',
+        invoiceNumber: 'INV-2025-0419',
+        description: 'IRS Notice CP2000 Response Add-on',
+        status: 'paid',
+        amount: '$150.00',
+    },
+];
+
+const sampleReturnStages: StepperStage[] = [
+    { key: 'booked', label: 'Booked', date: 'Oct 18' },
+    { key: 'documents', label: 'Documents', date: 'Oct 21' },
+    { key: 'in_preparation', label: 'In preparation', date: 'Now' },
+    { key: 'ready_to_sign', label: 'Ready to sign' },
+    { key: 'filed', label: 'Filed & accepted' },
+];
+
+function FixtureCard({ fixture }: { fixture: FixtureDefinition }) {
+    const [activeIdx, setActiveIdx] = React.useState('0');
+    const activeState = fixture.states[Number(activeIdx)] ?? fixture.states[0];
+
+    return (
+        <Shell>
+            <ShellHead
+                title={`${fixture.title} (${fixture.id})`}
+                right={
+                    fixture.states.length > 1 ? (
+                        <Seg
+                            value={activeIdx}
+                            onValueChange={setActiveIdx}
+                            items={fixture.states.map((st, idx) => ({
+                                value: String(idx),
+                                label: st.label,
+                            }))}
+                        />
+                    ) : (
+                        <Chip tone="neutral">
+                            {activeState?.label ?? 'Default'}
+                        </Chip>
+                    )
+                }
+            />
+            <Inner className="overflow-x-auto">
+                {activeState ? activeState.render() : null}
+            </Inner>
+        </Shell>
+    );
+}
 
 export default function Styleguide({
     tiers = fallbackTiers,
@@ -396,9 +459,79 @@ export default function Styleguide({
     steps = fallbackSteps,
     offices = fallbackOffices,
 }: StyleguideProps) {
+    const { appearance, resolvedAppearance, updateAppearance } =
+        useAppearance();
+    const [viewport, setViewport] = React.useState<ViewportPreset>('full');
     const [otpValue, setOtpValue] = React.useState('123456');
     const [checked, setChecked] = React.useState(true);
-    const [progress, setProgress] = React.useState(68);
+    const [switchOn, setSwitchOn] = React.useState(true);
+    const [choiceTier, setChoiceTier] = React.useState('hybrid');
+    const [passwordDemo, setPasswordDemo] = React.useState('TaxSeason2026!');
+    const progress = 68;
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState<string | null>(null);
+    const [compactTable, setCompactTable] = React.useState(false);
+    const [segTab, setSegTab] = React.useState('all');
+    const [stepperIndex, setStepperIndex] = React.useState('2');
+    const [selectedFile, setSelectedFile] = React.useState<File | null>(() => {
+        if (typeof File !== 'undefined') {
+            return new File(['sample pdf content'], '2025_Form_W2_Acme.pdf', {
+                type: 'application/pdf',
+            });
+        }
+        return null;
+    });
+
+    const fixtures = getFixtures();
+    const iconNames = Object.keys(ICON_MAP) as IconName[];
+
+    const page = usePage();
+    const isolatedFixtureNode = React.useMemo(() => {
+        const rawUrl =
+            page.url ||
+            (typeof window !== 'undefined'
+                ? `${window.location.pathname}${window.location.search}`
+                : '');
+        const queryIndex = rawUrl.indexOf('?');
+        if (queryIndex === -1) {
+            return null;
+        }
+        const params = new URLSearchParams(rawUrl.slice(queryIndex));
+        const fixtureId = params.get('fixture');
+        if (!fixtureId) {
+            return null;
+        }
+        const matched = fixtures.find((item) => item.id === fixtureId);
+        if (!matched) {
+            return null;
+        }
+        const stateParam = params.get('state');
+        const stateItem = stateParam
+            ? (matched.states.find(
+                  (st, idx) =>
+                      String(idx) === stateParam ||
+                      st.label.toLowerCase() === stateParam.toLowerCase(),
+              ) ?? matched.states[0])
+            : matched.states[0];
+
+        return stateItem ? stateItem.render() : null;
+    }, [fixtures, page.url]);
+
+    const filteredInvoices = React.useMemo(() => {
+        return sampleInvoiceRows.filter((row) => {
+            if (statusFilter && row.status !== statusFilter) {
+                return false;
+            }
+            if (!searchQuery.trim()) {
+                return true;
+            }
+            const q = searchQuery.toLowerCase();
+            return (
+                row.invoiceNumber.toLowerCase().includes(q) ||
+                row.description.toLowerCase().includes(q)
+            );
+        });
+    }, [searchQuery, statusFilter]);
 
     const sampleStats: StatItem[] = [
         { value: '26+', label: 'Years in business' },
@@ -407,526 +540,1042 @@ export default function Styleguide({
         { value: '4', label: 'Offices in PA & MD' },
     ];
 
+    if (isolatedFixtureNode) {
+        return <>{isolatedFixtureNode}</>;
+    }
+
     return (
         <MarketingLayout>
             <Head title="Design System & Component Styleguide — Dev Only" />
+            <SkipLink target="#styleguide-main" />
 
-            <div className="mx-auto max-w-[1160px] px-6 py-12 lg:py-16">
+            {/* Sticky Harness Toolbar */}
+            <div className="sticky top-16 z-30 border-b border-border bg-background/90 backdrop-blur-md">
+                <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-6 py-3">
+                    <div className="flex items-center gap-3">
+                        <BrandLogo />
+                        <Chip tone="accent" dot>
+                            v2 Design System Harness
+                        </Chip>
+                        <span className="hidden font-mono text-xs text-fg-3 sm:inline">
+                            Resolved: {resolvedAppearance}
+                        </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* Viewport Width Selector */}
+                        <div className="flex items-center gap-2">
+                            <Monitor className="size-4 text-fg-3" />
+                            <Seg
+                                aria-label="Viewport width preset"
+                                value={viewport}
+                                onValueChange={setViewport}
+                                items={[
+                                    { value: '390', label: '390px' },
+                                    { value: '768', label: '768px' },
+                                    { value: '1024', label: '1024px' },
+                                    { value: '1440', label: '1440px' },
+                                    { value: 'full', label: 'Full' },
+                                ]}
+                            />
+                        </div>
+
+                        {/* Theme Switcher + Crossfade Toggle */}
+                        <div className="flex items-center gap-2">
+                            <Seg
+                                aria-label="Theme mode"
+                                value={appearance}
+                                onValueChange={(v) =>
+                                    updateAppearance(v as Appearance)
+                                }
+                                items={[
+                                    { value: 'light', label: 'Light' },
+                                    { value: 'dark', label: 'Dark' },
+                                    { value: 'system', label: 'System' },
+                                ]}
+                            />
+                            <ThemeToggle />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Resizable Viewport Container */}
+            <div
+                id="styleguide-main"
+                className={cn(
+                    'mx-auto w-full px-6 py-10 transition-all duration-200',
+                    VIEWPORT_WIDTHS[viewport],
+                    viewport !== 'full' &&
+                        'my-6 rounded-2xl border border-dashed border-border-strong bg-background shadow-lg',
+                )}
+            >
                 {/* Header */}
-                <div className="mb-14 border-b border-border pb-8">
-                    <Badge variant="hero" className="mb-3">
-                        Internal Dev Styleguide
-                    </Badge>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-                        Design System & Shared Components
+                <div className="mb-12 border-b border-border pb-8">
+                    <ChipEyebrow className="mb-3">
+                        Redesign 2026 · docs/DESIGN_SYSTEM.md §3–§7
+                    </ChipEyebrow>
+                    <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                        Okojie Online — Primitives & Fixture Harness
                     </h1>
-                    <p className="mt-2 max-w-[760px] text-base text-body">
-                        Comprehensive preview of all tokens, shadcn primitives,
-                        and high-fidelity marketing components configured per
-                        SPEC.md, DESIGN_SYSTEM.md, and CONTENT.md.
+                    <p className="mt-2 max-w-[68ch] text-base text-fg-2">
+                        Interactive verification harness for every v2 design
+                        token, restyled shadcn component, custom primitive in{' '}
+                        <code className="font-mono text-xs text-foreground">
+                            resources/js/components/primitives/
+                        </code>
+                        , and registered page fixture in{' '}
+                        <code className="font-mono text-xs text-foreground">
+                            resources/js/dev/fixtures/
+                        </code>
+                        .
                     </p>
                 </div>
 
-                {/* Section 1: Color Tokens */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center gap-2">
+                {/* Section 1: Color & Surface Tokens */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
                         <Palette className="size-5 text-primary" />
-                        <h2 className="text-2xl font-bold text-foreground">
-                            1. Color & Surface Tokens
+                        <h2 className="text-xl font-semibold text-foreground">
+                            1. Color & Surface Tokens (Light + Near-Black Dark)
                         </h2>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-                        <div className="rounded-xl border border-border bg-[#14151f] p-4 text-center">
-                            <div className="mb-2 h-10 rounded-lg border border-border/60 bg-background" />
-                            <div className="text-xs font-semibold text-foreground">
-                                Background
-                            </div>
-                            <div className="font-mono text-[11px] text-muted-foreground">
-                                #14151f
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-border bg-[#14151f] p-4 text-center">
-                            <div className="mb-2 h-10 rounded-lg border border-border/60 bg-card" />
-                            <div className="text-xs font-semibold text-foreground">
-                                Card / Elevated
-                            </div>
-                            <div className="font-mono text-[11px] text-muted-foreground">
-                                #1c1d2a
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-border bg-[#14151f] p-4 text-center">
-                            <div className="mb-2 h-10 rounded-lg border border-border/60 bg-secondary" />
-                            <div className="text-xs font-semibold text-foreground">
-                                Secondary / Sunken
-                            </div>
-                            <div className="font-mono text-[11px] text-muted-foreground">
-                                #181925
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-border bg-[#14151f] p-4 text-center">
-                            <div className="mb-2 h-10 rounded-lg bg-primary shadow-sm" />
-                            <div className="text-xs font-semibold text-foreground">
-                                Primary Accent
-                            </div>
-                            <div className="font-mono text-[11px] text-muted-foreground">
-                                #4f63e8
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-border bg-[#14151f] p-4 text-center">
-                            <div className="mb-2 h-10 rounded-lg border border-primary/20 bg-[rgb(79_99_232/0.14)]" />
-                            <div className="text-xs font-semibold text-foreground">
-                                Brand Soft
-                            </div>
-                            <div className="font-mono text-[11px] text-muted-foreground">
-                                rgba(79,99,232,.14)
-                            </div>
-                        </div>
-
-                        <div className="rounded-xl border border-border bg-[#14151f] p-4 text-center">
-                            <div className="mb-2 h-10 rounded-lg bg-[#2a2b3b]" />
-                            <div className="text-xs font-semibold text-foreground">
-                                Border
-                            </div>
-                            <div className="font-mono text-[11px] text-muted-foreground">
-                                #2a2b3b
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                        <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-                            <span className="text-xs font-medium text-foreground">
-                                Success
-                            </span>
-                            <span className="size-4 rounded-full bg-[#3ecf8e]" />
-                        </div>
-                        <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-                            <span className="text-xs font-medium text-foreground">
-                                Warning
-                            </span>
-                            <span className="size-4 rounded-full bg-[#f5b942]" />
-                        </div>
-                        <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-                            <span className="text-xs font-medium text-foreground">
-                                Danger
-                            </span>
-                            <span className="size-4 rounded-full bg-[#ef5b5b]" />
-                        </div>
-                        <div className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
-                            <span className="text-xs font-medium text-foreground">
-                                Star (Indigo)
-                            </span>
-                            <span className="size-4 rounded-full bg-[#5b6cf0]" />
-                        </div>
+                        <Shell>
+                            <Inner className="p-3.5 text-center">
+                                <div className="mb-2 h-10 rounded-md border border-border bg-background" />
+                                <div className="text-xs font-medium text-foreground">
+                                    Canvas
+                                </div>
+                                <div className="font-mono text-[11px] text-fg-3">
+                                    #FAFAFB / #09090C
+                                </div>
+                            </Inner>
+                        </Shell>
+                        <Shell>
+                            <Inner className="p-3.5 text-center">
+                                <div className="mb-2 h-10 rounded-md border border-border bg-card" />
+                                <div className="text-xs font-medium text-foreground">
+                                    Surface
+                                </div>
+                                <div className="font-mono text-[11px] text-fg-3">
+                                    #FFFFFF / #121217
+                                </div>
+                            </Inner>
+                        </Shell>
+                        <Shell>
+                            <Inner className="p-3.5 text-center">
+                                <div className="mb-2 h-10 rounded-md border border-border bg-shell" />
+                                <div className="text-xs font-medium text-foreground">
+                                    Shell
+                                </div>
+                                <div className="font-mono text-[11px] text-fg-3">
+                                    #F4F4F7 / #0E0E12
+                                </div>
+                            </Inner>
+                        </Shell>
+                        <Shell>
+                            <Inner className="p-3.5 text-center">
+                                <div className="mb-2 h-10 rounded-md border border-border bg-sunken" />
+                                <div className="text-xs font-medium text-foreground">
+                                    Sunken
+                                </div>
+                                <div className="font-mono text-[11px] text-fg-3">
+                                    #EEEEF2 / #1A1A21
+                                </div>
+                            </Inner>
+                        </Shell>
+                        <Shell>
+                            <Inner className="p-3.5 text-center">
+                                <div className="mb-2 h-10 rounded-md bg-primary" />
+                                <div className="text-xs font-medium text-foreground">
+                                    Brand
+                                </div>
+                                <div className="font-mono text-[11px] text-fg-3">
+                                    #4F63E8 / #6878F5
+                                </div>
+                            </Inner>
+                        </Shell>
+                        <Shell>
+                            <Inner className="p-3.5 text-center">
+                                <div className="mb-2 h-10 rounded-md bg-brand-soft" />
+                                <div className="text-xs font-medium text-foreground">
+                                    Brand Soft
+                                </div>
+                                <div className="font-mono text-[11px] text-fg-3">
+                                    --brand-soft
+                                </div>
+                            </Inner>
+                        </Shell>
                     </div>
                 </section>
 
-                {/* Section 2: Typography */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center gap-2">
+                {/* Section 2: Typography & Eyebrows */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
                         <Type className="size-5 text-primary" />
-                        <h2 className="text-2xl font-bold text-foreground">
-                            2. Typography Hierarchy
+                        <h2 className="text-xl font-semibold text-foreground">
+                            2. Typography, Eyebrow & ChipEyebrow
                         </h2>
                     </div>
 
-                    <Card>
-                        <CardContent className="flex flex-col gap-6 pt-6">
-                            <div>
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Display / Hero H1 (56–64px)
-                                </span>
-                                <p className="text-4xl leading-[1.08] font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                                    The convenience of online filing.
+                    <Shell>
+                        <Inner className="flex flex-col gap-5">
+                            <div className="flex flex-wrap items-center gap-4">
+                                <Eyebrow>Standard Eyebrow</Eyebrow>
+                                <ChipEyebrow>TY 2025 Filing Open</ChipEyebrow>
+                            </div>
+                            <Divider className="my-1" />
+                            <div className="flex flex-col gap-3">
+                                <p className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                                    Display / Hero H1 — Geist Sans (-0.03em)
+                                </p>
+                                <p className="text-xl font-semibold tracking-tight text-foreground">
+                                    Section H2 — Credentialed preparers in PA &
+                                    MD
+                                </p>
+                                <p className="text-sm leading-relaxed text-fg-2">
+                                    Body copy uses{' '}
+                                    <code className="font-mono text-xs text-foreground">
+                                        --fg-2
+                                    </code>{' '}
+                                    for comfortable reading density and{' '}
+                                    <code className="font-mono text-xs text-foreground">
+                                        tabular-nums
+                                    </code>{' '}
+                                    on all financial figures ($1,450.00 ·
+                                    OKJ-674SU5).
                                 </p>
                             </div>
-
-                            <div>
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Page H1 (48px)
-                                </span>
-                                <p className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                                    A neighborhood firm, now online
-                                </p>
-                            </div>
-
-                            <div>
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Section H2 (36–40px)
-                                </span>
-                                <p className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                                    Three ways to file
-                                </p>
-                            </div>
-
-                            <div>
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Card Title H3 (20–22px)
-                                </span>
-                                <p className="text-xl font-semibold text-foreground">
-                                    Upload & Go — Fast remote filing
-                                </p>
-                            </div>
-
-                            <div>
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Body Large (18–20px)
-                                </span>
-                                <p className="text-lg leading-relaxed text-body">
-                                    Serving individuals, families, and small
-                                    businesses across Philadelphia and Baltimore
-                                    for over 26 years.
-                                </p>
-                            </div>
-
-                            <div>
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Mono / Referral Link
-                                </span>
-                                <p className="w-fit rounded-lg border border-border bg-secondary px-3 py-1.5 font-mono text-sm text-foreground">
-                                    https://okojieonline.com/contact?ref=OKJ-674SU5
-                                </p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        </Inner>
+                    </Shell>
                 </section>
 
-                {/* Section 3: Buttons */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center gap-2">
-                        <Maximize2 className="size-5 text-primary" />
-                        <h2 className="text-2xl font-bold text-foreground">
-                            3. Buttons (Pill Radius, §4 Specs)
+                {/* Section 3: Buttons & IconButton */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <Sparkles className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            3. Button & IconButton Variants
                         </h2>
                     </div>
 
-                    <Card>
-                        <CardContent className="flex flex-col gap-6 pt-6">
+                    <Shell>
+                        <Inner className="flex flex-col gap-6">
                             <div>
-                                <h4 className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Variants
-                                </h4>
+                                <Eyebrow className="mb-3 block">
+                                    Variants (primary / secondary / ghost /
+                                    danger / danger-ghost)
+                                </Eyebrow>
                                 <div className="flex flex-wrap items-center gap-3">
                                     <Button variant="primary">
-                                        Primary Pill
-                                    </Button>
-                                    <Button variant="outline">
-                                        Outline Pill
-                                    </Button>
-                                    <Button variant="ghost">
-                                        Ghost Button
+                                        Primary Action
                                     </Button>
                                     <Button variant="secondary">
                                         Secondary
                                     </Button>
-                                    <Button variant="destructive">
-                                        Destructive
+                                    <Button variant="ghost">Ghost</Button>
+                                    <Button variant="danger">
+                                        Danger Soft
                                     </Button>
-                                    <Button variant="link">Link Style</Button>
-                                    <Button disabled>Disabled</Button>
+                                    <Button variant="danger-ghost">
+                                        Danger Ghost
+                                    </Button>
+                                    <Button variant="primary" loading>
+                                        Submitting
+                                    </Button>
+                                    <Button variant="secondary" disabled>
+                                        Disabled
+                                    </Button>
                                 </div>
                             </div>
 
-                            <Separator />
+                            <Divider className="my-0" />
 
                             <div>
-                                <h4 className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    Sizes
-                                </h4>
+                                <Eyebrow className="mb-3 block">
+                                    Sizes (xs / sm / md / lg / xl) & Icon
+                                    Placement
+                                </Eyebrow>
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <Button size="lg">Large (48px)</Button>
-                                    <Button size="default">
-                                        Default (44px)
+                                    <Button size="xs" variant="secondary">
+                                        XS (32px)
                                     </Button>
-                                    <Button size="compact">
-                                        Compact (36px)
+                                    <Button size="sm" variant="secondary">
+                                        Small (36px)
                                     </Button>
-                                    <Button size="sm">Small (32px)</Button>
+                                    <Button size="md" variant="primary">
+                                        Medium (40px)
+                                    </Button>
                                     <Button
-                                        size="icon"
-                                        aria-label="Icon button"
+                                        size="lg"
+                                        variant="primary"
+                                        iconLeft={<Calendar />}
                                     >
-                                        <Send className="size-4" />
+                                        Large (44px)
                                     </Button>
+                                    <Button
+                                        size="xl"
+                                        variant="secondary"
+                                        iconRight={<Send />}
+                                    >
+                                        XL (46px)
+                                    </Button>
+                                    <IconButton
+                                        size="sm"
+                                        aria-label="Copy link"
+                                    >
+                                        <Copy className="size-4" />
+                                    </IconButton>
+                                    <IconButton
+                                        size="default"
+                                        aria-label="Notifications"
+                                    >
+                                        <Bell className="size-4" />
+                                    </IconButton>
+                                    <IconButton
+                                        variant="danger-ghost"
+                                        aria-label="Delete item"
+                                    >
+                                        <Trash2 className="size-4" />
+                                    </IconButton>
                                 </div>
                             </div>
-
-                            <Separator />
-
-                            <div>
-                                <h4 className="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                    With Icons & Full Width
-                                </h4>
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                    <Button variant="primary" fullWidth>
-                                        <CreditCard className="mr-2 size-4" />
-                                        Pay Now
-                                    </Button>
-                                    <Button variant="outline" fullWidth>
-                                        <Calendar className="mr-2 size-4" />
-                                        Book Consultation
-                                    </Button>
-                                    <Button variant="ghost" fullWidth>
-                                        <Copy className="mr-2 size-4" />
-                                        Copy Referral Link
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+                        </Inner>
+                    </Shell>
                 </section>
 
-                {/* Section 4: Marketing Component — TierGrid & TierCard */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <CheckCircle2 className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                4. TierCard + TierGrid (3-Col Grid)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §3</Badge>
-                    </div>
-                    <TierGrid tiers={tiers} featuredSlug="hybrid" />
-                </section>
-
-                {/* Section 5: Marketing Component — StatsStrip */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                5. StatsStrip (4 Columns)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §2</Badge>
-                    </div>
-                    <StatsStrip stats={sampleStats} />
-                </section>
-
-                {/* Section 6: Marketing Component — HowItWorks */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Layers className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                6. HowItWorks (5 Step Cards)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §2</Badge>
-                    </div>
-                    <HowItWorks steps={steps} />
-                </section>
-
-                {/* Section 7: Marketing Component — TestimonialCarousel */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                7. TestimonialCarousel (Embla, 3-up)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §2</Badge>
-                    </div>
-                    <TestimonialCarousel testimonials={testimonials} />
-                </section>
-
-                {/* Section 8: Marketing Component — AddOnTable & AddOnCards */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Layers className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                8. Add-ons (Table & 2-Col Cards)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §4</Badge>
-                    </div>
-
-                    <div className="flex flex-col gap-8">
-                        <div>
-                            <h3 className="mb-3 text-lg font-semibold text-foreground">
-                                AddOnTable (Services Page format)
-                            </h3>
-                            <AddOnTable addOns={addons} />
-                        </div>
-
-                        <div>
-                            <h3 className="mb-3 text-lg font-semibold text-foreground">
-                                AddOnCards (Pricing Page 2-col format)
-                            </h3>
-                            <AddOnCards addOns={addons} />
-                        </div>
-                    </div>
-                </section>
-
-                {/* Section 9: Marketing Component — OfficeCard & OfficeGrid */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Building className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                9. OfficeCard + OfficeGrid (4/2/1 Responsive)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §9</Badge>
-                    </div>
-                    <OfficeGrid offices={offices} />
-                </section>
-
-                {/* Section 10: Marketing Component — VideoLibrary & VideoCard */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Video className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                10. VideoLibrary & VideoCard (Dialog Playback)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §2</Badge>
-                    </div>
-                    <VideoLibrary groups={videos} />
-                </section>
-
-                {/* Section 11: Marketing Component — ReferralBanner */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Sparkles className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                11. ReferralBanner (2-Column Panel)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §2</Badge>
-                    </div>
-                    <ReferralBanner />
-                </section>
-
-                {/* Section 12: Marketing Component — FaqList */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <HelpCircle className="size-5 text-primary" />
-                            <h2 className="text-2xl font-bold text-foreground">
-                                12. FaqList (type="multiple" Accordion)
-                            </h2>
-                        </div>
-                        <Badge variant="hero">CONTENT.md §10</Badge>
-                    </div>
-                    <FaqList faqs={faqs} defaultOpenIndices={[0]} />
-                </section>
-
-                {/* Section 13: Primitive Inputs, Overlays & Feedback */}
-                <section className="mb-16">
-                    <div className="mb-6 flex items-center gap-2">
-                        <Layers className="size-5 text-primary" />
-                        <h2 className="text-2xl font-bold text-foreground">
-                            13. Primitives, Inputs & Overlays
+                {/* Section 4: Chips, StatusLabels & Avatars */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <CheckCircle2 className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            4. Chip, StatusLabel & Avatar (av-1…av-6)
                         </h2>
                     </div>
 
-                    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Text Inputs, Select & Labels
-                                </CardTitle>
-                                <CardDescription>
-                                    44px height, 12px radius, sunken surface
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor="demo-name">Full name</Label>
-                                    <Input
-                                        id="demo-name"
-                                        placeholder="Marcus Taylor"
-                                    />
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <Shell>
+                            <ShellHead title="Chips & StatusLabels" />
+                            <Inner className="flex flex-col gap-4">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <Chip tone="neutral">Neutral</Chip>
+                                    <Chip tone="accent" dot>
+                                        In review
+                                    </Chip>
+                                    <Chip tone="success" dot>
+                                        Filed & accepted
+                                    </Chip>
+                                    <Chip tone="warning" dot>
+                                        Action required
+                                    </Chip>
+                                    <Chip tone="danger" dot>
+                                        Rejected
+                                    </Chip>
                                 </div>
+                                <Divider className="my-1" />
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <StatusLabel tone="wait">
+                                        Waiting on client
+                                    </StatusLabel>
+                                    <StatusLabel tone="info">
+                                        Preparer assigned
+                                    </StatusLabel>
+                                    <StatusLabel tone="ok">
+                                        Verified
+                                    </StatusLabel>
+                                    <StatusLabel tone="warn">
+                                        Pending 8879
+                                    </StatusLabel>
+                                    <StatusLabel tone="bad">
+                                        Rejected
+                                    </StatusLabel>
+                                </div>
+                            </Inner>
+                        </Shell>
 
-                                <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor="demo-email">
-                                        Email address
-                                    </Label>
+                        <Shell>
+                            <ShellHead title="Avatars (av-1…av-6 + broken image fallback)" />
+                            <Inner className="flex flex-wrap items-center gap-3">
+                                <Avatar
+                                    name="Adaeze Okojie"
+                                    variant={1}
+                                    size="sm"
+                                />
+                                <Avatar
+                                    name="Marcus Taylor"
+                                    variant={2}
+                                    size="default"
+                                />
+                                <Avatar
+                                    name="Denise Robinson"
+                                    variant={3}
+                                    size="default"
+                                />
+                                <Avatar
+                                    name="Priya Sharma"
+                                    variant={4}
+                                    size="lg"
+                                />
+                                <Avatar
+                                    name="Terrence Williams"
+                                    variant={5}
+                                    size="xl"
+                                />
+                                <Avatar
+                                    name="Chidi Okojie"
+                                    variant={6}
+                                    size="default"
+                                    src="/non-existent-avatar.png"
+                                />
+                            </Inner>
+                        </Shell>
+                    </div>
+                </section>
+
+                {/* Section 5: Form Fields, ChoiceGroup, Check, Switch, FileDropzone */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <Layers className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            5. Field, ChoiceGroup, Check, Switch & FileDropzone
+                        </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <Shell>
+                            <ShellHead title="Field + Inputs + PasswordInput" />
+                            <Inner className="flex flex-col gap-4">
+                                <Field
+                                    label="Email address"
+                                    htmlFor="sg-email"
+                                    hint="We send your portal invite and receipt here."
+                                >
                                     <Input
-                                        id="demo-email"
+                                        id="sg-email"
                                         type="email"
-                                        placeholder="marcus@example.com"
+                                        defaultValue="marcus@example.com"
                                     />
-                                </div>
+                                </Field>
 
-                                <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor="demo-select">
-                                        Service tier interest
-                                    </Label>
-                                    <Select defaultValue="hybrid">
-                                        <SelectTrigger id="demo-select">
-                                            <SelectValue placeholder="Select a tier" />
+                                <Field
+                                    label="Social Security / ITIN last 4"
+                                    htmlFor="sg-ssn"
+                                    error="Please enter exactly 4 digits."
+                                >
+                                    <Input id="sg-ssn" defaultValue="12" />
+                                </Field>
+
+                                <Field
+                                    label="Password with strength meter"
+                                    htmlFor="sg-password"
+                                    labelRight={
+                                        <span className="text-xs text-fg-3">
+                                            Min 12 chars
+                                        </span>
+                                    }
+                                >
+                                    <PasswordInput
+                                        id="sg-password"
+                                        value={passwordDemo}
+                                        onChange={(e) =>
+                                            setPasswordDemo(e.target.value)
+                                        }
+                                        showStrengthMeter
+                                    />
+                                </Field>
+
+                                <Field label="Filing state" htmlFor="sg-state">
+                                    <Select defaultValue="PA">
+                                        <SelectTrigger id="sg-state">
+                                            <SelectValue placeholder="Choose state" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="upload_and_go">
-                                                Upload & Go ($150–$225)
+                                            <SelectItem value="PA">
+                                                Pennsylvania (PA)
                                             </SelectItem>
-                                            <SelectItem value="hybrid">
-                                                Hybrid ($225–$350)
+                                            <SelectItem value="MD">
+                                                Maryland (MD)
                                             </SelectItem>
-                                            <SelectItem value="premium_remote">
-                                                Premium Remote ($400–$900)
+                                            <SelectItem value="NJ">
+                                                New Jersey (NJ)
+                                            </SelectItem>
+                                            <SelectItem value="DE">
+                                                Delaware (DE)
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </Field>
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Textarea, Checkbox & MFA OTP
-                                </CardTitle>
-                                <CardDescription>
-                                    Multi-line input and security challenge
-                                    inputs
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <Label htmlFor="demo-textarea">
-                                        Brief situation
-                                    </Label>
+                                <Field
+                                    label="Notes for your preparer"
+                                    htmlFor="sg-notes"
+                                    optional
+                                >
                                     <Textarea
-                                        id="demo-textarea"
-                                        placeholder="W-2 employee, self-employed, prior year taxes, IRS notice..."
+                                        id="sg-notes"
+                                        placeholder="Sold rental property in 2025..."
                                     />
-                                </div>
+                                </Field>
+                            </Inner>
+                        </Shell>
 
-                                <div className="flex items-center space-x-2 pt-2">
-                                    <Checkbox
-                                        id="terms"
+                        <Shell>
+                            <ShellHead title="ChoiceGroup, Check, Switch & FileDropzone" />
+                            <Inner className="flex flex-col gap-5">
+                                <ChoiceGroup
+                                    aria-label="Service tier"
+                                    value={choiceTier}
+                                    onValueChange={setChoiceTier}
+                                    cols={1}
+                                    options={[
+                                        {
+                                            value: 'upload_and_go',
+                                            label: 'Upload & Go ($150–$225)',
+                                            description:
+                                                'Fully remote for W-2 and simple returns',
+                                        },
+                                        {
+                                            value: 'hybrid',
+                                            label: 'Hybrid ($225–$350)',
+                                            description:
+                                                'Drop off or upload; review in office or video',
+                                        },
+                                        {
+                                            value: 'premium_remote',
+                                            label: 'Premium Remote ($400–$900)',
+                                            description:
+                                                'Schedule C/E, multi-state, year-round support',
+                                        },
+                                    ]}
+                                />
+
+                                <div className="flex flex-col gap-3">
+                                    <Check
                                         checked={checked}
                                         onCheckedChange={(val) =>
-                                            setChecked(!!val)
+                                            setChecked(Boolean(val))
                                         }
+                                        label="I consent to electronic Form 8879 signature"
+                                        description="Required by IRS e-file regulations before transmission."
                                     />
-                                    <Label
-                                        htmlFor="terms"
-                                        className="text-sm font-normal text-body"
-                                    >
-                                        I authorize Form 8879 electronic filing
-                                        consent
-                                    </Label>
+                                    <div className="flex items-center justify-between gap-3 rounded-control bg-sunken px-3.5 py-2.5">
+                                        <Label
+                                            htmlFor="sg-switch"
+                                            className="cursor-pointer text-[13.5px] font-medium text-foreground"
+                                        >
+                                            Compact table density
+                                        </Label>
+                                        <Switch
+                                            id="sg-switch"
+                                            checked={switchOn}
+                                            onCheckedChange={setSwitchOn}
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-col gap-2 pt-2">
-                                    <Label>
-                                        Multi-Factor Authentication (MFA OTP)
-                                    </Label>
+                                <FileDropzone
+                                    file={selectedFile}
+                                    onFileSelect={setSelectedFile}
+                                    accept=".pdf,.png,.jpg"
+                                />
+                            </Inner>
+                        </Shell>
+                    </div>
+                </section>
+
+                {/* Section 6: MetricStrip, RowList & DataTable */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <CreditCard className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            6. MetricStrip, RowList & DataTable
+                        </h2>
+                    </div>
+
+                    <div className="flex flex-col gap-6">
+                        <Shell>
+                            <MetricStrip columns={4}>
+                                <Metric
+                                    label="Tax Year"
+                                    value="2025"
+                                    context="Filing in progress"
+                                    tone="indigo"
+                                />
+                                <Metric
+                                    label="Documents Uploaded"
+                                    value="6"
+                                    context="All verified"
+                                    tone="green"
+                                />
+                                <Metric
+                                    label="Balance Due"
+                                    value="$275.00"
+                                    context="INV-2026-0104"
+                                    hot
+                                    tone="amber"
+                                />
+                                <Metric
+                                    label="Referral Rewards"
+                                    value="$50.00"
+                                    context="2 friends referred"
+                                    tone="rose"
+                                />
+                            </MetricStrip>
+                        </Shell>
+
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            <Shell>
+                                <ShellHead title="RowList + FileBadge" />
+                                <Inner className="p-2">
+                                    <RowList footer="Files are encrypted in transit and at rest per IRS Pub. 4557.">
+                                        <Row
+                                            leading={<FileBadge ext="pdf" />}
+                                            title="2025_Form_W2_Employer.pdf"
+                                            meta="Uploaded Oct 24, 2026 · 248 KB"
+                                            status={
+                                                <Chip tone="success" dot>
+                                                    Verified
+                                                </Chip>
+                                            }
+                                        />
+                                        <Row
+                                            leading={<FileBadge ext="png" />}
+                                            title="PA_Drivers_License_Front.png"
+                                            meta="Uploaded Oct 25, 2026 · 1.2 MB"
+                                            status={
+                                                <Chip tone="accent" dot>
+                                                    New
+                                                </Chip>
+                                            }
+                                        />
+                                        <Row
+                                            leading={<FileBadge ext="csv" />}
+                                            title="2025_Schedule_C_Expenses.csv"
+                                            meta="Uploaded Oct 26, 2026 · 44 KB"
+                                            status={
+                                                <Chip tone="neutral">
+                                                    Archived
+                                                </Chip>
+                                            }
+                                        />
+                                    </RowList>
+                                </Inner>
+                            </Shell>
+
+                            <Shell>
+                                <ShellHead
+                                    title="DataTable + TableToolbar + Pager"
+                                    right={
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-fg-3">
+                                                Compact
+                                            </span>
+                                            <Switch
+                                                checked={compactTable}
+                                                onCheckedChange={
+                                                    setCompactTable
+                                                }
+                                                aria-label="Toggle compact table rows"
+                                            />
+                                        </div>
+                                    }
+                                />
+                                <Inner>
+                                    <TableToolbar
+                                        left={
+                                            <SearchInput
+                                                value={searchQuery}
+                                                onChange={(e) =>
+                                                    setSearchQuery(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                onClear={() =>
+                                                    setSearchQuery('')
+                                                }
+                                                placeholder="Search invoices…"
+                                            />
+                                        }
+                                        right={
+                                            <>
+                                                <Seg
+                                                    value={segTab}
+                                                    onValueChange={setSegTab}
+                                                    items={[
+                                                        {
+                                                            value: 'all',
+                                                            label: 'All',
+                                                            count: 3,
+                                                        },
+                                                        {
+                                                            value: 'open',
+                                                            label: 'Open',
+                                                            count: 1,
+                                                        },
+                                                    ]}
+                                                />
+                                                <FilterButton
+                                                    label="Status"
+                                                    value={statusFilter}
+                                                    onSelect={setStatusFilter}
+                                                    options={[
+                                                        {
+                                                            value: 'open',
+                                                            label: 'Balance due',
+                                                        },
+                                                        {
+                                                            value: 'paid',
+                                                            label: 'Paid',
+                                                        },
+                                                    ]}
+                                                />
+                                            </>
+                                        }
+                                    />
+
+                                    <DataTable compact={compactTable}>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Invoice</TableHead>
+                                                <TableHead>
+                                                    Description
+                                                </TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead className="text-right">
+                                                    Amount
+                                                </TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {filteredInvoices.map((row) => (
+                                                <TableRow key={row.id}>
+                                                    <TableCell className="font-mono text-xs">
+                                                        {row.invoiceNumber}
+                                                    </TableCell>
+                                                    <TableCell className="font-medium text-foreground">
+                                                        {row.description}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {row.status ===
+                                                        'paid' ? (
+                                                            <Chip
+                                                                tone="success"
+                                                                dot
+                                                            >
+                                                                Paid
+                                                            </Chip>
+                                                        ) : (
+                                                            <Chip
+                                                                tone="warning"
+                                                                dot
+                                                            >
+                                                                Balance due
+                                                            </Chip>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-mono font-medium tabular-nums">
+                                                        {row.amount}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </DataTable>
+
+                                    <Pager
+                                        from={1}
+                                        to={filteredInvoices.length}
+                                        total={filteredInvoices.length}
+                                        noun="invoices"
+                                    />
+                                </Inner>
+                            </Shell>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Section 7: Stepper, NextStepCard, Timeline, CalendarTile, KeyValue, Note, EmptyState */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <Calendar className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            7. ReturnStepper, NextStepCard, Timeline,
+                            CalendarTile & EmptyState
+                        </h2>
+                    </div>
+
+                    <div className="flex flex-col gap-6">
+                        <Shell>
+                            <ShellHead
+                                title="5-Step ReturnStepper + NextStepCard"
+                                right={
+                                    <Seg
+                                        value={stepperIndex}
+                                        onValueChange={setStepperIndex}
+                                        items={[
+                                            { value: '0', label: 'Step 1' },
+                                            { value: '1', label: 'Step 2' },
+                                            { value: '2', label: 'Step 3' },
+                                            { value: '3', label: 'Step 4' },
+                                            { value: '4', label: 'Step 5' },
+                                        ]}
+                                    />
+                                }
+                            />
+                            <Inner className="flex flex-col gap-6">
+                                <ReturnStepper
+                                    steps={sampleReturnStages}
+                                    currentIndex={Number(stepperIndex)}
+                                />
+                                <NextStepCard
+                                    tone="action"
+                                    eyebrow="Next step for TY 2025"
+                                    title="Upload your remaining 1099-INT statement"
+                                    body="Your preparer Adaeze Okojie is reviewing your W-2s. Upload your bank interest statement so we can finalize your draft."
+                                    action={
+                                        <Button
+                                            variant="primary"
+                                            iconLeft={<Upload />}
+                                        >
+                                            Upload document
+                                        </Button>
+                                    }
+                                />
+                            </Inner>
+                        </Shell>
+
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                            <Shell>
+                                <ShellHead title="Timeline & CalendarTile" />
+                                <Inner className="flex flex-col gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <CalendarTile month="Nov" day={4} />
+                                        <div>
+                                            <div className="text-sm font-medium text-foreground">
+                                                Video Review Call
+                                            </div>
+                                            <div className="text-xs text-fg-3">
+                                                Wed, Nov 4 · 2:00 PM EST
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Divider className="my-1" />
+                                    <Timeline
+                                        items={[
+                                            {
+                                                title: 'Engagement letter signed',
+                                                meta: 'Oct 20, 2026',
+                                            },
+                                            {
+                                                title: 'Documents in preparer review',
+                                                meta: 'Adaeze Okojie, EA · Today',
+                                                active: true,
+                                            },
+                                            {
+                                                title: 'Form 8879 e-signature',
+                                                meta: 'Up next',
+                                            },
+                                        ]}
+                                    />
+                                </Inner>
+                            </Shell>
+
+                            <Shell>
+                                <ShellHead title="KeyValue & Notes" />
+                                <Inner className="flex flex-col gap-4">
+                                    <KeyValue
+                                        items={[
+                                            {
+                                                label: 'Service tier',
+                                                value: 'Hybrid',
+                                            },
+                                            {
+                                                label: 'Preparer',
+                                                value: 'Adaeze Okojie, EA',
+                                            },
+                                            {
+                                                label: 'Referral code',
+                                                value: 'OKJ-674SU5',
+                                                mono: true,
+                                            },
+                                        ]}
+                                    />
+                                    <Note tone="accent">
+                                        All portal uploads are encrypted in
+                                        transit and at rest per IRS Pub. 4557.
+                                    </Note>
+                                    <Note tone="warn">
+                                        Please do not email Social Security
+                                        numbers.
+                                    </Note>
+                                </Inner>
+                            </Shell>
+
+                            <Shell>
+                                <Inner variant="flush-empty">
+                                    <EmptyState
+                                        icon={<FileText />}
+                                        title="No tax returns filed yet"
+                                        body="Once your preparer finalizes your return, your signed copies and transcripts will appear here."
+                                        actions={
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                            >
+                                                Upload first document
+                                            </Button>
+                                        }
+                                    />
+                                </Inner>
+                            </Shell>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Section 8: Overlays, ConfirmDialog, OTP, Skeleton & Toasts */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <Bell className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            8. Overlays, ConfirmDialog, OTP, Skeleton & Toasts
+                        </h2>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <Shell>
+                            <ShellHead title="ConfirmDialog, Dialog, Sheet & DropdownMenu" />
+                            <Inner className="flex flex-col gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <ConfirmDialog
+                                        trigger={
+                                            <Button variant="danger" size="sm">
+                                                Cancel appointment
+                                            </Button>
+                                        }
+                                        title="Cancel this consultation?"
+                                        description="Your preparer will be notified immediately. You can book a new time whenever you are ready."
+                                        confirmLabel="Yes, cancel appointment"
+                                        variant="danger"
+                                        onConfirm={() =>
+                                            toast.success(
+                                                'Appointment cancelled.',
+                                            )
+                                        }
+                                    />
+
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                            >
+                                                Open Dialog
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    IRS Form 8879 E-Sign
+                                                </DialogTitle>
+                                                <DialogDescription>
+                                                    Authorize Okojie &
+                                                    Associates to electronically
+                                                    submit your return.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="py-2 text-sm text-fg-2">
+                                                Verify under penalties of
+                                                perjury that you have examined a
+                                                copy of your return.
+                                            </div>
+                                            <DialogFooter>
+                                                <Button variant="primary">
+                                                    Confirm & E-Sign
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+
+                                    <Sheet>
+                                        <SheetTrigger asChild>
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                            >
+                                                Open Sheet
+                                            </Button>
+                                        </SheetTrigger>
+                                        <SheetContent side="right">
+                                            <SheetHeader>
+                                                <SheetTitle>
+                                                    Drawer Title
+                                                </SheetTitle>
+                                                <SheetDescription>
+                                                    Slide-out drawer panel.
+                                                </SheetDescription>
+                                            </SheetHeader>
+                                        </SheetContent>
+                                    </Sheet>
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                iconRight={<ChevronDown />}
+                                            >
+                                                Menu
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuLabel>
+                                                Portal Actions
+                                            </DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem>
+                                                Overview
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                Documents
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem>
+                                                Billing
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+
+                                <Divider className="my-1" />
+
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <SegLinks
+                                        items={[
+                                            {
+                                                href: '#styleguide-main',
+                                                label: 'Profile',
+                                                active: true,
+                                            },
+                                            {
+                                                href: '#styleguide-main',
+                                                label: 'Security & Passkeys',
+                                                active: false,
+                                            },
+                                            {
+                                                href: '#styleguide-main',
+                                                label: 'Appearance',
+                                                active: false,
+                                            },
+                                        ]}
+                                    />
+                                </div>
+                            </Inner>
+                        </Shell>
+
+                        <Shell>
+                            <ShellHead title="InputOTP, Progress, Skeleton & Sonner" />
+                            <Inner className="flex flex-col gap-4">
+                                <div className="flex flex-wrap items-center justify-between gap-4">
                                     <InputOTP
                                         maxLength={6}
                                         value={otpValue}
@@ -941,178 +1590,146 @@ export default function Styleguide({
                                             <InputOTPSlot index={5} />
                                         </InputOTPGroup>
                                     </InputOTP>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        {/* Progress & Toast */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Progress & Sonner Toasts
-                                </CardTitle>
-                                <CardDescription>
-                                    Indigo bar for uploads and toast bridges
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-5">
+                                    <div className="flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            onClick={() =>
+                                                toast.success(
+                                                    'Document uploaded to vault.',
+                                                )
+                                            }
+                                        >
+                                            Success Toast
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="danger"
+                                            onClick={() =>
+                                                toast.error(
+                                                    'Upload failed: unsupported file.',
+                                                )
+                                            }
+                                        >
+                                            Error Toast
+                                        </Button>
+                                    </div>
+                                </div>
+
                                 <div>
-                                    <div className="mb-2 flex justify-between text-xs text-muted-foreground">
-                                        <span>Uploading Form 1040.pdf</span>
-                                        <span>{progress}%</span>
+                                    <div className="mb-1.5 flex justify-between text-xs text-fg-3">
+                                        <span>Upload progress</span>
+                                        <span className="font-mono">
+                                            {progress}%
+                                        </span>
                                     </div>
                                     <Progress value={progress} />
-                                    <div className="mt-3 flex gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() =>
-                                                setProgress(
-                                                    Math.min(
-                                                        100,
-                                                        progress + 15,
-                                                    ),
-                                                )
-                                            }
-                                        >
-                                            +15%
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={() =>
-                                                setProgress(
-                                                    Math.max(0, progress - 15),
-                                                )
-                                            }
-                                        >
-                                            -15%
-                                        </Button>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    <Skeleton className="size-9 rounded-full" />
+                                    <div className="flex flex-1 flex-col gap-1.5">
+                                        <Skeleton className="h-3.5 w-1/3" />
+                                        <Skeleton className="h-3 w-2/3" />
                                     </div>
                                 </div>
-
-                                <Separator />
-
-                                <div className="flex flex-wrap gap-3">
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() =>
-                                            toast.success(
-                                                'Document uploaded successfully!',
-                                            )
-                                        }
-                                    >
-                                        <Bell className="mr-1.5 size-4" />
-                                        Success Toast
-                                    </Button>
-                                    <Button
-                                        variant="destructive"
-                                        onClick={() =>
-                                            toast.error(
-                                                'Upload failed. File size exceeds limit.',
-                                            )
-                                        }
-                                    >
-                                        Error Toast
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Overlays */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">
-                                    Dialog, Sheet & Dropdown
-                                </CardTitle>
-                                <CardDescription>
-                                    Interactive overlay components
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex flex-wrap gap-3">
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline">
-                                            Open Dialog
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="border-border bg-card sm:max-w-[480px]">
-                                        <DialogHeader>
-                                            <DialogTitle>
-                                                IRS Form 8879 E-Sign
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                Authorize Okojie & Associates to
-                                                electronically submit your
-                                                return.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="py-4 text-sm text-body">
-                                            Verify under penalties of perjury
-                                            that you have examined a copy of
-                                            your return.
-                                        </div>
-                                        <DialogFooter>
-                                            <Button variant="primary">
-                                                Confirm & E-Sign
-                                            </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
-
-                                <Sheet>
-                                    <SheetTrigger asChild>
-                                        <Button variant="outline">
-                                            Open Sheet
-                                        </Button>
-                                    </SheetTrigger>
-                                    <SheetContent
-                                        side="right"
-                                        className="border-border bg-card"
-                                    >
-                                        <SheetHeader>
-                                            <SheetTitle>
-                                                Drawer Title
-                                            </SheetTitle>
-                                            <SheetDescription>
-                                                Right slide-out sheet drawer.
-                                            </SheetDescription>
-                                        </SheetHeader>
-                                        <div className="py-6 text-sm text-body">
-                                            Mobile navigation uses this
-                                            component.
-                                        </div>
-                                    </SheetContent>
-                                </Sheet>
-
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="outline">
-                                            Dropdown{' '}
-                                            <ChevronDown className="ml-1 size-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="border-border bg-card">
-                                        <DropdownMenuLabel>
-                                            My Account
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator className="bg-border" />
-                                        <DropdownMenuItem>
-                                            Portal Overview
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            Documents
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            Settings
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </CardContent>
-                        </Card>
+                            </Inner>
+                        </Shell>
                     </div>
+                </section>
+
+                {/* Section 9: Icon System (§6) */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center gap-2">
+                        <Sparkles className="size-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-foreground">
+                            9. Icon System (docs/DESIGN_SYSTEM.md §6 —{' '}
+                            {iconNames.length} Icons)
+                        </h2>
+                    </div>
+
+                    <Shell>
+                        <Inner>
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
+                                {iconNames.map((name) => (
+                                    <div
+                                        key={name}
+                                        className="flex flex-col items-center gap-1.5 rounded-lg bg-sunken/70 p-2.5 text-center shadow-[inset_0_0_0_1px_var(--border)]"
+                                    >
+                                        <AppIcon
+                                            name={name}
+                                            className="text-foreground"
+                                        />
+                                        <span className="w-full truncate font-mono text-[10px] text-fg-3">
+                                            {name}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </Inner>
+                    </Shell>
+                </section>
+
+                {/* Section 10: Registered Page Fixtures */}
+                <section className="mb-14">
+                    <div className="mb-5 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Layers className="size-5 text-primary" />
+                            <h2 className="text-xl font-semibold text-foreground">
+                                10. Registered Page Fixtures ({fixtures.length})
+                            </h2>
+                        </div>
+                        <Chip tone="accent">
+                            resources/js/dev/fixtures/index.ts
+                        </Chip>
+                    </div>
+
+                    {fixtures.length === 0 ? (
+                        <Shell>
+                            <Inner variant="flush-empty">
+                                <EmptyState
+                                    title="No page fixtures registered yet"
+                                    body="Page prompts UI-05 through UI-35 register their presentational view states here via register({ id, title, states })."
+                                />
+                            </Inner>
+                        </Shell>
+                    ) : (
+                        <div className="flex flex-col gap-6">
+                            {fixtures.map((fixture) => (
+                                <FixtureCard
+                                    key={fixture.id}
+                                    fixture={fixture}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* Section 11: Marketing Components Reference */}
+                <section className="mb-14 flex flex-col gap-12">
+                    <div className="flex items-center justify-between border-t border-border pt-10">
+                        <div>
+                            <Eyebrow>Marketing Components</Eyebrow>
+                            <h2 className="mt-1 text-xl font-semibold text-foreground">
+                                11. Shared Marketing Sections
+                            </h2>
+                        </div>
+                        <Chip tone="neutral">Migrated in UI-05…UI-12</Chip>
+                    </div>
+
+                    <TierGrid tiers={tiers} featuredSlug="hybrid" />
+                    <StatsStrip stats={sampleStats} />
+                    <HowItWorks steps={steps} />
+                    <TestimonialCarousel testimonials={testimonials} />
+                    <div className="grid grid-cols-1 gap-8">
+                        <AddOnTable addOns={addons} />
+                        <AddOnCards addOns={addons} />
+                    </div>
+                    <OfficeGrid offices={offices} />
+                    <VideoLibrary groups={videos} />
+                    <ReferralBanner />
+                    <FaqList faqs={faqs} defaultOpenIndices={[0]} />
                 </section>
             </div>
         </MarketingLayout>

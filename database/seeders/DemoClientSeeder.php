@@ -34,6 +34,10 @@ class DemoClientSeeder extends Seeder
             ]
         );
 
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
         $taxReturn = TaxReturn::firstOrCreate(
             [
                 'user_id' => $user->id,

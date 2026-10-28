@@ -31,14 +31,19 @@ test('verified users without two-factor confirmed are redirected to portal secur
 });
 
 test('verified users without two-factor can access portal security page', function () {
+    $changedAt = now()->subDays(5)->startOfSecond();
     $user = User::factory()->create([
         'two_factor_confirmed_at' => null,
+        'password_changed_at' => $changedAt,
     ]);
 
     $response = $this->actingAs($user)->get(route('portal.security'));
 
     $response->assertOk();
-    $response->assertInertia(fn ($page) => $page->component('portal/security'));
+    $response->assertInertia(fn ($page) => $page
+        ->component('portal/security')
+        ->where('passwordChangedAt', $changedAt->toIso8601String())
+    );
 });
 
 test('verified users with two-factor confirmed can access portal overview', function () {

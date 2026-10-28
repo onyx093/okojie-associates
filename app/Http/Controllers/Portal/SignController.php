@@ -55,6 +55,7 @@ class SignController extends Controller
             ],
             'clientName' => $user->name ?: $user->email,
             'clientEmail' => $user->email,
+            'returnSummary' => $taxReturn->formattedReturnSummary(),
             'form7216ConsentText' => __('legal.form_7216_consent'),
             'form8879DeclarationText' => __('legal.form_8879_authorization'),
         ]);

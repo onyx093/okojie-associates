@@ -9,7 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
-import { send } from '@/routes/verification';
+
+// Email verification is disabled in Fortify, so Wayfinder no longer generates
+// `@/routes/verification`. Point at Fortify's route directly until it's re-enabled.
+const VERIFICATION_NOTIFICATION_URL = '/email/verification-notification';
 
 type PageProps = {
     auth: Auth;
@@ -91,7 +94,10 @@ export default function Profile({
                                         <p className="-mt-4 text-sm text-muted-foreground">
                                             Your email address is unverified.{' '}
                                             <Link
-                                                href={send()}
+                                                href={
+                                                    VERIFICATION_NOTIFICATION_URL
+                                                }
+                                                method="post"
                                                 as="button"
                                                 className="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                                             >

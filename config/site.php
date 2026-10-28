@@ -36,24 +36,28 @@ return [
     ],
     'offices' => [
         [
+            'slug' => 'germantown-ave',
             'city' => 'Philadelphia, PA',
             'address' => '5601 Germantown Ave',
             'phone' => '(215) 555-0142',
             'hours' => 'Mon–Fri 9am–6pm · Sat 10am–2pm',
         ],
         [
+            'slug' => 'n-broad-st',
             'city' => 'Philadelphia, PA',
             'address' => '2301 N. Broad St',
             'phone' => '(215) 555-0178',
             'hours' => 'Mon–Fri 9am–6pm',
         ],
         [
+            'slug' => 'w-chelten-ave',
             'city' => 'Philadelphia, PA',
             'address' => '6300 W. Chelten Ave',
             'phone' => '(215) 555-0193',
             'hours' => 'Mon–Fri 9am–5pm · Sat 10am–1pm',
         ],
         [
+            'slug' => 'liberty-heights-baltimore',
             'city' => 'Baltimore, MD',
             'address' => '4100 Liberty Heights Ave',
             'phone' => '(410) 555-0166',

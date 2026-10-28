@@ -13,6 +13,13 @@ export type FlashToast = {
     message: string;
 };
 
+export type FlashSharedProp = {
+    success?: string | null;
+    error?: string | null;
+    status?: string | null;
+    toast?: FlashToast | null;
+};
+
 export type AuthLayoutProps = {
     children?: ReactNode;
     name?: string;

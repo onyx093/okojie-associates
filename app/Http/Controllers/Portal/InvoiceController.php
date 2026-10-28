@@ -59,8 +59,14 @@ class InvoiceController extends Controller
         }
 
         $taxReturn = $invoice->taxReturn;
+        $receiptNumber = $invoice->ensureReceiptNumber();
+        $paymentMethod = $invoice->paymentMethodSummary();
+        $lineItem = "Tax preparation — {$taxReturn->tax_year} return";
 
         return Inertia::render('portal/receipt', [
+            'receiptNumber' => $receiptNumber,
+            'paymentMethod' => $paymentMethod,
+            'lineItem' => $lineItem,
             'invoice' => [
                 'id' => $invoice->id,
                 'amountCents' => $invoice->amount_cents,
@@ -70,6 +76,9 @@ class InvoiceController extends Controller
                 'clientName' => $taxReturn->user->name ?: $taxReturn->user->email,
                 'clientEmail' => $taxReturn->user->email,
                 'stripeSessionId' => $invoice->stripe_session_id,
+                'receiptNumber' => $receiptNumber,
+                'paymentMethod' => $paymentMethod,
+                'lineItem' => $lineItem,
             ],
         ]);
     }

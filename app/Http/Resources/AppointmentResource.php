@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ApptFormat;
 use App\Enums\ApptStatus;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
@@ -40,6 +41,14 @@ class AppointmentResource extends JsonResource
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'confirmed_at' => $this->confirmed_at?->toIso8601String(),
+            'scheduled_at' => $this->scheduled_at?->toIso8601String(),
+            'scheduled_at_formatted' => $this->scheduled_at
+                ?->copy()
+                ->timezone((string) config('app.timezone', 'UTC'))
+                ->format('D, M j · g:i A'),
+            'join_url' => ($this->status === ApptStatus::Confirmed && $this->format === ApptFormat::Video)
+                ? $this->join_url
+                : null,
             'created_at' => $this->created_at?->toIso8601String(),
             'created_at_formatted' => $this->created_at?->format('M j, Y'),
             'can_cancel' => $this->status === ApptStatus::Requested,

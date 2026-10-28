@@ -107,3 +107,16 @@ test('already verified user visiting verification link is redirected without fir
     Event::assertNotDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
 });
+
+test('unverified registered client is redirected from portal overview to verification notice while verified client is not', function () {
+    $unverifiedClient = User::factory()->unverified()->withTwoFactor()->create();
+    $verifiedClient = User::factory()->withTwoFactor()->create();
+
+    $this->actingAs($unverifiedClient)
+        ->get(route('portal.overview'))
+        ->assertRedirect(route('verification.notice'));
+
+    $this->actingAs($verifiedClient)
+        ->get(route('portal.overview'))
+        ->assertOk();
+});

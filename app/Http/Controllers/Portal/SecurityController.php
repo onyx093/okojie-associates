@@ -22,6 +22,7 @@ class SecurityController extends Controller
             'twoFactorConfirmed' => ! is_null($user->two_factor_confirmed_at),
             'hasSecret' => ! is_null($user->two_factor_secret),
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            'passwordChangedAt' => $user->password_changed_at?->toIso8601String(),
             'status' => $request->session()->get('status'),
             'error' => $request->session()->get('error'),
         ]);

@@ -1,5 +1,7 @@
 # CONTENT — All Copy, Data, and Microcopy
 
+> **Redesign 2026 notice.** Page copy has been redesigned. **The mockups in `frontend/mockups/*.html` are the verbatim source for headings, ledes, labels, toasts and empty states.** This file keeps the _data_ (tiers, add-ons, offices, FAQs, testimonials) and records what changed in **§R**. Where §R conflicts with the older sections below, **§R wins**. Older sections are retained for data values and for strings the redesign did not change.
+
 Tags: **[OBSERVED]** verbatim from screenshots · **[DRAFTED]** written by me because the original was hidden/collapsed. Replace brand-specific values (name, phones, addresses, testimonials, stats) with your own if you are not the original firm.
 
 ---
@@ -220,7 +222,7 @@ Questions are **[OBSERVED]**. Answers are **[DRAFTED]** — have the firm/counse
 ## 12. Portal
 
 - Header: Welcome back / {email or name} / badge: No tier selected (or tier name)
-- Tabs: Overview · Documents · Appointments · Referrals · Messages
+- Sidebar nav: Your return → Overview · Documents · Appointments · Messages · Account → Referrals · Security & 2FA (see §R)
 
 **Overview**
 
@@ -264,3 +266,78 @@ Body: {Referrer} referred you to Okojie Online — real, credentialed tax prepar
 **Status changed**
 Subject: Your return update: {Status}
 Body: Your return is now **{Status}**. {NextStepText} Sign in to your portal for details: {portalLink}.
+
+---
+
+## R. Redesign 2026 — copy deltas and new strings
+
+### R.1 Rules
+
+- Take presentational copy (H1/H2, ledes, button labels, toasts, empty states, hints) from the mockup HTML. Take **data** (prices, features, offices, FAQ answers, stats) from props/config.
+- Never ship mockup sample data: names (Denise Robinson, Marcus Thompson…), `$275`, `RCPT-2027-00418`, `okojie.online/r/DENISE-R`, dates in 2027, team members (D-05), refund amounts.
+
+### R.2 Public pages (changed headings and ledes)
+
+| Page      | Eyebrow / chip                         | H1                                                                  | Lead                                                                                                                                                         |
+| --------- | -------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Home hero | "26+ years · Philadelphia & Baltimore" | The convenience of online filing, with a **real tax professional.** | Upload your documents, review with your preparer by video, e-sign and file — all from home, backed by a team that knows Pennsylvania and Maryland.           |
+| Services  | Services                               | Tax help that fits **your situation.**                              | From a simple W-2 return to multi-state small-business filings. Choose the tier that matches how you want to work, and add specialist help when you need it. |
+| Pricing   | Pricing                                | Clear prices. No surprises.                                         | Fees are shown as starting ranges. You'll always see your exact price in your portal before we file.                                                         |
+| About     | About us                               | A neighborhood firm, now online.                                    | For more than 26 years, Okojie & Associates has prepared returns for Philadelphia and Baltimore families and small businesses.                               |
+| Contact   | Contact                                | Talk to a real person.                                              | Start your return online, book a free consultation, or reach us at any of our four offices.                                                                  |
+| Privacy   | Privacy & compliance                   | Privacy policy                                                      | —                                                                                                                                                            |
+| Terms     | Engagement terms                       | Terms of service                                                    | —                                                                                                                                                            |
+| Security  | Security (WISP)                        | Security and data safeguards                                        | —                                                                                                                                                            |
+
+Home section headings: "Three ways to file" · "From start to filed, without an office visit" · "What clients say" · "See how it works before you start" · "Find us in person" (+ "Prefer to stay home?") · "Earn $25–$50 for every friend you refer" · "Start your return online" · "Questions, answered" · "Same trusted preparers. No waiting room."
+Services: "Three ways to file" (chip "Service tiers") · "Extra help, when you need it" · "Find your tier in three questions" · FAQ "Choosing a service".
+Pricing: "What each tier includes" · "Add to any tier" · "You see the price before you pay" (01 We review your documents · 02 You approve and pay online · 03 Your receipt is saved) · FAQ "Pricing questions" (includes new "When do I pay?": "After your preparer sets your fee and before we e-file. You can pay by card in your portal or in person at any office.").
+About: "The same people, a lot less hassle" · "Meet your preparers" · "Your data is protected" · "Find us in person".
+Contact: "Tell us what you need" · "A preparer will follow up within one business day. No obligation, no pressure." · checklist (A real preparer reviews your situation / Your information stays private / You see your price before anything is filed) · segmented "Get a free quote | Book a consultation" · "Never share your SSN here." · buttons "Request my free quote" / "Request a consultation" · toast "Thanks! A preparer will be in touch within one business day."
+
+### R.3 Tier finder (Services)
+
+Questions: _What income did you have?_ (W-2 job only · Self-employed or 1099 · Rental property · A mix of these) · _How do you want to meet?_ (Fully online · In an office) · _Did you live or work in more than one state?_ (Just one · More than one). Result block: eyebrow "We'd suggest", name, reason, "From {price}", button "Start with this tier". Reasons: Upload & Go "A straightforward return you can finish from home." · Hybrid "You'd like to sit down with a preparer, in person or by video." · Premium "Self-employment, rentals or several states need a dedicated preparer."
+
+### R.4 Auth
+
+| Screen       | Eyebrow              | H1                       | Lead / key strings                                                                                                                                                                                                                                                      |
+| ------------ | -------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sign in      | Secure client portal | Sign in to Okojie Online | Upload documents, check your return, e-sign and pay, all in one place. · Error: "That email and password don't match. Check them and try again." · "Keep me signed in on this device" · "New to Okojie Online? Start your return"                                       |
+| Register     | Start your return    | Create your account      | It takes a minute. You'll set up two-factor authentication next to keep your documents safe. · Name placeholder "As it appears on your tax return" · hint "At least 12 characters. A short phrase is easiest to remember." · "I agree to the Terms and Privacy Policy." |
+| Verify email | One more step        | Verify your email        | "We sent a link to {email}. Click it to finish creating your account." · "Send the link again" · "Log out" · resent: "A new link is on its way. Check your spam folder if it's not there in a few minutes."                                                             |
+| Two-factor   | —                    | Enter your 6-digit code  | Open your authenticator app and type the code for Okojie Online. · "Lost your phone? Use a recovery code" · Recovery: "Use a recovery code" — Enter one of the recovery codes you saved when you set up two-factor authentication. Each code works once.                |
+| Forgot       | Account recovery     | Forgot your password?    | Enter your email and we'll send you a link to choose a new one. · Sent: "Check your email" — If an account exists for {email}, a reset link is on its way. It expires in 60 minutes.                                                                                    |
+| Reset        | Account recovery     | Choose a new password    | Use at least 12 characters, and don't reuse a password from another site.                                                                                                                                                                                               |
+| Confirm      | Secure area          | Confirm it's you         | You're about to change a security setting. Enter your password to continue.                                                                                                                                                                                             |
+
+### R.5 Portal
+
+Page heads: Overview — "Welcome back, {first name}" (actions Book a call / Upload documents) · Documents — "Only you and your preparer can see these files." · Appointments — "Talk to your preparer by video, phone or in person." · Messages — chip "Encrypted and private" + "Updates from your preparer about your return." · Referrals — "Earn a reward for every friend who files with us." · Security & 2FA — "Keep your tax documents safe." · Sign — "Step 3 of 5 · Ready for review" / "Review and e-sign your return".
+
+Overview — stepper labels: Intake received · In preparation · Ready for review · E-signed · E-filed. Next-step cards:
+
+1. **We have your intake** — A preparer will look over your details within one business day. Upload anything that's missing so we can start sooner. [Upload documents]
+2. **Your preparer is working on your return** — Nothing for you to do right now. We'll message you here as soon as it's ready to review. [Open messages]
+3. _Action needed_ **Your return is ready to review** — Look it over, ask anything you're unsure about, then sign Form 8879 so we can e-file. [Review and e-sign]
+4. **Signed. We're e-filing your return** — We'll confirm here as soon as it's filed. You don't need to do anything else.
+5. _All done_ **Your return has been e-filed** — Thank you for filing with Okojie. Most IRS refunds arrive within about 21 days of e-filing. [View documents]
+   Fee: "Your fee" · Awaiting quote: "Not set yet" / "Your preparer sets your fee after reviewing your documents. {Tier} returns usually cost {range}." / "You'll always see the exact price before we file." · Due: "Pay ${amount}", "Secure checkout" · Paid: "Paid in full", "View receipt".
+   Empty states: "No documents yet" (Upload your W-2s, 1099s and ID, and your preparer can start on your return.) · "No calls booked" (Talk through your return by video, phone or in person.) · "No appointments yet" (Request a video, phone or in-person call with your preparer using the form.) · "No messages yet" (Your preparer will post updates here as your return moves along.) · "No referrals yet" (Share your link or send an invite, and your friends will show up here.)
+   Toasts: "Document uploaded. We're scanning it now." · "Document deleted" · "Request sent. We'll confirm a time within one business day." · "Referral link copied" · "Invite sent to your friend" · "Recovery codes copied" · "Two-factor authentication is on" · "Password updated" · "Profile saved" · "Message posted to the client's portal" · "Fee updated. The client can now pay online." · "Marked as contacted".
+   Documents: locked note "Your return is ready for review, so documents can't be deleted now. Message your preparer if something needs to change." · foot "Every file is virus-scanned. Blocked files are never shared with anyone." · statuses Clean / Scanning… (Pending scan) / Blocked · checklist: W-2 from each job · 1099s (interest, freelance) · Photo ID · Last year's return · 1098-T or 1098 (if you have one) — Optional.
+   Messages: reply note "Need to reply? Call {phone} or book a call. Never share your SSN by email or text." · "Staying safe" — We'll never ask for your password or full SSN in a message. If something looks off, call the office before you reply.
+   Security: gate "Turn on two-factor authentication to continue. IRS guidance requires it on every client account that holds tax documents. It takes about two minutes." · apps: Google Authenticator, Microsoft Authenticator, 1Password, Apple Passwords · "Two-factor authentication is on" · "Turn off two-factor authentication" — hint "Client accounts need 2FA to use the portal, so you'll be asked to set it up again."
+   Sign: Form 8879 consent label "Consent to use my tax information (Form 7216). I agree that Okojie & Associates may use the information on my return to prepare and file it. This consent is valid for one year." · "Type your full legal name to sign" · audit "We record the time, IP address and browser with your signature." · button "Sign and authorize e-file" · done "Signed. We're e-filing your return." · timeline: You sign Form 8879 (Takes about a minute) / We e-file (Usually the same business day) / IRS accepts (We confirm it in your portal) / Refund arrives (Most within about 21 days) · "Something look wrong?" — Don't sign yet. Tell your preparer what you noticed and they'll fix it first.
+
+### R.6 Admin & settings
+
+Clients: "{year} filing season · {n} clients" · "Season at a glance" · empty "No clients yet" (Convert a lead or invite a client, and their return will show up here.) · Leads: "Quote requests and consultation bookings from the website." · empty "No new leads" · dialog "Convert to a client?" · Referrals: "Every client referral and its reward." · dialog "Mark as rewarded?" ("…Send the reward before you confirm.") · Client detail dialogs: "Mark as e-signed?" ("Only do this if {name} signed Form 8879 outside the portal. The client will be notified.") · "Move back to In preparation?" (reason required, kept in history) · "Mark this invoice as paid?" · Settings: "Manage your profile, sign-in and display preferences." · Appearance: Theme — "Choose how Okojie looks on this device." (Light · Dark · Match my system); Display — Compact tables ("Fit more clients and leads on screen."), Reduce motion ("Turn off sliding and fading animations.").
+
+### R.6b Passkeys and convert-lead copy
+
+Passkey strings (Sign in, Confirm password, Settings): use the existing passkey components' labels; mockup wording: "Sign in with a passkey", "Confirm with a passkey", "Add passkey". Convert-lead dialog (D-12, approved with backend change BE-10): "This creates a client account and a {year} return for {name} and emails them an invitation to set up their portal." Receipt shows the real receipt number (`RCPT-{year}-{00000}`, D-13).
+
+### R.7 Error pages
+
+See `UI-STATE-MATRIX.md` §1 (403, 404, 419, 500, 503 copy; 403 added per D-11).

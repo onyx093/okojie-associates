@@ -1,249 +1,224 @@
 # FEATURES — Complete Inventory with Acceptance Criteria
 
-Tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]**. Priority: **P0** must-have for parity, **P1** needed to function, **P2** nice-to-have.
+> **Approvals update:** every BCR was approved; text below that says _fallback_, _hidden_ or _[BCR-xx]_ describes the interim — the approved specs in `BACKEND-CHANGE-REQUESTS.md` define the final behavior.
+
+Tags: **[MOCKUP] [INFERRED] [CLAIMED] [DRAFTED]** (the earlier **[OBSERVED]** tag referred to the original site screenshots). Priority: **P0** must-have for parity, **P1** needed to function, **P2** nice-to-have.
 
 ---
 
-## A. Global / Layout
+## A. Global / Layout [MOCKUP]
 
-### A1. Header / Primary navigation — P0 [OBSERVED]
+Tags in this file: **[MOCKUP]** = defined by `frontend/mockups/*.html` (Redesign 2026); **[INFERRED]** = needed for the UI to work but not shown; **[BCR-xx]** = depends on a pending Backend Change Request (a fallback ships meanwhile — see `BACKEND-CHANGE-REQUESTS.md`). Visual details: `DESIGN_SYSTEM.md`. States: `UI-STATE-MATRIX.md`.
 
-- Left: circular indigo logo mark containing "O", wordmark "Okojie & Associates, Inc." with small sub-label "Okojie Online". Clicking → `/`.
-- Center links: Home, Services, Pricing, About, Contact.
-- Right, **logged out**: text link "Client Login" → `/login`; filled pill button "Start My Return Online" → `/contact` (scroll to the quote form).
-- Right, **logged in**: text link "My Portal" → `/portal`; outlined pill button "Sign out".
-- Header has a 1px bottom border; sticky behavior is **[INFERRED]** (recommended: sticky).
-- Active link state: **[INFERRED]** subtle highlight.
-- **AC:** Auth state swaps right-side items without a page reload after sign-in/out. Mobile: collapses to a hamburger menu with the same items.
+### A1. Site header band + primary nav — P0
 
-### A2. Footer — P0 [OBSERVED]
+- Rounded sky-gradient band (28px) holding the nav and the page's hero copy. Nav: logo mark ("O") + two-line wordmark ("Okojie & Associates" / "Okojie Online"); center mono uppercase links Home · Services · Pricing · About · Contact (`aria-current="page"`); right: theme toggle, **Client login** (secondary), **Start my return** (primary → `/contact#start`). Authed: **My portal** replaces both (+ Sign out in the menu).
+- Below the 1000px breakpoint the links collapse into a menu sheet containing links and both actions.
+- **AC:** Guest/authed variants swap without flash (server-shared props); keyboard operable; sheet traps focus and closes on Esc/route change.
 
-- Three columns: (1) logo + tagline "The convenience of online filing, with a real tax professional who knows Philadelphia and Baltimore. Serving individuals, families, and small businesses for 26+ years." + newsletter form; (2) "Explore": Home, Services, Pricing, About, Contact, Client Login; (3) "Offices": four street addresses with city/state.
-- Newsletter: pill input placeholder "Email for tax tips & deadlines" + "Subscribe" button.
-- Bottom bar: left "© 2026 Okojie & Associates, Inc. All rights reserved." (fix the original's double period; make the year dynamic); right "IRS Publication 4557 & FTC Safeguards compliant · Written Information Security Plan (WISP)".
-- **AC:** Subscribe validates email, POSTs, shows inline success ("Thanks — you're subscribed") or error; duplicates are idempotent.
+### A2. Site footer — P0
 
-### A3. Scroll-reveal animation — P2 [OBSERVED]
+Rounded card (28px) with four columns: brand + blurb + newsletter; Explore (Home, Services, Pricing, About, Contact, Client login); Get in touch (phone, email, "Book a consultation" → `/contact#consult`); Offices (four addresses). Bottom row: © {year}, shield + "IRS Publication 4557 & FTC Safeguards compliant", links Privacy policy · Terms of service · Security (WISP).
 
-Sections and cards fade/slide in on scroll (screenshots captured mid-fade). **AC:** Uses IntersectionObserver in a React `<Reveal>` wrapper; SSR-safe; respects `prefers-reduced-motion`; content is never hidden if JS fails.
+- **AC:** Newsletter validates, posts to the existing subscribe route, inline `role=status` result; year dynamic; no double period.
 
-### A4. Page chrome — P0
+### A3. Theme — P0
 
-Dark theme throughout, max content width ≈ 1160px centered, section separators as 1px horizontal rules.
+Light, dark, or system; toggle in the site nav, auth top bar, app topbar/page head; full control in Settings → Appearance. Persisted; applied before first paint (no flash). Same mechanism everywhere (`.dark` class).
+
+### A4. App shell (portal, admin, settings) — P0
+
+Sticky 248px sidebar (shell grey) with grouped nav, active bar, count pills, help card (portal) and profile row with logout; below 900px a mobile topbar + off-canvas drawer with scrim.
+
+- **AC:** Drawer opens/closes by button, scrim, Esc; focus returns to the trigger; active item reflects the current URL; badges only show data that exists (BCR-12 fallback).
+
+### A5. Auth split layout — P0
+
+Form column (logo + theme toggle, form, compliance footer) + decorative art panel (sky gradient, trust chips "Encrypted portal" / "2FA on every account", glass mini-portal card). Art hides below 960px.
+
+### A6. Accessibility & motion — P0
+
+Skip link on every layout; `:focus-visible` outline; landmarks/labels; `prefers-reduced-motion` and in-app "Reduce motion" honored; scroll-reveal is optional/progressive (content visible without JS).
+
+### A7. Toasts — P0
+
+Inverted pill, bottom-center, 2.2s, success check icon; used for form success messages (copy per mockup `data-toast`).
 
 ---
 
-## B. Home page (`/`) [OBSERVED]
+## B. Home page (`/`) [MOCKUP — already React in `frontend/resources/js/components/home`]
 
 ### B1. Hero — P0
 
-- Background: dark city-skyline-at-dusk photo with heavy dark overlay.
-- Pill badge: "26+ years · Philadelphia & Baltimore".
-- H1: "The convenience of online filing, with a real tax professional."
-- Sub: "Okojie Online brings 26+ years of Philadelphia and Baltimore tax expertise to a secure, fully remote experience — upload, review, e-sign, and file without leaving home."
-- CTAs: primary "Start My Return Online" (→ `/contact`), secondary outlined "Book a Free Consultation" (→ `/contact#consult`).
-- Trust row with small icons: "Secure client portal", "Credentialed preparers", "Local PA & MD knowledge".
+Sky-gradient band with nav; badge "26+ years · Philadelphia & Baltimore"; H1 "The convenience of online filing, with a **real tax professional.**" (em in accent); lead "Upload your documents, review with your preparer by video, e-sign and file — all from home, backed by a team that knows Pennsylvania and Maryland."; CTAs "Start my return online" (primary, → `/contact#start`) and "Book a free consultation" (secondary, → `/contact#consult`); trust row (Secure client portal · Credentialed preparers · Local PA & MD knowledge). Decorative **portal preview** (glass frame with floating tags "Encrypted upload", "IRS Form 8879 e-sign", sidebar, return stepper, documents) — `role="img"` with description; sample data is allowed **only** here. **Hero photo layer (D-08):** a licensed photo supplied by the owner at `public/images/hero.webp` sits under the sky veil (decorative, `alt=""`, `fetchpriority="high"`); until the file exists the hero renders sky-only.
 
 ### B2. Stats strip — P0
 
-Four stats: **26+** Years in business · **40,000+** Returns filed · **12** Credentialed preparers · **4** Offices in PA & MD.
+26+ Years · 40,000+ Returns filed · 12 Credentialed preparers · 4 Offices (from `site.stats`).
 
-### B3. "Three ways to file" — P0
+### B3. Tiers — P0
 
-- H2 "Three ways to file"; sub "Pick the level of support that fits — every tier includes a real, credentialed preparer."
-- Three tier cards (Upload & Go, Hybrid, Premium Remote) — same content as Pricing. Each shows name, tagline, "starting at $X–$Y", feature checklist, "Best for" box, button "Choose {Tier}".
-- Link below: "See full pricing and what's included →" → `/pricing`.
+Section "Three ways to file" with three tier cards (Upload & Go, Hybrid [Most popular], Premium Remote): tag, name, tagline, From price, features, "Best for", CTA "Choose …". Link "See full pricing" → `/pricing`.
 
-### B4. "How it works" — P0
+- **CTA:** guest → `/register?tier={slug}`; authed → `PATCH portal.tier.update` then portal.
 
-H2 "How it works"; sub "Five steps from start to filed — no office visit required." Five numbered cards ("STEP 1"…):
+### B4. How it works — P0
 
-1. **Book** — "Choose a service tier and book online in minutes." [OBSERVED]
-2. **Upload** — "Securely upload your documents to your private portal." [OBSERVED]
-3. **Prepare** — [DRAFTED] "A credentialed preparer builds your federal and state return."
-4. **Review & e-sign** — [DRAFTED] "Review your return by video or phone, then sign electronically (Form 8879)."
-5. **E-file** — [DRAFTED] "We e-file and you pay online. Track everything in your portal."
+"From start to filed, without an office visit" — five steps (Book, Upload, Prepare, Review & e-sign, E-file) with icons.
 
-### B5. Testimonials carousel — P0
+### B5. Testimonials — P0
 
-H2 "What clients say"; sub "Real families and business owners across Philadelphia and Baltimore." Three visible cards, five gold/indigo stars each, quote, name + location. Prev/next circular arrow buttons on left/right. Names: Denise R. (Germantown, Philadelphia), Marcus T. (Baltimore, MD), Priya S. (Cherry Hill, NJ). Full quotes in `CONTENT.md`.
-**AC:** Arrows advance one card (shadcn Carousel / Embla); keyboard accessible; swipe on mobile.
+"What clients say" — quotes with stars and attribution; carousel/scroll controls.
 
-### B6. "Watch & Learn" video library — P0
+### B6. Videos — P0
 
-H2 "Watch & Learn"; sub "Short videos on getting started, using your portal, and hearing from clients." Three groups with H3 and two video cards each:
+"See how it works before you start" — tabbed groups (Getting Started, Portal guides, Client stories); cards open a dialog player; no URL ⇒ "Coming soon".
 
-- **Getting Started:** "How Okojie Online Works", "Choosing the Right Service Tier"
-- **How-To / Portal Guides:** "How to Upload Your Documents", "How to E-Sign Form 8879"
-- **Client Stories:** "Denise's Story", "Marcus on IRS Notices"
-  Each card: 16:9 thumbnail with centered circular play button, title, description ending "Sample video; replace with your own."
-  **AC:** Click play opens inline player or modal; data-driven so real video URLs can be dropped in.
+### B7. Offices — P0
 
-### B7. "Find us in person" — P0
-
-H2 + sub "Three Philadelphia offices and one in Baltimore — or work with us entirely online." Four office cards (see C-offices).
+"Find us in person" — four office cards (address, phone `tel:`, hours) + "Prefer to stay home?" card with CTA to start online.
 
 ### B8. Referral banner — P0
 
-Panel with badge "Refer a Friend", H2 "Earn $25–$50 for every friend you refer", body "Know someone who dreads tax season? Send them our way. When they file with Okojie Online, you earn a reward — and they get a real tax professional who knows Philadelphia and Baltimore." Buttons "Get my referral link" (→ portal Referrals if logged in, else `/login`) and "Refer someone now" (→ same). Right column: two mini-cards: "Share your link — Every client gets a unique referral code and link in their portal." and "They file, you earn — When your friend becomes a client, you earn $25–$50."
+"Earn $25–$50 for every friend you refer" with CTAs: authed → `/portal/referrals`; guest → `/register?next=/portal/referrals`.
 
-### B9. Quote form block — P0
+### B9. Intake form — P0
 
-Same component as Contact's "Start My Return Online" (see D1).
+"Start your return online": left copy + quote form (name, email, phone, tier chips, situation); posts via `use-quote-form` (honeypot, throttling, inline errors, success panel, toast on failure). Honors `?tier` and `?ref`.
 
-### B10. FAQ accordion — P0
+### B10. FAQ — P0
 
-Eight questions (see `CONTENT.md`). Single-column, centered, chevron right, border-bottom separators. **AC:** One open at a time or independent (choose independent); `aria-expanded`; chevron rotates.
+"Questions, answered" — eight items, first open; plus-tile accordion.
+
+### B11. Final CTA band — P0
+
+Sky band "Same trusted preparers. No waiting room." with the two CTAs.
 
 ---
 
 ## C. Shared components
 
-### C1. Tier card — P0 [OBSERVED]
+### C1. Tier card / tier row — P0 [MOCKUP]
 
-Fields: name, tagline, price range (small "starting at" + large range), description, 5 feature bullets with check icons, "Best for" callout (darker rounded box), CTA button full-width pill.
-**CTA behavior [INFERRED]:** If logged out → `/register?tier={slug}` (Inertia link); if logged in → `PATCH /portal/tier` sets the account tier and redirects to `/portal/overview`. Tier then shows in the portal header badge (replacing "No tier selected").
+Card (home) and horizontal row (services) share data: slug, name, tag, price range, features, best-for, featured flag. CTA behavior as B3.
 
-### C2. Offices — P0 [OBSERVED]
+### C2. Offices — P0
 
-| #                                                                                                                                                                 | City             | Address                  | Phone          | Hours                          |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------ | -------------- | ------------------------------ |
-| 1                                                                                                                                                                 | Philadelphia, PA | 5601 Germantown Ave      | (215) 555-0142 | Mon–Fri 9am–6pm · Sat 10am–2pm |
-| 2                                                                                                                                                                 | Philadelphia, PA | 2301 N. Broad St         | (215) 555-0178 | Mon–Fri 9am–6pm                |
-| 3                                                                                                                                                                 | Philadelphia, PA | 6300 W. Chelten Ave      | (215) 555-0193 | Mon–Fri 9am–5pm · Sat 10am–1pm |
-| 4                                                                                                                                                                 | Baltimore, MD    | 4100 Liberty Heights Ave | (410) 555-0166 | Mon–Fri 9am–6pm                |
-| Card: map-pin icon + city (bold), address, divider, phone icon + number, clock icon + hours. Grid: 4 columns desktop, 2 tablet, 1 mobile. Phone is a `tel:` link. |
+| #                                                                                   | City             | Address                  | Phone          | Hours                          |
+| ----------------------------------------------------------------------------------- | ---------------- | ------------------------ | -------------- | ------------------------------ |
+| 1                                                                                   | Philadelphia, PA | 5601 Germantown Ave      | (215) 555-0142 | Mon–Fri 9am–6pm · Sat 10am–2pm |
+| 2                                                                                   | Philadelphia, PA | 2301 N. Broad St         | (215) 555-0178 | Mon–Fri 9am–6pm                |
+| 3                                                                                   | Philadelphia, PA | 6300 W. Chelten Ave      | (215) 555-0193 | Mon–Fri 9am–5pm · Sat 10am–1pm |
+| 4                                                                                   | Baltimore, MD    | 4100 Liberty Heights Ave | (410) 555-0166 | Mon–Fri 9am–6pm                |
+| Presented as cards (home/about) and as rows with a **Directions** button (contact). |
 
-### C3. FAQ accordion — P0 [OBSERVED]
+### C3. FAQ — P0
 
-Reusable; appears on Home, Services ("Frequently asked questions"), Pricing ("Pricing questions"). Same 8 questions on all three.
+Details/accordion with plus tile; page-specific subsets (Home 8, Services 4, Pricing 3) [BCR-22 fallback].
 
-### C4. Lead forms — see D1/D2.
+### C4. Lead forms — see D1.
 
----
+### C5. Tier finder — P1 [MOCKUP, new]
 
-## D. Contact page (`/contact`) [OBSERVED]
-
-- H1 "Get in touch"; sub "Start your return online, book a free consultation, or reach us at any of our four offices."
-- Three info cards: **Call us** (215) 555-0142 · **Email** hello@okojieonline.com · **Hours** Mon–Fri 9am–6pm.
-
-### D1. "Start My Return Online" quote form — P0
-
-Left column copy: H2 "Start My Return Online"; "Tell us about your situation and a preparer will follow up within one business day."; bullets "No obligation, no pressure", "A real preparer reviews your situation", "Your information stays private and secure".
-Right column fields: **Full name** (required), **Phone**, **Email** (required, validated), **Service tier interest** (select, placeholder "Select a tier": Upload & Go, Hybrid, Premium Remote, Not sure), **Brief situation** (textarea, placeholder "W-2 employee, self-employed, back taxes, etc."). Submit: "Request my free quote".
-
-- **AC:** Laravel Form Request validation (errors returned to the Inertia form); stores Lead(kind=QUOTE); emails staff + confirmation to user; success replaces form with confirmation message; honors `?ref=CODE` (stored on lead); honors `?tier=` to preselect.
-- Variant on `/services`: heading "Not sure which tier fits?", body "Send us your situation and a preparer will recommend the right service — no obligation."
-
-### D2. "Book a free consultation" form — P0
-
-Card heading "Book a free consultation". Fields: Full name, Phone, Email, **Preferred date** (date input), **Time window** (select, default "Any": Any, Morning, Afternoon, Evening), **Format** (select, default "Video call": Video call, Phone call, In person), **Notes** (textarea). Submit "Request consultation".
-
-- **AC:** Date cannot be in the past; Lead(kind=CONSULT) stored; confirmation shown; staff confirm by email.
-
-### D3. Offices section — P0 (C2).
+Three questions (income, how to meet, states) → live recommendation (name, reason, price, CTA). Pure client logic; truth table in `UI-STATE-MATRIX.md` (D-02, corrected: any non-W-2 income or more than one state → Premium Remote; W-2 + one state → Hybrid if office, else Upload & Go).
 
 ---
 
-## E. Services page (`/services`) [OBSERVED]
+## D. Contact page (`/contact`) [MOCKUP]
 
-- H1 "Services"; sub "From a simple W-2 return to multi-state small-business filings — choose the tier that matches your situation, and add specialized help when you need it."
-- Tier cards (C1).
-- **Add-ons table** — H2 "Add-ons"; sub "Available with any tier. Priced as ranges depending on complexity." Table columns: Service · What it covers · Starting at. Rows:
-    - Prior-year amendments — Amend a previously filed return to claim missed credits or correct errors. — $150–$500
-    - IRS notice response — We read the notice, respond on your behalf, and keep you informed. — $125–$400
-    - ITIN applications — New or renewed ITIN applications with certified documentation review. — $150–$300
-    - Bookkeeping — Monthly bookkeeping for small businesses and self-employed clients. — $100–$500
-    - Quarterly estimates — Estimated tax calculations and payment reminders each quarter. — $75–$250
-- Quote form (variant) and FAQ ("Frequently asked questions").
-
----
-
-## F. Pricing page (`/pricing`) [OBSERVED]
-
-- H1 "Transparent pricing"; sub "Fees are shown as starting ranges. You will always know your exact price before we file — no surprises."
-- Tier cards (C1).
-- **Add-ons as 2-column card grid** (not table): each card has title + price (indigo, right-aligned) + description. Fifth card sits alone in the left column. Heading "Add-ons"; sub "Add any of these to your tier."
-- FAQ H2 "Pricing questions".
+- Band: chip "Contact", H1 "Talk to a real person.", lead.
+- **Ways cards:** Call us, Email (We reply within one business day), Hours.
+- **Single form with a segmented switch:** _Get a free quote_ | _Book a consultation_ (replaces the two separate forms).
+    - Shared: Full name, Phone (optional), Email.
+    - Quote: tier chips (Upload & Go · Hybrid · Premium Remote · Not sure), situation.
+    - Consultation: preferred date, time (Any time / Morning / Afternoon / Evening), format chips (Video / Phone / In person).
+    - Hint "Never share your SSN here."; button label follows the tab.
+- Deep links: `#start` quote, `#consult` / `?type=consult` consult; `?tier=`, `?ref=` honored.
+- **AC:** Posts to `leads.quote` or `leads.consult` per tab (existing endpoints/fields); shared values survive tab switches; validation, throttle, success toast "Thanks! A preparer will be in touch within one business day."
+- **Offices** list with Directions.
 
 ---
 
-## G. About page (`/about`) [OBSERVED]
+## E. Services page (`/services`) [MOCKUP]
 
-- H1 "A neighborhood firm, now online"; body "Okojie & Associates, Inc. has prepared tax returns for Philadelphia and Baltimore families and small businesses for over 26 years. Okojie Online is the same firm — the same credentialed preparers — with a secure, fully remote way to work with us."
-- Wide rounded team photo (four professionals around a table with documents).
-- Stats row (left-aligned numbers): **26+** Years serving PA & MD taxpayers · **40,000+** Returns prepared and filed · **4** Offices across Philadelphia & Baltimore.
-- H2 "Your data is protected"; sub "Security is not an afterthought — it is built into every step of how we work." Four cards with indigo line icons:
-    1. **IRS Publication 4557** — "We follow the IRS's data-security guidance for tax professionals."
-    2. **FTC Safeguards Rule** — "A written information security plan (WISP) governs how we protect client data."
-    3. **Multi-factor authentication** — "Every client account is protected with MFA."
-    4. **IRS-compliant e-signature** — "Form 8879 e-file authorization with Form 7216 consent."
-- "Find us in person" offices (C2).
+Band ("Tax help that fits _your situation._", CTAs "Help me choose" → `#guide`, "Compare prices"); three tier rows (Hybrid featured, second CTA "Book a free consultation"); add-on list (5; Bookkeeping "/ mo"); tier finder; FAQ "Choosing a service" (4). The old "Not sure which tier fits?" quote form is **replaced by the tier finder**.
 
----
+## F. Pricing page (`/pricing`) [MOCKUP]
 
-## H. Authentication (`/login`) [OBSERVED]
+Band ("Clear prices. No surprises."); **comparison table** (feature × tier, grouped, ✓/—, Hybrid highlighted with "Most popular", Choose buttons in headers, horizontal scroll with sticky first column on phones); add-on strip ("Add to any tier"); "You see the price before you pay" (01 We review your documents · 02 You approve and pay online · 03 Your receipt is saved); FAQ "Pricing questions" (3).
 
-### H1. Combined sign-in / sign-up card — P0
+## G. About page (`/about`) [MOCKUP]
 
-- Centered card (~400px). Badge: shield-check icon + "Secure client portal". H1 "Sign in to Okojie Online"; sub "Upload documents, review your return status, e-sign, and pay — all in one place."
-- Fields: email (placeholder `you@example.com`), password (placeholder "Password"). No visible labels, no show/hide, no "forgot password" **(add these as [INFERRED] improvements: label via aria-label, show/hide toggle, "Forgot password?")**.
-- **Sign-in mode:** primary button "Sign in"; toggle text "Need an account? Sign up".
-- **Sign-up mode:** same heading and fields; button "Create account"; toggle "Have an account? Sign in".
-- Below card: "New here? Start your return online or create an account above." ("Start your return online" is an indigo link → `/contact`.)
-- Header in this state shows "Client Login" + "Start My Return Online".
-- **Routing:** `/login` renders sign-in mode and `/register` renders sign-up mode of the **same Inertia page** (`auth/access`); `/login?mode=signup` redirects to `/register`. Toggle links preserve `?tier=` and `?next=`.
-- **AC:** Wrong credentials → generic error; weak password rejected with rules; successful sign-in/up → `/portal`; duplicate email → friendly error without account enumeration; rate-limited (Fortify/RateLimiter); **[CLAIMED]** Fortify two-factor challenge after password for accounts with MFA enabled (see SPEC §6.3).
+Band ("A neighborhood firm, now online."); story + 4 stats; **team** (4 preparer cards — sample — the visible note "Sample team. Replace with real names, titles and photos." stays, D-05); security (4 cards: IRS Publication 4557, FTC Safeguards Rule, Multi-factor authentication, IRS-compliant e-signature); offices.
 
 ---
 
-## I. Client portal (`/portal`) [OBSERVED]
+## H. Authentication (7 screens) [MOCKUP]
 
-Auth-guarded. Header block: small "Welcome back" label, large user email as title (use name if present), right-aligned pill badge showing chosen tier or "No tier selected". Segmented tab control (rounded container; active tab has darker raised pill): **Overview · Documents · Appointments · Referrals · Messages**. Tabs map to `/portal/overview` etc. (or `?tab=`); default Overview.
+Shared: AuthLayout, visible labels, reveal toggle on every password, `autocomplete` tokens, errors via `role=alert`, Fortify routes/fields unchanged.
+
+| ID  | Screen                         | Content & behavior                                                                                                                                                                                                                                                                                                                  |
+| --- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| H1  | **Sign in** `/login`           | "Sign in to Okojie Online"; email; password + "Forgot password?"; "Keep me signed in on this device" (`remember`); error "That email and password don't match. Check them and try again."; switch "New to Okojie Online? Start your return". **"Sign in with a passkey"** uses the existing Fortify passkey components [BCR-17 ✅]. |
+| H2  | **Create account** `/register` | "Create your account"; Full name, Email, Password (hint + strength meter), Confirm password, Terms/Privacy checkbox (client-side) [BCR-18]; carries `?tier`, `?next`.                                                                                                                                                               |
+| H3  | **Verify email**               | "Verify your email"; "Send the link again" → resent note; Log out. Email verification is **enabled** by BE-12 [BCR-23 ✅].                                                                                                                                                                                                          |
+| H4  | **Two-factor challenge**       | 6-box OTP (auto-advance/backspace/paste) ⇄ recovery-code field.                                                                                                                                                                                                                                                                     |
+| H5  | **Forgot password**            | form ⇄ "Check your email … expires in 60 minutes".                                                                                                                                                                                                                                                                                  |
+| H6  | **Reset password**             | email, new, confirm; invalid-token state.                                                                                                                                                                                                                                                                                           |
+| H7  | **Confirm password**           | "Confirm it's you" before security changes. Passkey alternative where the existing wiring supports it [BCR-17 ✅].                                                                                                                                                                                                                  |
+
+- **AC:** Wrong credentials → generic error; throttled → message; weak password rejected; success → `/portal` (or verify/2FA as today); referral/tier carried; MFA enforced as before.
+
+---
+
+## I. Client portal (`/portal`) [MOCKUP]
+
+App shell (A4) with nav: Your return → Overview · Documents · Appointments · Messages; Account → Referrals · Security & 2FA. Page head: eyebrow, H1, sub, actions. **No tab bar, no tier badge in the header** (tier shows as a chip in Overview and in the sidebar profile line).
 
 ### I1. Overview — P0
 
-- **Your return status** card: vertical stepper with five items — Intake received, In preparation, Ready for review, E-signed, E-filed. Completed = indigo ring with check; pending = grey ring. New account starts at Intake received (checked).
-- **NEXT STEP** box: "We're moving to: {next stage}. We'll keep you posted here." (Text varies by stage: **[INFERRED]** at Ready for review → "Your return is ready — review and e-sign"; at E-signed → "Pay your fee and we'll e-file"; at E-filed → "Your return has been filed.")
-- **Invoice** card: "Invoice", "Your fee for your return.", amount (large, e.g. `$225`), full-width "Pay Now" button with card icon. **[INFERRED]** shows "Pending quote" when no fee is set; after payment shows "Paid" + receipt.
-- Two stat tiles: document icon + count + "Documents"; gift icon + count + "Referrals".
+"Welcome back, {first name}"; actions Book a call / Upload documents. **Your return**: 5-stage stepper (dates [BCR-02]) + next-step card (copy per stage via frontend map [BCR-03]; stage 2 = "Action needed" with CTA to e-sign). **At a glance** metrics: Documents, Messages (unread), Next call, Referrals [BCR-01]. **Recent documents** (scan chips) [BCR-01]. **Your fee**: Awaiting quote / Due (Pay $X) / Paid (View receipt [BCR-04]). **Upcoming call**: confirmed appointment with Join/Reschedule [BCR-07] or "No calls booked".
 
 ### I2. Documents — P0
 
-- Left card "Upload a document": note "Only you and your preparer can see these files."; **Document type** select (default W-2; **[INFERRED]** options W-2, 1099, ID, Prior return, Other); dashed drop zone with cloud-upload icon, "Drag & drop or click to upload", helper "W-2, 1099, ID, prior return — PDF, image, or spreadsheet".
-- Right card "Your documents": empty state "No documents yet. Upload your first one to get started." Otherwise list rows: icon, filename, type chip, size, upload date, download, delete (delete only before return is "Ready for review").
-- **AC:** Accepts PDF, JPG, PNG, HEIC, XLSX, CSV; max 25 MB each (**[INFERRED]**); progress bar; virus scan; encrypted storage; counts update on Overview.
+Upload shell (type select, drag-drop zone, selected-file row, real size/type limits), "What we usually need" checklist, list with scan states Clean / Scanning… / Blocked, download (disabled until clean), delete (hidden and explained when the return is Ready for review or later).
 
 ### I3. Appointments — P0
 
-- Left card "Request an appointment": **Preferred date** (date), **Time window** (default Morning: Morning, Afternoon, Evening), **Format** (default Video: Video, Phone, In person), **Topic** (text, placeholder "Return review, planning, IRS notice..."), **Notes** (textarea). Button with calendar-plus icon "Request appointment".
-- Right card "Your appointments": empty "No appointments yet." Otherwise list with date, window, format, topic, status chip (Requested / Confirmed / Completed / Cancelled).
+Request form (format chips, date, time-window chips, topic, notes) + list grouped Upcoming/Past with status chips (Confirmed, Requested, Completed, Cancelled), Cancel request, Join call/Reschedule [BCR-07].
 
 ### I4. Referrals — P0
 
-- Left card "Refer a friend": "Share your link — you earn $25–$50 when they file."; read-only monospace field containing `{origin}/contact?ref={CODE}` with "Copy" button (copies, then shows "Copied"); Friend's name; Friend's email; button with paper-plane icon "Send referral".
-- Right card "Your referrals": empty "No referrals yet. Share your link to get started." Otherwise list: friend name, status (Sent / Signed up / Filed / Rewarded), reward amount.
-- Code format: `OKJ-` + 6 uppercase alphanumerics (e.g. `OKJ-674SU5`).
+Hero with personal link `…/r/{code}` + Copy (+ code) (D-07 → BE-16), 3-step explainer, invite form, referrals table with statuses Invite sent / Signed up / Filed / Rewarded and earnings hint [BCR-08].
 
 ### I5. Messages — P0
 
-- Single wide card "Messages from your preparer"; empty "No messages yet. Your preparer will post updates here as your return progresses." Otherwise chronological list (sender, timestamp, body, unread dot).
-- Observed UI is read-only. **[INFERRED, P2]** add reply box.
+Thread grouped by day, unread styling + "Mark all as read" (existing bulk route ✅), attachments [BCR-06], reply note (phone / book a call; clients still cannot reply), preparer card [BCR-06], "Staying safe" card.
+
+### I6. Security & 2FA — P0
+
+Gate note when 2FA is required; **three states** (Off, Setup with QR + manual key + OTP, On with recovery codes, copy, regenerate, turn off); Password form with strength meter.
+
+### I7. Review & e-sign — P0
+
+Step 3 of 5; prepared-return summary and forms list (what exists) [BCR-05]; Form 8879 declaration; Form 7216 consent; typed legal name; submit disabled until consent + name > 3 characters; signed confirmation card; "After you sign" timeline; "Something look wrong?".
+
+### I8. Receipt — P0 (page exists: `portal/receipt.tsx`, route `portal.invoices.receipt`)
+
+Restyle the existing receipt: receipt number, paid date, amount, billed-to, Print. Receipt number (`RCPT-…`) and card brand/last4 [BCR-04 ✅, BE-06, D-13]; Download PDF = print until a PDF library is approved (DR-09).
 
 ---
 
-## J. Staff/Admin console [INFERRED] — P1 (required for the portal to be real)
+## J. Staff admin & settings [MOCKUP + INFERRED]
 
-- **J1 Leads inbox:** filter by kind (quote/consult), status (new/contacted/converted/closed); assign; notes; convert to client.
-- **J2 Clients list + detail:** profile, tier, preparer, documents, appointments, messages, referral info, invoice, audit trail.
-- **J3 Return status control:** advance/reverse the 5-stage status; triggers client email + auto "Next step" text.
-- **J4 Messaging:** post message to a client; optional email notification.
-- **J5 Appointments:** confirm/reschedule/cancel with email.
-- **J6 Documents:** view/download; request additional doc.
-- **J7 Invoicing:** set fee; mark paid offline; refund.
-- **J8 Referrals:** mark Filed → Rewarded; export payouts.
-- **J9 Content (P2):** edit offices, FAQs, testimonials, videos, tier prices.
-- **J10 Roles:** Admin, Preparer, (Client). Preparers only see assigned clients.
+App shell with admin nav: Workspace → Clients · Leads · Referrals; Account → Settings.
+
+- **J1 Clients:** server-side search + pagination, table (taxpayer, tier, stage, preparer, invoice), empty states. Season metrics, status/tier filters, Assigned-to-me/All tabs, Export and Invite a client are **approved and built** (BE-09) [BCR-13 ✅].
+- **J2 Client detail:** stage rail with contextual actions (advance with confirm, move back with required reason), documents (infected flagged), messages composer, invoice (set amount, mark paid offline), appointments (confirm/cancel), status history, referral info, preparer assignment (existing `clients.preparer` route ✅).
+- **J3 Leads:** status tabs + kind filter (server query params), rows with details/notes (existing notes route)/actions, Convert dialog with preparer select that **emails the client an invitation** (D-12), counts, search, Export [BCR-14 ✅, BE-10].
+- **J4 Referrals:** paginated rows, totals strip, Ready-to-reward tab, Mark rewarded dialog (`canReward`) [BCR-15 ✅, BE-11].
+- **J5 Settings:** see §N.
+- Preserved from earlier spec (unchanged behavior): leads inbox actions, client detail data, return-status control with `StatusEvent` log, messaging, appointments, invoicing, referral rewards, roles/policies, audit log entries on admin reads.
 
 ---
 
@@ -267,18 +242,30 @@ Auth-guarded. Header block: small "Welcome back" label, large user email as titl
 
 ---
 
-## L. Traceability: screenshot → feature
+## L. Legal pages [MOCKUP, new]
 
-| Screenshot                       | Features                  |
-| -------------------------------- | ------------------------- |
-| Homepage                         | A1–A3, B1–B10             |
-| Services                         | E, C1, C3, D1 variant     |
-| Pricing                          | F, C1, C3                 |
-| About                            | G, C2                     |
-| Contact (signed in / signed out) | D, C2 (nav state differs) |
-| Login / Register                 | H                         |
-| Portal – Overview                | I1                        |
-| Portal – Documents               | I2                        |
-| Portal – Appointments            | I3                        |
-| Portal – Referrals               | I4                        |
-| Portal – Messages                | I5                        |
+`/privacy`, `/terms`, `/security` share one template: band (chip + H1 + links between the three), sticky "On this page" TOC, draft-wording banner (counsel review required, D-06), "Last updated" + Print, numbered sections, contact line. **AC:** TOC anchors scroll; print hides chrome.
+
+## M. Error pages [MOCKUP, new]
+
+403, 404, 419, 500 and 503 (maintenance — rendered by the same Inertia page) on one template (403 added: D-11): code, title, text, primary and secondary actions, "Need help? Call …". Copy per status in `UI-STATE-MATRIX.md`.
+
+## N. Settings [MOCKUP, new]
+
+Sub-nav Profile / Security / Appearance inside the role's app shell. **Profile:** name, email (re-verification hint), plus title/office/avatar [BCR-11], delete account (danger, confirm). **Security:** password, 2FA summary + recovery codes, devices [BCR-10], passkeys ✗ [BCR-17]. **Appearance:** theme (Light / Dark / Match my system), Compact tables, Reduce motion (saved on the user's account, D-10 → BE-17).
+
+## O. Traceability: mockup → feature → app file
+
+| Mockup                                                                                        | Features      | App file                                               |
+| --------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------ |
+| home                                                                                          | A1–A3, B1–B11 | `pages/home.tsx`, `components/home/*`                  |
+| services                                                                                      | E, C1, C3, C5 | `pages/services.tsx`                                   |
+| pricing                                                                                       | F, C1, C3     | `pages/pricing.tsx`                                    |
+| about                                                                                         | G, C2         | `pages/about.tsx`                                      |
+| contact                                                                                       | D, C2         | `pages/contact.tsx`                                    |
+| legal-privacy / terms / security                                                              | L             | `pages/legal/privacy.tsx`, `terms.tsx`, `security.tsx` |
+| error                                                                                         | M             | `pages/error.tsx`                                      |
+| auth-login / register / verify-email / 2fa / forgot / reset / confirm-password                | H1–H7         | `pages/auth/*`                                         |
+| portal-overview / documents / appointments / messages / referrals / security / sign / receipt | I1–I8         | `pages/portal/*`                                       |
+| admin-clients / client / leads / referrals                                                    | J1–J4         | `pages/admin/*`                                        |
+| settings-profile / security / appearance                                                      | N             | `pages/settings/*`                                     |

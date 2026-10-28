@@ -7,7 +7,9 @@ use App\Mail\PaymentReceipt;
 use App\Models\AuditLog;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Mail;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\WebhookReceived;
+use Throwable;
 
 class HandleCashierWebhookReceived
 {
@@ -39,6 +41,9 @@ class HandleCashierWebhookReceived
                     'stripe_session_id' => $session['id'] ?? null,
                 ]);
 
+                $invoice->ensureReceiptNumber();
+                $this->capturePaymentMethodDetails($invoice, $session);
+
                 $client = $invoice->taxReturn?->user;
 
                 AuditLog::record(
@@ -56,6 +61,55 @@ class HandleCashierWebhookReceived
                     Mail::to($client)->queue(new PaymentReceipt($invoice, $client));
                 }
             }
+        }
+    }
+
+    /**
+     * Best-effort retrieval of the PaymentIntent's card brand and last4 from Stripe.
+     *
+     * @param  array<string, mixed>  $session
+     */
+    private function capturePaymentMethodDetails(Invoice $invoice, array $session): void
+    {
+        $paymentIntentId = $session['payment_intent'] ?? null;
+        if (is_array($paymentIntentId)) {
+            $paymentIntentId = $paymentIntentId['id'] ?? null;
+        }
+
+        if (! is_string($paymentIntentId) || $paymentIntentId === '') {
+            return;
+        }
+
+        try {
+            $stripe = Cashier::stripe();
+            $paymentIntent = $stripe->paymentIntents->retrieve($paymentIntentId, [
+                'expand' => ['payment_method'],
+            ]);
+
+            $paymentMethod = $paymentIntent->payment_method;
+            if (is_string($paymentMethod) && $paymentMethod !== '') {
+                $paymentMethod = $stripe->paymentMethods->retrieve($paymentMethod);
+            }
+
+            $card = is_object($paymentMethod) ? ($paymentMethod->card ?? null) : null;
+            $brandRaw = is_object($card) ? ($card->brand ?? null) : null;
+            $last4Raw = is_object($card) ? ($card->last4 ?? null) : null;
+
+            $brand = $brandRaw !== null && $brandRaw !== ''
+                ? ucfirst($brandRaw)
+                : null;
+            $last4 = $last4Raw !== null && $last4Raw !== ''
+                ? substr($last4Raw, 0, 4)
+                : null;
+
+            if ($brand !== null || $last4 !== null) {
+                $invoice->update([
+                    'payment_method_brand' => $brand,
+                    'payment_method_last4' => $last4,
+                ]);
+            }
+        } catch (Throwable) {
+            // Never fail the webhook or payment when Stripe lookup throws
         }
     }
 }

@@ -1,0 +1,200 @@
+/*
+ * Homepage design tokens.
+ *
+ * The rest of the app is dark-only, so the homepage scopes its own light and
+ * dark palettes to `.home[data-theme]` instead of touching :root.
+ */
+
+.home[data-theme='light'] {
+    color-scheme: light;
+    --h-bg: #f5f6f8;
+    --h-surface: #ffffff;
+    --h-sunken: #f1f2f5;
+    --h-line: rgb(16 19 40 / 0.08);
+    --h-line-strong: rgb(16 19 40 / 0.14);
+    --h-dots: rgb(16 19 40 / 0.09);
+
+    --h-fg: #0e1020;
+    --h-fg-2: #4b5066;
+    --h-fg-3: #7e8398;
+
+    --h-accent: #4f63e8;
+    --h-accent-hover: #4253d6;
+    --h-accent-soft: #eef0fe;
+    --h-accent-fg: #3446c9;
+
+    --h-ok: #127a49;
+    --h-ok-soft: #e7f6ee;
+    --h-warn: #a65a0b;
+    --h-warn-soft: #fdf1e2;
+
+    --h-inverse: #0e1020;
+
+    --h-shadow-card:
+        0 0 0 1px rgb(16 19 40 / 0.06), 0 1px 2px rgb(16 19 40 / 0.04),
+        0 10px 28px -14px rgb(16 19 40 / 0.14);
+    --h-shadow-raised:
+        0 0 0 1px rgb(16 19 40 / 0.06), 0 2px 4px rgb(16 19 40 / 0.04),
+        0 18px 44px -16px rgb(16 19 40 / 0.22);
+    --h-shadow-chip:
+        0 0 0 1px rgb(16 19 40 / 0.07), 0 1px 2px rgb(16 19 40 / 0.06),
+        0 4px 10px -4px rgb(16 19 40 / 0.1);
+    --h-shadow-btn:
+        inset 0 1px 0 rgb(255 255 255 / 0.22), 0 1px 2px rgb(30 40 140 / 0.3),
+        0 6px 16px -6px rgb(79 99 232 / 0.55);
+
+    --h-sky: linear-gradient(
+        180deg in oklab,
+        #c7d2fb 0%,
+        #dcd9fb 22%,
+        #f1dceb 40%,
+        #fbd5bf 52%,
+        #f6c2a3 58%,
+        #d9c3e2 68%,
+        #b9c4f1 80%,
+        #e9edfb 100%
+    );
+    --h-veil: linear-gradient(
+        90deg,
+        rgb(255 255 255 / 0.82) 0%,
+        rgb(255 255 255 / 0.45) 45%,
+        rgb(255 255 255 / 0) 75%
+    );
+    --h-glass: rgb(255 255 255 / 0.42);
+    --h-glass-ring: rgb(255 255 255 / 0.7);
+}
+
+.home[data-theme='dark'] {
+    color-scheme: dark;
+    --h-bg: #09090c;
+    --h-surface: #121217;
+    --h-sunken: #0d0d11;
+    --h-line: rgb(255 255 255 / 0.07);
+    --h-line-strong: rgb(255 255 255 / 0.12);
+    --h-dots: rgb(255 255 255 / 0.07);
+
+    --h-fg: #f2f3f7;
+    --h-fg-2: #a6a9ba;
+    --h-fg-3: #6f7286;
+
+    --h-accent: #5e70f0;
+    --h-accent-hover: #7181f4;
+    --h-accent-soft: rgb(110 126 245 / 0.14);
+    --h-accent-fg: #a8b2ff;
+
+    --h-ok: #5bd49a;
+    --h-ok-soft: rgb(60 200 130 / 0.12);
+    --h-warn: #f2b266;
+    --h-warn-soft: rgb(240 160 70 / 0.13);
+
+    --h-inverse: #16161d;
+
+    --h-shadow-card:
+        0 0 0 1px rgb(255 255 255 / 0.06),
+        inset 0 1px 0 rgb(255 255 255 / 0.03),
+        0 12px 32px -16px rgb(0 0 0 / 0.7);
+    --h-shadow-raised:
+        0 0 0 1px rgb(255 255 255 / 0.08),
+        inset 0 1px 0 rgb(255 255 255 / 0.05),
+        0 24px 60px -20px rgb(0 0 0 / 0.85);
+    --h-shadow-chip:
+        0 0 0 1px rgb(255 255 255 / 0.08),
+        inset 0 1px 0 rgb(255 255 255 / 0.05), 0 6px 14px -6px rgb(0 0 0 / 0.6);
+    --h-shadow-btn:
+        inset 0 1px 0 rgb(255 255 255 / 0.2), 0 1px 2px rgb(0 0 0 / 0.4),
+        0 8px 24px -8px rgb(94 112 240 / 0.7);
+
+    --h-sky: linear-gradient(
+        180deg in oklab,
+        #0b0c14 0%,
+        #11132a 24%,
+        #1d1b3d 40%,
+        #43294a 50%,
+        #8a4a3e 56%,
+        #3a2a4c 64%,
+        #181b38 76%,
+        #0a0b12 100%
+    );
+    --h-veil: linear-gradient(
+        90deg,
+        rgb(9 9 12 / 0.9) 0%,
+        rgb(9 9 12 / 0.55) 45%,
+        rgb(9 9 12 / 0) 78%
+    );
+    --h-glass: rgb(255 255 255 / 0.05);
+    --h-glass-ring: rgb(255 255 255 / 0.12);
+}
+
+@theme inline {
+    --color-h-bg: var(--h-bg);
+    --color-h-surface: var(--h-surface);
+    --color-h-sunken: var(--h-sunken);
+    --color-h-line: var(--h-line);
+    --color-h-line-strong: var(--h-line-strong);
+    --color-h-fg: var(--h-fg);
+    --color-h-fg-2: var(--h-fg-2);
+    --color-h-fg-3: var(--h-fg-3);
+    --color-h-accent: var(--h-accent);
+    --color-h-accent-hover: var(--h-accent-hover);
+    --color-h-accent-soft: var(--h-accent-soft);
+    --color-h-accent-fg: var(--h-accent-fg);
+    --color-h-ok: var(--h-ok);
+    --color-h-ok-soft: var(--h-ok-soft);
+    --color-h-warn: var(--h-warn);
+    --color-h-warn-soft: var(--h-warn-soft);
+    --color-h-inverse: var(--h-inverse);
+    --color-h-glass: var(--h-glass);
+    --color-h-glass-ring: var(--h-glass-ring);
+
+    --shadow-h-card: var(--h-shadow-card);
+    --shadow-h-raised: var(--h-shadow-raised);
+    --shadow-h-chip: var(--h-shadow-chip);
+    --shadow-h-btn: var(--h-shadow-btn);
+}
+
+@layer components {
+    .home {
+        background-color: var(--h-bg);
+        color: var(--h-fg);
+    }
+
+    /* Sky gradient with long-exposure streaks, used by the hero and closing band. */
+    .home-sky {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        background: var(--h-sky);
+    }
+    .home-sky::before {
+        content: '';
+        position: absolute;
+        inset: -20px;
+        z-index: -2;
+        pointer-events: none;
+        background:
+            repeating-linear-gradient(
+                180deg,
+                rgb(255 255 255 / 0.1) 0 3px,
+                transparent 3px 11px
+            ),
+            repeating-linear-gradient(
+                180deg,
+                rgb(0 0 0 / 0.04) 0 1px,
+                transparent 1px 23px
+            );
+        filter: blur(1.5px);
+    }
+    .home-sky-veil::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: var(--h-veil);
+    }
+
+    .home-dots {
+        background-image: radial-gradient(var(--h-dots) 1px, transparent 1.2px);
+        background-size: 14px 14px;
+    }
+}

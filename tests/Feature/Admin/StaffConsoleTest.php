@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\ApptFormat;
+use App\Enums\ApptStatus;
 use App\Enums\InvoiceStatus;
 use App\Enums\LeadKind;
 use App\Enums\LeadStatus;
@@ -7,15 +9,20 @@ use App\Enums\ReferralStatus;
 use App\Enums\ReturnStatus;
 use App\Enums\Role;
 use App\Enums\Tier;
+use App\Models\Appointment;
 use App\Models\AuditLog;
+use App\Models\Document;
 use App\Models\Lead;
 use App\Models\Message;
 use App\Models\Referral;
 use App\Models\StatusEvent;
 use App\Models\TaxReturn;
 use App\Models\User;
+use App\Notifications\ClientInvitation;
 use App\Notifications\ReturnStatusUpdated;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('regular client is forbidden from staff console', function () {
@@ -327,4 +334,635 @@ test('staff can view referrals and mark reward', function () {
     $referral->refresh();
     expect($referral->status)->toBe(ReferralStatus::Rewarded);
     expect($referral->reward_cents)->toBeGreaterThan(0);
+});
+
+test('staff can confirm appointment with or without scheduled_at and join_url', function () {
+    $preparer = User::factory()->preparer()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+    TaxReturn::factory()->create([
+        'user_id' => $client->id,
+        'preparer_id' => $preparer->id,
+    ]);
+
+    $apptWithDetails = Appointment::factory()->create([
+        'user_id' => $client->id,
+        'format' => ApptFormat::Video,
+        'status' => ApptStatus::Requested,
+    ]);
+
+    $futureTime = now()->addDays(3)->setTime(16, 30, 0)->toIso8601String();
+
+    $this->actingAs($preparer)
+        ->patch(route('admin.appointments.status', $apptWithDetails), [
+            'status' => ApptStatus::Confirmed->value,
+            'scheduled_at' => $futureTime,
+            'join_url' => 'https://meet.google.com/abc-defg-hij',
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $apptWithDetails->refresh();
+    expect($apptWithDetails->status)->toBe(ApptStatus::Confirmed)
+        ->and($apptWithDetails->confirmed_at)->not->toBeNull()
+        ->and($apptWithDetails->scheduled_at?->toIso8601String())->toBe($futureTime)
+        ->and($apptWithDetails->join_url)->toBe('https://meet.google.com/abc-defg-hij');
+
+    // Confirming without scheduled_at or join_url keeps existing behavior working
+    $apptWithoutDetails = Appointment::factory()->create([
+        'user_id' => $client->id,
+        'format' => ApptFormat::Phone,
+        'status' => ApptStatus::Requested,
+    ]);
+
+    $this->actingAs($preparer)
+        ->patch(route('admin.appointments.status', $apptWithoutDetails), [
+            'status' => ApptStatus::Confirmed->value,
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $apptWithoutDetails->refresh();
+    expect($apptWithoutDetails->status)->toBe(ApptStatus::Confirmed)
+        ->and($apptWithoutDetails->confirmed_at)->not->toBeNull()
+        ->and($apptWithoutDetails->scheduled_at)->toBeNull()
+        ->and($apptWithoutDetails->join_url)->toBeNull();
+});
+
+test('admin appointment confirmation validates future scheduled_at and https join_url', function () {
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+
+    $appointment = Appointment::factory()->create([
+        'user_id' => $client->id,
+        'status' => ApptStatus::Requested,
+    ]);
+
+    // http:// join_url is rejected
+    $this->actingAs($admin)
+        ->patch(route('admin.appointments.status', $appointment), [
+            'status' => ApptStatus::Confirmed->value,
+            'join_url' => 'http://meet.google.com/abc-defg-hij',
+        ])
+        ->assertSessionHasErrors('join_url');
+
+    // Past scheduled_at when confirming is rejected
+    $this->actingAs($admin)
+        ->patch(route('admin.appointments.status', $appointment), [
+            'status' => ApptStatus::Confirmed->value,
+            'scheduled_at' => now()->subHour()->toIso8601String(),
+        ])
+        ->assertSessionHasErrors('scheduled_at');
+
+    // URL > 2048 chars is rejected
+    $this->actingAs($admin)
+        ->patch(route('admin.appointments.status', $appointment), [
+            'status' => ApptStatus::Confirmed->value,
+            'join_url' => 'https://meet.google.com/'.str_repeat('a', 2030),
+        ])
+        ->assertSessionHasErrors('join_url');
+
+    expect($appointment->fresh()->status)->toBe(ApptStatus::Requested);
+});
+
+test('preparer can only confirm appointments for assigned clients', function () {
+    $assignedPreparer = User::factory()->preparer()->withTwoFactor()->create();
+    $otherPreparer = User::factory()->preparer()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+
+    TaxReturn::factory()->create([
+        'user_id' => $client->id,
+        'preparer_id' => $assignedPreparer->id,
+    ]);
+
+    $appointment = Appointment::factory()->create([
+        'user_id' => $client->id,
+        'status' => ApptStatus::Requested,
+    ]);
+
+    // Unassigned preparer gets 403
+    $this->actingAs($otherPreparer)
+        ->patch(route('admin.appointments.status', $appointment), [
+            'status' => ApptStatus::Confirmed->value,
+            'scheduled_at' => now()->addDay()->toIso8601String(),
+            'join_url' => 'https://meet.google.com/assigned-only',
+        ])
+        ->assertForbidden();
+
+    expect($appointment->fresh()->status)->toBe(ApptStatus::Requested);
+
+    // Assigned preparer succeeds
+    $this->actingAs($assignedPreparer)
+        ->patch(route('admin.appointments.status', $appointment), [
+            'status' => ApptStatus::Confirmed->value,
+            'scheduled_at' => now()->addDay()->toIso8601String(),
+            'join_url' => 'https://meet.google.com/assigned-only',
+        ])
+        ->assertRedirect();
+
+    expect($appointment->fresh()->status)->toBe(ApptStatus::Confirmed);
+});
+
+test('staff can post message with attachments and validation enforces count, type, and size limits', function () {
+    Storage::fake('private');
+
+    $preparer = User::factory()->preparer()->withTwoFactor()->create();
+    $otherPreparer = User::factory()->preparer()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+
+    TaxReturn::factory()->create([
+        'user_id' => $client->id,
+        'preparer_id' => $preparer->id,
+    ]);
+
+    $pdf1 = UploadedFile::fake()->createWithContent('checklist.pdf', '%PDF-1.4 valid pdf 1');
+    $pdf2 = UploadedFile::fake()->createWithContent('worksheet.pdf', '%PDF-1.4 valid pdf 2');
+
+    $this->actingAs($preparer)
+        ->post(route('admin.clients.messages.store', $client), [
+            'body' => 'Attached are your checklist and worksheet.',
+            'attachments' => [$pdf1, $pdf2],
+        ])
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $message = Message::where('to_user_id', $client->id)->latest()->first();
+    expect($message)->not->toBeNull()
+        ->and($message->attachments()->count())->toBe(2);
+
+    $attachment = $message->attachments()->first();
+    Storage::disk('private')->assertExists($attachment->storage_key);
+
+    // Assigned preparer can download attachment; unassigned preparer gets 403
+    $this->actingAs($preparer)
+        ->get(route('admin.messages.attachments.download', $attachment))
+        ->assertRedirect();
+
+    $this->actingAs($otherPreparer)
+        ->get(route('admin.messages.attachments.download', $attachment))
+        ->assertForbidden();
+
+    // Validation: > 3 files rejected
+    $fourFiles = [
+        UploadedFile::fake()->createWithContent('1.pdf', '%PDF-1.4 1'),
+        UploadedFile::fake()->createWithContent('2.pdf', '%PDF-1.4 2'),
+        UploadedFile::fake()->createWithContent('3.pdf', '%PDF-1.4 3'),
+        UploadedFile::fake()->createWithContent('4.pdf', '%PDF-1.4 4'),
+    ];
+    $this->actingAs($preparer)
+        ->post(route('admin.clients.messages.store', $client), [
+            'body' => 'Too many files.',
+            'attachments' => $fourFiles,
+        ])
+        ->assertSessionHasErrors('attachments');
+
+    // Validation: invalid file type / magic bytes rejected
+    $exeFile = UploadedFile::fake()->createWithContent('malware.exe', 'MZ-executable');
+    $this->actingAs($preparer)
+        ->post(route('admin.clients.messages.store', $client), [
+            'body' => 'Invalid file.',
+            'attachments' => [$exeFile],
+        ])
+        ->assertSessionHasErrors('attachments.0');
+
+    // Validation: file > 25 MB rejected
+    $hugePdf = UploadedFile::fake()->create('huge.pdf', 26000, 'application/pdf');
+    $this->actingAs($preparer)
+        ->post(route('admin.clients.messages.store', $client), [
+            'body' => 'Oversized file.',
+            'attachments' => [$hugePdf],
+        ])
+        ->assertSessionHasErrors('attachments.0');
+});
+
+test('staff can save valid return summary, view it on admin client page, and audit log is recorded', function () {
+    $preparer = User::factory()->preparer()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+
+    $taxReturn = TaxReturn::factory()->create([
+        'user_id' => $client->id,
+        'preparer_id' => $preparer->id,
+        'status' => ReturnStatus::InPreparation,
+    ]);
+
+    $doc = Document::factory()->create([
+        'user_id' => $client->id,
+        'tax_return_id' => $taxReturn->id,
+        'filename' => 'Form_1040.pdf',
+    ]);
+
+    $payload = [
+        'federal' => [
+            'result' => 'refund',
+            'amount_cents' => 241800,
+        ],
+        'state' => [
+            'code' => 'PA',
+            'result' => 'even',
+            'amount_cents' => 0,
+        ],
+        'bank_last4' => '4471',
+        'filing_status' => 'head_of_household',
+        'filing_method' => 'e-file',
+        'forms' => [
+            [
+                'name' => 'Form 1040 · U.S. Individual Income Tax Return',
+                'pages' => 14,
+                'document_id' => $doc->id,
+            ],
+            [
+                'name' => 'PA-40 · Pennsylvania Income Tax Return',
+                'pages' => 4,
+                'document_id' => null,
+            ],
+        ],
+    ];
+
+    $this->actingAs($preparer)
+        ->patch(route('admin.returns.summary', $taxReturn), $payload)
+        ->assertRedirect()
+        ->assertSessionHasNoErrors();
+
+    $taxReturn->refresh();
+    expect($taxReturn->return_summary)->toMatchArray($payload);
+
+    expect(AuditLog::where('action', 'admin.return_summary_updated')
+        ->where('entity_id', $taxReturn->id)
+        ->where('actor_id', $preparer->id)
+        ->exists()
+    )->toBeTrue();
+
+    // Admin client page includes raw returnSummary and summaryOptions
+    $this->actingAs($preparer)
+        ->get(route('admin.clients.show', $client))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/client-show')
+            ->where('returnSummary.federal.amount_cents', 241800)
+            ->where('returnSummary.bank_last4', '4471')
+            ->has('summaryOptions.results', 3)
+            ->has('summaryOptions.states', 4)
+            ->has('summaryOptions.filingStatuses', 5)
+            ->has('summaryOptions.filingMethods', 1)
+        );
+});
+
+test('return summary validation rejects invalid shapes, full bank account numbers, >12 forms, and another clients document_id', function () {
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+    $otherClient = User::factory()->withTwoFactor()->create();
+
+    $taxReturn = TaxReturn::factory()->create([
+        'user_id' => $client->id,
+        'status' => ReturnStatus::ReadyForReview,
+    ]);
+
+    $otherDocument = Document::factory()->create([
+        'user_id' => $otherClient->id,
+    ]);
+
+    // Invalid result, invalid state code, full bank account number, invalid filing_status, document_id belonging to another client
+    $this->actingAs($admin)
+        ->patch(route('admin.returns.summary', $taxReturn), [
+            'federal' => [
+                'result' => 'invalid_result',
+                'amount_cents' => -100,
+            ],
+            'state' => [
+                'code' => 'NY',
+                'result' => 'refund',
+                'amount_cents' => 5000,
+            ],
+            'bank_last4' => '123456789',
+            'filing_status' => 'invalid_status',
+            'filing_method' => 'paper',
+            'forms' => [
+                [
+                    'name' => 'Form 1040',
+                    'pages' => 0,
+                    'document_id' => $otherDocument->id,
+                ],
+            ],
+        ])
+        ->assertSessionHasErrors([
+            'federal.result',
+            'federal.amount_cents',
+            'state.code',
+            'bank_last4',
+            'filing_status',
+            'filing_method',
+            'forms.0.pages',
+            'forms.0.document_id',
+        ]);
+
+    // > 12 forms rejected
+    $thirteenForms = array_fill(0, 13, [
+        'name' => 'Schedule X',
+        'pages' => 1,
+        'document_id' => null,
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.returns.summary', $taxReturn), [
+            'federal' => ['result' => 'even', 'amount_cents' => 0],
+            'state' => null,
+            'bank_last4' => null,
+            'filing_status' => 'single',
+            'filing_method' => 'e-file',
+            'forms' => $thirteenForms,
+        ])
+        ->assertSessionHasErrors(['forms']);
+
+    expect($taxReturn->fresh()->return_summary)->toBeNull();
+});
+
+test('return summary update is forbidden after e_signed and enforces preparer scoping', function () {
+    $assignedPreparer = User::factory()->preparer()->withTwoFactor()->create();
+    $otherPreparer = User::factory()->preparer()->withTwoFactor()->create();
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+
+    $validPayload = [
+        'federal' => ['result' => 'refund', 'amount_cents' => 150000],
+        'state' => null,
+        'bank_last4' => '9876',
+        'filing_status' => 'single',
+        'filing_method' => 'e-file',
+        'forms' => [],
+    ];
+
+    $taxReturn = TaxReturn::factory()->create([
+        'user_id' => $client->id,
+        'preparer_id' => $assignedPreparer->id,
+        'status' => ReturnStatus::ReadyForReview,
+    ]);
+
+    // Unassigned preparer gets 403
+    $this->actingAs($otherPreparer)
+        ->patch(route('admin.returns.summary', $taxReturn), $validPayload)
+        ->assertForbidden();
+
+    // Regular client gets 403
+    $this->actingAs($client)
+        ->patch(route('admin.returns.summary', $taxReturn), $validPayload)
+        ->assertForbidden();
+
+    // Once status is ESigned or EFiled, even admin and assigned preparer get 403
+    $taxReturn->update(['status' => ReturnStatus::ESigned]);
+
+    $this->actingAs($assignedPreparer)
+        ->patch(route('admin.returns.summary', $taxReturn), $validPayload)
+        ->assertForbidden();
+
+    $this->actingAs($admin)
+        ->patch(route('admin.returns.summary', $taxReturn), $validPayload)
+        ->assertForbidden();
+
+    $taxReturn->update(['status' => ReturnStatus::EFiled]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.returns.summary', $taxReturn), $validPayload)
+        ->assertForbidden();
+});
+
+test('admin leads index returns status counts, LIKE-safe search filter, and preparers list', function () {
+    $admin = User::factory()->admin()->withTwoFactor()->create(['name' => 'Admin Staff']);
+    $preparer = User::factory()->preparer()->withTwoFactor()->create(['name' => 'Adaeze Preparer']);
+
+    $leadNew1 = Lead::factory()->create([
+        'kind' => LeadKind::Quote,
+        'name' => 'Kwame Asante',
+        'email' => 'kwame@example.com',
+        'phone' => '215-555-0190',
+        'ref_code' => 'OKJ-100%SAFE',
+        'status' => LeadStatus::New,
+    ]);
+    Lead::factory()->create([
+        'kind' => LeadKind::Consult,
+        'name' => 'Grace Mensah',
+        'email' => 'grace@example.com',
+        'status' => LeadStatus::New,
+    ]);
+    Lead::factory()->create(['status' => LeadStatus::Contacted]);
+    Lead::factory()->create(['status' => LeadStatus::Converted]);
+    Lead::factory()->create(['status' => LeadStatus::Closed]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.leads.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/leads')
+            ->where('counts.new', 2)
+            ->where('counts.contacted', 1)
+            ->where('counts.converted', 1)
+            ->where('counts.closed', 1)
+            ->where('counts.all', 5)
+            ->has('preparers', 2)
+            ->has('leads.data', 5)
+        );
+
+    // Search by literal '%' in ref_code (LIKE-safe escaping)
+    $this->actingAs($admin)
+        ->get(route('admin.leads.index', ['search' => '100%SAFE']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('filters.search', '100%SAFE')
+            ->has('leads.data', 1)
+            ->where('leads.data.0.id', $leadNew1->id)
+        );
+});
+
+test('admin leads CSV export respects filters, enforces authorization, and neutralizes CSV injection', function () {
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+    $client = User::factory()->withTwoFactor()->create();
+
+    Lead::factory()->create([
+        'name' => '=HYPERLINK("http://evil.test")',
+        'email' => 'injected-lead@example.com',
+        'phone' => '+12675550111',
+        'status' => LeadStatus::New,
+    ]);
+    Lead::factory()->create([
+        'name' => 'Closed Lead',
+        'email' => 'closed-lead@example.com',
+        'status' => LeadStatus::Closed,
+    ]);
+
+    // Client forbidden
+    $this->actingAs($client)
+        ->get(route('admin.leads.export'))
+        ->assertForbidden();
+
+    // Admin export filtered by status=new
+    $response = $this->actingAs($admin)
+        ->get(route('admin.leads.export', ['status' => LeadStatus::New->value]));
+
+    $response->assertOk();
+    $csv = $response->streamedContent();
+
+    expect($csv)->toContain('Name,Email,Phone,Kind,"Tier Interest",Situation,"Preferred Date","Time Window",Format,"Ref Code",Status,Notes,Created')
+        ->and($csv)->toContain("'=HYPERLINK")
+        ->and($csv)->toContain("'+12675550111")
+        ->and($csv)->not->toContain('Closed Lead');
+});
+
+test('converting a lead supports optional preparer_id, sends ClientInvitation once, and rejects re-converting an already-converted lead', function () {
+    Notification::fake();
+
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+    $preparer1 = User::factory()->preparer()->withTwoFactor()->create();
+    $preparer2 = User::factory()->preparer()->withTwoFactor()->create();
+
+    $lead = Lead::factory()->create([
+        'name' => 'Olivia Carter',
+        'email' => 'olivia.carter@example.com',
+        'tier_interest' => Tier::Hybrid->value,
+        'status' => LeadStatus::New,
+    ]);
+
+    // Admin converts with explicit preparer_id
+    $this->actingAs($admin)
+        ->post(route('admin.leads.convert', $lead), [
+            'preparer_id' => $preparer1->id,
+        ])
+        ->assertRedirect();
+
+    $convertedUser = User::where('email', 'olivia.carter@example.com')->first();
+    expect($convertedUser)->not->toBeNull()
+        ->and($convertedUser->email_verified_at)->not->toBeNull();
+
+    $taxReturn = $convertedUser->taxReturns()->first();
+    expect($taxReturn)->not->toBeNull()
+        ->and($taxReturn->preparer_id)->toBe($preparer1->id)
+        ->and($taxReturn->invoice)->not->toBeNull();
+
+    Notification::assertSentToTimes($convertedUser, ClientInvitation::class, 1);
+
+    // Re-converting an already converted lead is rejected and does not send another notification
+    $this->actingAs($admin)
+        ->post(route('admin.leads.convert', $lead))
+        ->assertSessionHasErrors('lead');
+
+    Notification::assertSentToTimes($convertedUser, ClientInvitation::class, 1);
+
+    // Preparer converting without preparer_id defaults to themselves, and cannot assign another preparer
+    $lead2 = Lead::factory()->create([
+        'name' => 'Samuel Reyes',
+        'email' => 'samuel.reyes@example.com',
+        'status' => LeadStatus::New,
+    ]);
+
+    $this->actingAs($preparer1)
+        ->post(route('admin.leads.convert', $lead2), [
+            'preparer_id' => $preparer2->id,
+        ])
+        ->assertSessionHasErrors('preparer_id');
+
+    $this->actingAs($preparer1)
+        ->post(route('admin.leads.convert', $lead2))
+        ->assertRedirect();
+
+    $convertedUser2 = User::where('email', 'samuel.reyes@example.com')->first();
+    expect($convertedUser2)->not->toBeNull()
+        ->and($convertedUser2->taxReturns()->first()?->preparer_id)->toBe($preparer1->id);
+
+    Notification::assertSentToTimes($convertedUser2, ClientInvitation::class, 1);
+});
+
+test('admin referrals index computes totals across all statuses, defaults filter to ready, and supports status filtering', function () {
+    $admin = User::factory()->admin()->withTwoFactor()->create();
+    $preparer = User::factory()->preparer()->withTwoFactor()->create();
+    $otherPreparer = User::factory()->preparer()->withTwoFactor()->create();
+
+    $assignedReferrer = User::factory()->withTwoFactor()->create(['tier' => Tier::Hybrid]);
+    TaxReturn::factory()->create([
+        'user_id' => $assignedReferrer->id,
+        'preparer_id' => $preparer->id,
+    ]);
+
+    $otherReferrer = User::factory()->withTwoFactor()->create(['tier' => Tier::UploadAndGo]);
+    TaxReturn::factory()->create([
+        'user_id' => $otherReferrer->id,
+        'preparer_id' => $otherPreparer->id,
+    ]);
+
+    // 1 Sent (assigned), 1 SignedUp (assigned), 2 Filed/ready (1 assigned, 1 other), 1 Rewarded ($50, assigned)
+    Referral::factory()->create([
+        'referrer_id' => $assignedReferrer->id,
+        'status' => ReferralStatus::Sent,
+        'reward_cents' => null,
+    ]);
+    Referral::factory()->create([
+        'referrer_id' => $assignedReferrer->id,
+        'status' => ReferralStatus::SignedUp,
+        'friend_user_id' => User::factory()->create()->id,
+        'reward_cents' => null,
+    ]);
+    $readyAssigned = Referral::factory()->create([
+        'referrer_id' => $assignedReferrer->id,
+        'status' => ReferralStatus::Filed,
+        'reward_cents' => null,
+    ]);
+    Referral::factory()->create([
+        'referrer_id' => $otherReferrer->id,
+        'status' => ReferralStatus::Filed,
+        'reward_cents' => null,
+    ]);
+    Referral::factory()->create([
+        'referrer_id' => $assignedReferrer->id,
+        'status' => ReferralStatus::Rewarded,
+        'reward_cents' => 5000,
+    ]);
+
+    // Default filter is 'ready' (shows the 2 Filed referrals for admin), with full totals and counts
+    // Total invites = 5; signedUp = 4 (80%); filed = 3 (2 ready + 1 rewarded); readyToReward = 2; rewardsPaidCents = 5000 ($50); rewardedClients = 1
+    $this->actingAs($admin)
+        ->get(route('admin.referrals.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/referrals')
+            ->where('filters.status', 'ready')
+            ->where('counts.ready', 2)
+            ->where('counts.all', 5)
+            ->where('totals.invites', 5)
+            ->where('totals.signedUp', 4)
+            ->where('totals.signedUpPercent', 80)
+            ->where('totals.filed', 3)
+            ->where('totals.readyToReward', 2)
+            ->where('totals.rewardsPaidCents', 5000)
+            ->where('totals.rewardsPaidFormatted', '$50')
+            ->where('totals.rewardedClients', 1)
+            ->has('referrals.data', 2)
+        );
+
+    // Filter status=all returns all 5 referrals
+    $this->actingAs($admin)
+        ->get(route('admin.referrals.index', ['status' => 'all']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('filters.status', 'all')
+            ->has('referrals.data', 5)
+        );
+
+    // Filter by specific ReferralStatus value (e.g. 'rewarded')
+    $this->actingAs($admin)
+        ->get(route('admin.referrals.index', ['status' => ReferralStatus::Rewarded->value]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('filters.status', ReferralStatus::Rewarded->value)
+            ->has('referrals.data', 1)
+        );
+
+    // Preparer scoping: sees only the 4 referrals linked to assignedReferrer (1 ready)
+    $this->actingAs($preparer)
+        ->get(route('admin.referrals.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('filters.status', 'ready')
+            ->where('counts.ready', 1)
+            ->where('counts.all', 4)
+            ->where('totals.invites', 4)
+            ->where('totals.readyToReward', 1)
+            ->has('referrals.data', 1)
+            ->where('referrals.data.0.id', $readyAssigned->id)
+        );
 });

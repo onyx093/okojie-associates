@@ -87,9 +87,88 @@ test('sign page displays return summary and Form 7216 consent text', function ()
         ->where('taxReturn.id', $taxReturn->id)
         ->where('taxReturn.taxYear', 2026)
         ->where('clientName', 'Jane Taxpayer')
+        ->where('returnSummary', null)
         ->has('form7216ConsentText')
         ->has('form8879DeclarationText')
     );
+});
+
+test('sign page formats returnSummary when present and restricts open_url to clients own documents', function () {
+    $user = User::factory()->withTwoFactor()->create(['name' => 'Denise Robinson']);
+    $otherUser = User::factory()->withTwoFactor()->create();
+
+    $ownDocument = Document::factory()->create([
+        'user_id' => $user->id,
+        'filename' => 'Form 1040.pdf',
+    ]);
+    $otherDocument = Document::factory()->create([
+        'user_id' => $otherUser->id,
+        'filename' => 'Other 1040.pdf',
+    ]);
+
+    $taxReturn = TaxReturn::factory()->create([
+        'user_id' => $user->id,
+        'tax_year' => 2026,
+        'status' => ReturnStatus::ReadyForReview,
+        'return_summary' => [
+            'federal' => [
+                'result' => 'refund',
+                'amount_cents' => 241800,
+            ],
+            'state' => [
+                'code' => 'PA',
+                'result' => 'even',
+                'amount_cents' => 0,
+            ],
+            'bank_last4' => '4471',
+            'filing_status' => 'head_of_household',
+            'filing_method' => 'e-file',
+            'forms' => [
+                [
+                    'name' => 'Form 1040 · U.S. Individual Income Tax Return',
+                    'pages' => 14,
+                    'document_id' => $ownDocument->id,
+                ],
+                [
+                    'name' => 'PA-40 · Pennsylvania Income Tax Return',
+                    'pages' => 4,
+                    'document_id' => $otherDocument->id,
+                ],
+                [
+                    'name' => 'Schedule C · Profit or Loss From Business',
+                    'pages' => 2,
+                    'document_id' => null,
+                ],
+            ],
+        ],
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('portal.sign', $taxReturn))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('portal/sign')
+            ->where('returnSummary.federal.result', 'refund')
+            ->where('returnSummary.federal.amount_cents', 241800)
+            ->where('returnSummary.federal.amount_formatted', '$2,418')
+            ->where('returnSummary.state.code', 'PA')
+            ->where('returnSummary.state.name', 'Pennsylvania')
+            ->where('returnSummary.state.result', 'even')
+            ->where('returnSummary.state.amount_cents', 0)
+            ->where('returnSummary.state.amount_formatted', '$0')
+            ->where('returnSummary.bank_last4', '4471')
+            ->where('returnSummary.filing_status', 'head_of_household')
+            ->where('returnSummary.filing_status_label', 'Head of household')
+            ->where('returnSummary.filing_method', 'e-file')
+            ->where('returnSummary.filing_method_label', 'IRS e-file')
+            ->where('returnSummary.forms.0.name', 'Form 1040 · U.S. Individual Income Tax Return')
+            ->where('returnSummary.forms.0.pages', 14)
+            ->where('returnSummary.forms.0.open_url', route('portal.documents.download', $ownDocument))
+            ->where('returnSummary.forms.1.name', 'PA-40 · Pennsylvania Income Tax Return')
+            ->where('returnSummary.forms.1.pages', 4)
+            ->where('returnSummary.forms.1.open_url', null)
+            ->where('returnSummary.forms.2.open_url', null)
+        );
 });
 
 test('sign submission requires affirmative Form 7216 consent and typed signature', function () {

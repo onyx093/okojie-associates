@@ -36,7 +36,7 @@ class InvoiceController extends Controller
 
         if ($request->boolean('mark_paid_offline')) {
             $invoice->status = InvoiceStatus::Paid;
-            $invoice->paid_at = now();
+            $invoice->paid_at = $invoice->paid_at ?? now();
         } else {
             if (isset($validated['amount_dollars'])) {
                 $invoice->amount_cents = (int) round((float) $validated['amount_dollars'] * 100);
@@ -50,6 +50,10 @@ class InvoiceController extends Controller
         }
 
         $invoice->save();
+
+        if ($request->boolean('mark_paid_offline')) {
+            $invoice->ensureReceiptNumber();
+        }
 
         AuditLog::record(
             action: 'admin.invoice_updated',
