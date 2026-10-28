@@ -82,23 +82,13 @@ class HandleInertiaRequests extends Middleware
             'navCounts' => fn (): ?array => $this->resolveNavCounts($request),
             'honeypot' => fn (): ?array => $this->resolveHoneypot(),
             'cspNonce' => fn () => Vite::cspNonce(),
-            // Public forms send these back so ProtectAgainstSpam doesn't reject real visitors.
-            'honeypot' => function () {
-                $honeypot = app(Honeypot::class);
-
-                return [
-                    'nameField' => $honeypot->nameFieldName(),
-                    'validFromField' => $honeypot->validFromFieldName(),
-                    'validFrom' => $honeypot->encryptedValidFrom(),
-                ];
-            },
         ];
     }
 
     /**
      * Resolve the shared Spatie Honeypot configuration and encrypted timestamp token.
      *
-     * @return array{name: string, validFromName: string, validFrom: string}|null
+     * @return array{name: string, nameField: string, validFromName: string, validFromField: string, validFrom: string}|null
      */
     private function resolveHoneypot(): ?array
     {
@@ -109,10 +99,14 @@ class HandleInertiaRequests extends Middleware
         /** @var array<string, mixed> $config */
         $config = config('honeypot', []);
         $honeypot = new Honeypot($config);
+        $nameField = (string) config('honeypot.name_field_name');
+        $validFromField = (string) config('honeypot.valid_from_field_name');
 
         return [
-            'name' => (string) config('honeypot.name_field_name'),
-            'validFromName' => (string) config('honeypot.valid_from_field_name'),
+            'name' => $nameField,
+            'nameField' => $nameField,
+            'validFromName' => $validFromField,
+            'validFromField' => $validFromField,
             'validFrom' => $honeypot->encryptedValidFrom(),
         ];
     }
