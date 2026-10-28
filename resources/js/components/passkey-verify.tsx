@@ -6,7 +6,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
-import { dashboard } from '@/routes';
+import { overview } from '@/routes/portal';
 
 type Props = {
     routes?: {
@@ -32,7 +32,7 @@ export default function PasskeyVerify({
             },
         }),
         onSuccess: (response) => {
-            router.visit(response.redirect ?? dashboard.url());
+            router.visit(response.redirect ?? overview.url());
         },
     });
 

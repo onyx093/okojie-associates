@@ -6,6 +6,8 @@ use App\Enums\ReturnStatus;
 use App\Models\Appointment;
 use App\Models\Document;
 use App\Models\Invoice;
+use App\Models\Message;
+use App\Models\MessageAttachment;
 use App\Models\TaxReturn;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -119,4 +121,15 @@ test('policy coverage: portal controller actions reject access to unauthorized r
         'consent_7216' => true,
         'typed_signature' => 'Unauthorized Signer',
     ])->assertForbidden();
+
+    // 5. MessageAttachment download
+    $message = Message::factory()->create([
+        'from_user_id' => $owner->id,
+        'to_user_id' => $owner->id,
+    ]);
+    $attachment = MessageAttachment::factory()->create([
+        'message_id' => $message->id,
+    ]);
+
+    $this->actingAs($attacker)->get(route('portal.messages.attachments.download', $attachment))->assertForbidden();
 });

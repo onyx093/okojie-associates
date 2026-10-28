@@ -27,6 +27,8 @@ class AppointmentFactory extends Factory
             'notes' => fake()->sentence(),
             'status' => ApptStatus::Requested,
             'confirmed_at' => null,
+            'scheduled_at' => null,
+            'join_url' => null,
         ];
     }
 }

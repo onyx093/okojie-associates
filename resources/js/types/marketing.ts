@@ -1,5 +1,11 @@
 export type TierSlug = 'upload_and_go' | 'hybrid' | 'premium_remote';
 
+export type OfficeSlug =
+    | 'germantown-ave'
+    | 'n-broad-st'
+    | 'w-chelten-ave'
+    | 'liberty-heights-baltimore';
+
 export interface TierItem {
     slug: TierSlug;
     name: string;
@@ -21,6 +27,7 @@ export interface AddOnItem {
 }
 
 export interface OfficeItem {
+    slug?: OfficeSlug;
     city: string;
     address: string;
     phone: string;

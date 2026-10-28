@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark" style="color-scheme: dark;">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') === 'dark'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        {{-- Force dark theme background color --}}
-        <style nonce="{{ Vite::cspNonce() }}">
-            html, body {
-                background-color: #14151f;
-                color: #f4f5fa;
-            }
-        </style>
+        <script nonce="{{ Vite::cspNonce() }}">
+            (function () {
+                const appearance = '{{ $appearance ?? "system" }}';
+
+                if (appearance === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+        </script>
 
         <link rel="preconnect" href="https://js.stripe.com" crossorigin>
         <link rel="dns-prefetch" href="https://challenges.cloudflare.com">

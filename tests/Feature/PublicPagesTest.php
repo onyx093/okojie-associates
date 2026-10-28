@@ -48,7 +48,11 @@ test('about page renders successfully with stats and offices', function () {
     $response->assertOk();
     $response->assertInertia(fn (Assert $page) => $page
         ->component('about')
-        ->has('stats', 3)
+        ->has('stats', 4)
+        ->where('stats.0', ['value' => '26+', 'label' => 'Years serving PA & MD taxpayers'])
+        ->where('stats.1', ['value' => '40,000+', 'label' => 'Returns prepared and filed'])
+        ->where('stats.2', ['value' => '12', 'label' => 'Credentialed preparers'])
+        ->where('stats.3', ['value' => '4', 'label' => 'Offices across Philadelphia & Baltimore'])
         ->has('offices', 4)
     );
 });

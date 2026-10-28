@@ -15,9 +15,13 @@ trait ProfileValidationRules
      */
     protected function profileRules(?int $userId = null): array
     {
+        $officeSlugs = array_column(User::officeOptions(), 'slug');
+
         return [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
+            'title' => ['nullable', 'string', 'max:120'],
+            'office' => ['nullable', 'string', Rule::in($officeSlugs)],
         ];
     }
 

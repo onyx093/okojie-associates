@@ -31,6 +31,7 @@ class TaxReturnResource extends JsonResource
             'status' => $this->status->value,
             'status_label' => $this->status->label(),
             'next_step_text' => $this->status->nextStepText(),
+            'next_step' => $this->status->nextStep(),
             'tier' => $this->tier?->value,
             'signed_at' => $this->signed_at?->toIso8601String(),
             'filed_at' => $this->filed_at?->toIso8601String(),

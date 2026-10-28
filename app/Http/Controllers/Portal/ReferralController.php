@@ -29,8 +29,8 @@ class ReferralController extends Controller
             ->latest('created_at')
             ->get();
 
-        $referralCode = $user->referral_code;
-        $referralLink = route('contact', ['ref' => $referralCode]);
+        $referralCode = (string) $user->referral_code;
+        $referralLink = route('referral.redirect', ['code' => $referralCode]);
 
         return Inertia::render('portal/referrals', [
             'referrals' => ReferralResource::collection($referrals)->resolve(),
@@ -69,7 +69,7 @@ class ReferralController extends Controller
             entityId: $referral->id,
         );
 
-        $referralLink = route('contact', ['ref' => $user->referral_code]);
+        $referralLink = route('referral.redirect', ['code' => (string) $user->referral_code]);
         Mail::to($referral->friend_email)->queue(new ReferralInvite($referral, $user, $referralLink));
 
         return back()->with('success', "Referral sent! We've emailed {$referral->friend_name} an invitation.");

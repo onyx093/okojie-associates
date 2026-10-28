@@ -60,6 +60,8 @@ test('password can be reset with valid token', function () {
             ->assertSessionHasNoErrors()
             ->assertRedirect(route('login'));
 
+        expect($user->fresh()->password_changed_at)->not->toBeNull();
+
         return true;
     });
 });

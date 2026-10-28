@@ -12,28 +12,39 @@ export function BrandLogo({
     className,
     showSublabel = true,
     href = home.url(),
-}: BrandLogoProps) {
+    sublabel = 'Okojie & Associates',
+    markTone = 'primary',
+}: BrandLogoProps & {
+    sublabel?: string;
+    markTone?: 'primary' | 'dark';
+}) {
     const content = (
         <div
             className={cn(
-                'group inline-flex items-center gap-3 select-none',
+                'group inline-flex items-center gap-2.5 select-none',
                 className,
             )}
         >
-            {/* 32px indigo disc with white bold 'O' */}
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-white shadow-sm ring-1 ring-white/15 transition-transform duration-150 group-hover:scale-105">
-                <span className="translate-y-[-0.5px] text-base leading-none font-bold">
+            <div
+                className={cn(
+                    'flex size-8 shrink-0 items-center justify-center rounded-[9px] font-medium text-white transition-transform duration-150 group-hover:scale-[1.03]',
+                    markTone === 'dark'
+                        ? 'bg-foreground text-background shadow-chip'
+                        : 'bg-primary text-primary-foreground shadow-btn',
+                )}
+            >
+                <span className="text-[15px] leading-none font-semibold">
                     O
                 </span>
             </div>
 
             <div className="flex flex-col text-left">
-                <span className="text-base leading-tight font-semibold tracking-[-0.02em] text-foreground transition-colors group-hover:text-white">
-                    Okojie & Associates, Inc.
+                <span className="text-[14.5px] leading-tight font-medium tracking-[-0.02em] text-foreground">
+                    Okojie Online
                 </span>
                 {showSublabel && (
-                    <span className="mt-0.5 text-[11px] leading-none font-medium tracking-normal text-muted-foreground">
-                        Okojie Online
+                    <span className="mt-0.5 text-[11.5px] leading-none text-fg-3">
+                        {sublabel}
                     </span>
                 )}
             </div>

@@ -22,6 +22,9 @@ class InvoiceFactory extends Factory
             'currency' => 'usd',
             'status' => InvoiceStatus::Draft,
             'stripe_session_id' => null,
+            'receipt_number' => null,
+            'payment_method_brand' => null,
+            'payment_method_last4' => null,
             'paid_at' => null,
         ];
     }

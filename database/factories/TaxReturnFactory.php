@@ -25,6 +25,7 @@ class TaxReturnFactory extends Factory
             'preparer_id' => null,
             'signed_at' => null,
             'filed_at' => null,
+            'return_summary' => null,
         ];
     }
 }

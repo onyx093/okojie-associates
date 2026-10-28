@@ -7,6 +7,7 @@ use App\Mail\LeadConfirmation;
 use App\Mail\LeadReceived;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
     Mail::fake();
@@ -162,4 +163,59 @@ test('public forms are throttled to 5 requests per hour', function () {
     ]);
 
     $sixth->assertStatus(429);
+});
+
+test('shared honeypot prop exposes configured field names and encrypted validFrom token, and validates submissions', function () {
+    $sharedHoneypot = null;
+
+    $this->get(route('contact'))
+        ->assertOk()
+        ->assertInertia(function (Assert $page) use (&$sharedHoneypot) {
+            $page->where('honeypot.name', config('honeypot.name_field_name'))
+                ->where('honeypot.validFromName', config('honeypot.valid_from_field_name'));
+
+            $sharedHoneypot = $page->toArray()['props']['honeypot'];
+        });
+
+    expect($sharedHoneypot)->toBeArray()
+        ->and($sharedHoneypot['validFrom'])->toBeString()->not->toBeEmpty();
+
+    // 1. Immediate submission (too fresh: < amount_of_seconds) is rejected by honeypot
+    $this->post(route('leads.quote'), [
+        'name' => 'Too Fast Submitter',
+        'email' => 'toofast@example.com',
+        $sharedHoneypot['name'] => '',
+        $sharedHoneypot['validFromName'] => $sharedHoneypot['validFrom'],
+    ]);
+    expect(Lead::where('email', 'toofast@example.com')->exists())->toBeFalse();
+
+    // 2. Invalid valid_from token is rejected by honeypot
+    $this->post(route('leads.quote'), [
+        'name' => 'Tampered Token',
+        'email' => 'tampered@example.com',
+        $sharedHoneypot['name'] => '',
+        $sharedHoneypot['validFromName'] => 'invalid-encrypted-token',
+    ]);
+    expect(Lead::where('email', 'tampered@example.com')->exists())->toBeFalse();
+
+    // 3. Valid submission after waiting past amount_of_seconds succeeds
+    $this->travel(2)->seconds();
+
+    $this->post(route('leads.quote'), [
+        'name' => 'Human Visitor',
+        'email' => 'human@example.com',
+        $sharedHoneypot['name'] => '',
+        $sharedHoneypot['validFromName'] => $sharedHoneypot['validFrom'],
+    ])->assertRedirect();
+
+    expect(Lead::where('email', 'human@example.com')->exists())->toBeTrue();
+
+    // 4. When honeypot is disabled in config, shared prop is null
+    config(['honeypot.enabled' => false]);
+
+    $this->get(route('contact'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('honeypot', null)
+        );
 });

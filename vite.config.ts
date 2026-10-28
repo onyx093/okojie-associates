@@ -14,8 +14,11 @@ export default defineConfig({
             ssr: 'resources/js/ssr.tsx',
             refresh: true,
             fonts: [
-                bunny('Inter', {
-                    weights: [400, 500, 600, 700],
+                bunny('Geist', {
+                    weights: [400, 500, 600],
+                }),
+                bunny('Geist Mono', {
+                    weights: [400, 500],
                 }),
             ],
         }),
@@ -42,6 +45,7 @@ export default defineConfig({
     },
     lint: {
         ignorePatterns: [
+            'frontend/**',
             'vendor/**',
             'node_modules/**',
             'public/**',
@@ -65,6 +69,7 @@ export default defineConfig({
         singleAttributePerLine: false,
         htmlWhitespaceSensitivity: 'css',
         ignorePatterns: [
+            'frontend/**',
             '.github/**',
             'composer.json',
             'resources/js/components/ui/*',
@@ -74,5 +79,8 @@ export default defineConfig({
             functions: ['clsx', 'cn', 'cva'],
             stylesheet: 'resources/css/app.css',
         },
+    },
+    test: {
+        include: ['resources/js/**/*.{test,spec}.{ts,tsx}'],
     },
 });

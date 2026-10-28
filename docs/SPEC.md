@@ -7,24 +7,24 @@ Tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]**.
 
 ## 1. Stack
 
-| Layer             | Choice                                                                                                                    | Notes                                                                                                                        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Backend framework | **Laravel 13** (PHP **8.3+**; 8.4/8.5 recommended)                                                                        | Controllers, Form Requests, Policies, Eloquent, queues, scheduler, mail, filesystem                                          |
-| Bridge            | **Inertia v3** (`inertiajs/inertia-laravel` ^3, `@inertiajs/react` ^3)                                                    | No separate API for the site's own UI; controllers return `Inertia::render()` or redirects. **SSR enabled** for public pages |
-| Frontend          | **React 19 + TypeScript**                                                                                                 | Function components, hooks                                                                                                   |
-| Styling           | **Tailwind CSS v4** (CSS-first config via `@theme` in `resources/css/app.css`, `@tailwindcss/vite`)                       | **No `tailwind.config.js`**                                                                                                  |
-| Components        | **shadcn/ui** (installed into `resources/js/components/ui` via the shadcn CLI, `components.json`) + **lucide-react**      | Radix-based, owned source code                                                                                               |
-| Build             | **Vite** + `laravel-vite-plugin`                                                                                          |                                                                                                                              |
-| Typed routes      | **Laravel Wayfinder**                                                                                                     | Generates TS route/action helpers from Laravel routes/controllers                                                            |
-| Auth              | **Laravel Fortify** (login, register, password reset, email verification, **two-factor auth with TOTP + recovery codes**) | Views rendered through Inertia                                                                                               |
-| DB                | **PostgreSQL** (prod), **SQLite** (local/test)                                                                            | Eloquent + migrations                                                                                                        |
-| Files             | Laravel **Filesystem** — private **S3-compatible** disk (`league/flysystem-aws-s3-v3`), local disk in dev                 | `temporaryUrl()` for downloads                                                                                               |
-| Mail              | Laravel **Mailables/Notifications** (queued, Markdown mail); Resend/Postmark/SES transport; `log` driver in dev           |                                                                                                                              |
-| Payments          | **Laravel Cashier (Stripe)** — Checkout one-off charge                                                                    |                                                                                                                              |
-| Queues/Jobs       | `database` or `redis` driver; Horizon optional                                                                            | Mail, virus scan                                                                                                             |
-| Rate limiting     | Laravel `RateLimiter` + `throttle` middleware                                                                             |                                                                                                                              |
-| Spam protection   | `spatie/laravel-honeypot` + Cloudflare Turnstile (custom validation rule)                                                 |                                                                                                                              |
-| Testing           | **Pest 4** (+ Laravel plugin, **browser plugin** for E2E), Larastan, Pint                                                 | Frontend: `tsc --noEmit`, ESLint, Prettier (Vitest optional)                                                                 |
+| Layer                 | Choice                                                                                                                                                                                                                                          | Notes                                                                                                                        |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Backend framework     | **Laravel 13** (PHP **8.3+**; 8.4/8.5 recommended)                                                                                                                                                                                              | Controllers, Form Requests, Policies, Eloquent, queues, scheduler, mail, filesystem                                          |
+| Bridge                | **Inertia v3** (`inertiajs/inertia-laravel` ^3, `@inertiajs/react` ^3)                                                                                                                                                                          | No separate API for the site's own UI; controllers return `Inertia::render()` or redirects. **SSR enabled** for public pages |
+| Frontend              | **React 19 + TypeScript**                                                                                                                                                                                                                       | Function components, hooks                                                                                                   |
+| Styling               | **Tailwind CSS v4** (CSS-first config via `@theme` in `resources/css/app.css`, `@tailwindcss/vite`)                                                                                                                                             | **No `tailwind.config.js`**                                                                                                  |
+| Components            | **shadcn/ui** (installed into `resources/js/components/ui` via the shadcn CLI, `components.json`) + **lucide-react**; fonts **Geist / Geist Mono** self-hosted via Fontsource (`@fontsource-variable/geist`, `@fontsource-variable/geist-mono`) | Radix-based, owned source code                                                                                               |
+| Build / lint / format | **Vite+** (`vp`): `npm run build` (client + SSR), `npm run check` (lint + format, warnings denied), `npm run types` (`tsc --noEmit`); fonts via `laravel-vite-plugin/fonts` (`bunny()`)                                                         | Run everything through Sail                                                                                                  |
+| Typed routes          | **Laravel Wayfinder**                                                                                                                                                                                                                           | Generates TS route/action helpers from Laravel routes/controllers                                                            |
+| Auth                  | **Laravel Fortify** (login, register, password reset, email verification, **two-factor auth with TOTP + recovery codes**)                                                                                                                       | Views rendered through Inertia                                                                                               |
+| DB                    | **PostgreSQL** (prod), **SQLite** (local/test)                                                                                                                                                                                                  | Eloquent + migrations                                                                                                        |
+| Files                 | Laravel **Filesystem** — private **S3-compatible** disk (`league/flysystem-aws-s3-v3`), local disk in dev                                                                                                                                       | `temporaryUrl()` for downloads                                                                                               |
+| Mail                  | Laravel **Mailables/Notifications** (queued, Markdown mail); Resend/Postmark/SES transport; `log` driver in dev                                                                                                                                 |                                                                                                                              |
+| Payments              | **Laravel Cashier (Stripe)** — Checkout one-off charge                                                                                                                                                                                          |                                                                                                                              |
+| Queues/Jobs           | `database` or `redis` driver; Horizon optional                                                                                                                                                                                                  | Mail, virus scan                                                                                                             |
+| Rate limiting         | Laravel `RateLimiter` + `throttle` middleware                                                                                                                                                                                                   |                                                                                                                              |
+| Spam protection       | `spatie/laravel-honeypot` + Cloudflare Turnstile (custom validation rule)                                                                                                                                                                       |                                                                                                                              |
+| Testing               | **Pest 5** (+ Laravel plugin, **browser plugin** for E2E), Larastan, Pint                                                                                                                                                                       | Frontend: `tsc --noEmit`, ESLint, Prettier (Vitest optional)                                                                 |
 
 **Scaffolding recommendation:** start from the official Laravel **React starter kit** (installer → React → Laravel auth). It already wires Inertia, React 19, TypeScript, Tailwind v4, shadcn/ui, Fortify and Wayfinder. Then delete/replace its default dashboard and settings pages with the pages in this spec.
 
@@ -34,22 +34,24 @@ Tags: **[OBSERVED] [INFERRED] [CLAIMED] [DRAFTED]**.
 
 ## 2. Routes (Laravel `routes/web.php` → Inertia pages)
 
+> **Verified route names, controllers and props for the current app are in `UI-INVENTORY.md` §3; where this table differs, the inventory wins.**
+
 Page components live in `resources/js/pages/*` (lowercase/kebab paths, matching the starter kit convention).
 
 ### Public
 
-| Method | URI                             | Route name             | Controller@action            | Inertia page          | Notes                                                           |
-| ------ | ------------------------------- | ---------------------- | ---------------------------- | --------------------- | --------------------------------------------------------------- |
-| GET    | `/`                             | `home`                 | `HomeController`             | `home`                | props: tiers, steps, testimonials, videos, offices, faqs, stats |
-| GET    | `/services`                     | `services`             | `ServicesController`         | `services`            | tiers, addons (table), faqs                                     |
-| GET    | `/pricing`                      | `pricing`              | `PricingController`          | `pricing`             | tiers, addons (cards), faqs                                     |
-| GET    | `/about`                        | `about`                | `AboutController`            | `about`               |                                                                 |
-| GET    | `/contact`                      | `contact`              | `ContactController`          | `contact`             | accepts `?ref=` `?tier=`; anchors `#start`, `#consult`          |
-| POST   | `/leads/quote`                  | `leads.quote`          | `LeadController@quote`       | redirect back + flash | `throttle:public-forms`, honeypot, Turnstile                    |
-| POST   | `/leads/consult`                | `leads.consult`        | `LeadController@consult`     | redirect back + flash | same                                                            |
-| POST   | `/newsletter`                   | `newsletter.subscribe` | `NewsletterController@store` | redirect back + flash | idempotent                                                      |
-| GET    | `/privacy` `/terms` `/security` | `legal.*`              | `LegalController`            | `legal/show`          | **[INFERRED]** placeholders                                     |
-| GET    | `/sitemap.xml`                  | `sitemap`              | `SitemapController`          | XML                   |                                                                 |
+| Method | URI                             | Route name                   | Controller@action                | Inertia page                                     | Notes                                                           |
+| ------ | ------------------------------- | ---------------------------- | -------------------------------- | ------------------------------------------------ | --------------------------------------------------------------- |
+| GET    | `/`                             | `home`                       | `HomeController`                 | `home`                                           | props: tiers, steps, testimonials, videos, offices, faqs, stats |
+| GET    | `/services`                     | `services`                   | `ServicesController`             | `services`                                       | tiers, addons (table), faqs                                     |
+| GET    | `/pricing`                      | `pricing`                    | `PricingController`              | `pricing`                                        | tiers, addons (cards), faqs                                     |
+| GET    | `/about`                        | `about`                      | `AboutController`                | `about`                                          |                                                                 |
+| GET    | `/contact`                      | `contact`                    | `ContactController`              | `contact`                                        | accepts `?ref=` `?tier=`; anchors `#start`, `#consult`          |
+| POST   | `/leads/quote`                  | `leads.quote`                | `LeadController@quote`           | redirect back + flash                            | `throttle:public-forms`, honeypot, Turnstile                    |
+| POST   | `/leads/consult`                | `leads.consult`              | `LeadController@consult`         | redirect back + flash                            | same                                                            |
+| POST   | `/newsletter`                   | `newsletter.subscribe`       | `NewsletterController@store`     | redirect back + flash                            | idempotent                                                      |
+| GET    | `/privacy` `/terms` `/security` | `privacy` `terms` `security` | `Route::inertia` (no controller) | `legal/privacy`, `legal/terms`, `legal/security` | static copy in TSX                                              |
+| GET    | `/sitemap.xml`                  | `sitemap`                    | `SitemapController`              | XML                                              |                                                                 |
 
 ### Auth (Fortify, views via Inertia)
 
@@ -85,6 +87,8 @@ Page components live in `resources/js/pages/*` (lowercase/kebab paths, matching 
 | GET    | `/portal/sign/{taxReturn}`              | `portal.sign`                 | `Portal\SignController@show`         | `portal/sign` **[INFERRED]**                                  |
 | POST   | `/portal/sign/{taxReturn}`              | `portal.sign.store`           | `@store`                             | redirect → overview                                           |
 | GET    | `/portal/security`                      | `portal.security`             | `Portal\SecurityController`          | `portal/security` (2FA setup, password change) **[INFERRED]** |
+
+> **Redesign notes (routes).** (1) The **Receipt** page already exists (`portal.invoices.receipt`); the redesign restyles it. (2) **Settings** (Profile / Security / Appearance) uses the starter kit's existing settings routes/pages; the redesign only restyles them (extra fields are BCR-11/BCR-10). (3) The **503** maintenance state is rendered by the existing Inertia `error` page (BCR-20 ✅), which also serves 403/404/419/500. (4) No route, controller or prop is added or renamed by the UI migration unless a BCR is approved.
 
 ### Staff console `/admin/*` **[INFERRED]** (middleware: `auth`, `verified`, `portal.2fa`, `can:access-admin`)
 
@@ -184,6 +188,10 @@ All tables use ULIDs (`HasUlids`) except Laravel's own (sessions, jobs…). Time
 
 ---
 
+### 4.4 Approved additions (Redesign 2026 — specs in `BACKEND-CHANGE-REQUESTS.md`)
+
+`users`: `title`, `office` (slug), `avatar_path`, `password_changed_at`; `appointments`: `scheduled_at`, `join_url`; `invoices`: `receipt_number` (unique), `payment_method_brand`, `payment_method_last4`; `tax_returns`: `return_summary` (json); new table `message_attachments`; `User` implements `MustVerifyEmail` and Fortify email verification is enabled. Shared Inertia props gain `navCounts`, `honeypot`, and `auth.user.{title,office,officeLabel,avatarUrl}`. Added routes: `profile.avatar.store|destroy`, `settings.security.sessions.destroy`, `portal.messages.attachments.download` (+ admin), `admin.returns.summary`, `admin.clients.export|invite`, `admin.leads.export`.
+
 ## 5. Return-status state machine
 
 ```
@@ -193,7 +201,7 @@ IntakeReceived → InPreparation → ReadyForReview → ESigned → EFiled
 Implement as methods on the `ReturnStatus` enum (`next()`, `nextStepText()`) plus an `AdvanceReturnStatus` action class that writes a `StatusEvent`, updates the return, fires `ReturnStatusChanged` (listener queues a client notification and an AuditLog entry).
 
 - Staff may advance/reverse (reverse requires `reason`). `ReadyForReview → ESigned` is triggered by the client's sign flow.
-- UI: stages ≤ current = completed (indigo check); later = pending ring. "Next step" box uses `nextStepText()`.
+- UI: stages ≤ current = completed; the current stage = "now" (ring + halo; at E-filed the last stage is completed, not "now"). The "Next step" card shows the stage's guidance — copy comes from the frontend map `content/next-steps.ts` until BCR-03 is decided (`nextStepText()` remains for the backend/tests).
 
 | Current        | Next-step text                                                              |
 | -------------- | --------------------------------------------------------------------------- |
@@ -307,50 +315,52 @@ Daily: prune expired password-reset tokens/sessions; retention report; (optional
 
 ---
 
-## 7. Frontend architecture (React 19 + Inertia v3)
+## 7. Frontend architecture (React 19 + Inertia v3) — Redesign 2026
+
+Design source: `frontend/mockups/` + `DESIGN_SYSTEM.md` (v2). Page states: `UI-STATE-MATRIX.md`. Gaps vs backend: `BACKEND-CHANGE-REQUESTS.md`.
 
 ```
 resources/
-  css/app.css                  Tailwind v4 import, @theme tokens, shadcn CSS variables (see DESIGN_SYSTEM.md §1)
+  css/app.css                  THE ONLY stylesheet: Tailwind v4 import, light/.dark token variables, @theme inline, custom breakpoints, base layer (DESIGN_SYSTEM.md §3.1)
   js/
-    app.tsx                    createInertiaApp (pages glob: ./pages/**/*.tsx)
-    ssr.tsx                    Inertia SSR entry
+    app.tsx  ssr.tsx           Inertia entry (imports Fontsource Geist + Geist Mono)
     pages/
-      home.tsx services.tsx pricing.tsx about.tsx contact.tsx legal/show.tsx
-      auth/ access.tsx forgot-password.tsx reset-password.tsx verify-email.tsx two-factor-challenge.tsx
-      portal/ overview.tsx documents.tsx appointments.tsx referrals.tsx messages.tsx security.tsx sign.tsx
-      admin/ leads.tsx clients.tsx client-show.tsx referrals.tsx
-    layouts/ marketing-layout.tsx  portal-layout.tsx  admin-layout.tsx  auth-layout.tsx
+      home.tsx services.tsx pricing.tsx about.tsx contact.tsx error.tsx legal/privacy.tsx legal/terms.tsx legal/security.tsx
+      auth/ access.tsx (login+register views) verify-email.tsx (unreachable: BCR-23) two-factor-challenge.tsx forgot-password.tsx reset-password.tsx confirm-password.tsx
+      portal/ overview.tsx documents.tsx appointments.tsx messages.tsx referrals.tsx security.tsx sign.tsx receipt.tsx
+      admin/ clients.tsx client-show.tsx leads.tsx referrals.tsx
+      settings/ profile.tsx security.tsx appearance.tsx
+      dev/ styleguide.tsx      existing local-only page, extended with the state/fixture gallery (no route change)
+    layouts/ site-layout.tsx auth-layout.tsx portal-layout.tsx admin-layout.tsx settings-layout.tsx   (portal/admin wrap <AppShell>)
     components/
-      ui/                      shadcn: button input textarea select label card badge accordion carousel dialog sheet sonner table separator skeleton progress input-otp checkbox dropdown-menu alert
-      layout/                  site-header.tsx site-footer.tsx reveal.tsx logo.tsx
-      marketing/               hero stats-strip tier-card tier-grid addon-table addon-cards how-it-works testimonial-carousel video-library video-card office-card office-grid referral-banner faq-list lead-quote-form consult-form newsletter-form
-      portal/                  status-stepper next-step-box invoice-card stat-tile document-uploader document-list appointment-form appointment-list referral-link-box referral-form referral-list message-list portal-tabs
-    hooks/                     use-reveal.ts use-copy.ts
-    lib/                       utils.ts (cn), format.ts (currency/date)
-    types/                     index.d.ts (Site, User, Tier, Document, Appointment, Referral, Message, Offices…)
-    actions/ routes/           Wayfinder-generated (do not edit)
+      ui/                      shadcn generated + restyled (only components whose packages are installed; excluded from lint)
+      primitives/              v2 primitives: shell, chip, status-label, field, password-input, choice-group, file-dropzone, metric-strip, row-list, data-table, table-toolbar, seg, empty-state, note, key-value, timeline, calendar-tile, return-stepper, next-step-card, confirm-dialog, theme-toggle, avatar, skip-link, sky-backdrop
+      layout/                  site-nav site-footer site-band cta-band app-shell sidebar-nav profile-row auth-art
+      home/ …                  home sections (ported from frontend/resources/js/components/home)
+      marketing/ portal/ admin/  page view components (presentational, take explicit props)
+    content/                   frontend-only copy: next-steps.ts team.ts pricing.ts services.ts faqs.ts (per-page subsets)
+    dev/fixtures/              per-page state fixtures rendered by /dev/styleguide
+    hooks/                     use-appearance.ts use-copy.ts use-quote-form.ts use-honeypot.ts use-display-prefs.ts
+    lib/                       utils.ts (cn) format.ts tier-guide.ts (finder truth table)
+    types/ …  actions/ routes/ Wayfinder-generated (do not edit)
 ```
 
-**Behavioral details**
+**Rules**
 
-- **Layouts via Inertia persistent layouts** (`Page.layout = ...`). `marketing-layout` = Header + Footer; `portal-layout` = Header + welcome block + tier badge + tabs + Footer; auth pages use `marketing-layout` (guest header variant).
-- **Header** reads `auth.user` from shared props: guest → "Client Login" + "Start My Return Online"; authed → "My Portal" + "Sign out" (`<Link method="post" as="button">` to `/logout`). Mobile nav uses shadcn **Sheet**.
-- **Forms** use Inertia `useForm` (or the `<Form>` component) with Wayfinder route helpers; field errors from `errors`; `processing` drives button pending text; success via flash → Sonner toast, or an inline success panel for public lead forms (read `flash`/`recentlySuccessful`).
-- **Auth card** (`auth/access.tsx`): receives `mode`; toggle links are Inertia `<Link href="/register">`/`/login` (preserve `tier`/`next` query). Title stays "Sign in to Okojie Online" in both modes (observed). Inputs have `aria-label` since no visible labels.
-- **Accordions:** shadcn Accordion (`type="multiple"`).
-- **Testimonials:** shadcn **Carousel** (Embla) with `CarouselPrevious/Next` styled as 36px outlined circles; 3 slides per view ≥1024, 1 on mobile.
-- **Video card:** thumbnail + play button → shadcn Dialog with `<video controls>` or privacy-enhanced iframe; no URL ⇒ disabled "Coming soon".
-- **Portal tabs:** Inertia `<Link>`s styled as a segmented control; active when `url.startsWith(href)`; `aria-current="page"`.
-- **Document uploader:** `useForm({ type, file })`, `forceFormData`, drag-and-drop zone + hidden `<input type=file>` + visible "Browse files" button; show `progress` using shadcn Progress.
+- **Pages are thin wrappers.** `pages/*` map `usePage().props` → a presentational **View** that takes explicit props; fixtures render every state without the backend.
+- **Page contract is frozen:** component names, prop shapes, form field names and Wayfinder route names do not change (tests assert them).
+- **No other CSS.** No `<style>`, no CSS files, no CSS modules, no `@apply` outside the base layer/shadcn files. Dynamic values go through CSS variables set with `style`.
+- **Layouts via Inertia persistent layouts** (`Page.layout = …`). `SiteLayout` takes a `band` prop (eyebrow, icon, title with `<em>`, lead, CTAs) or none; `AuthLayout` renders the split screen; `AppShell` renders sidebar + topbar for portal/admin/settings.
+- **Theme:** `.dark` class via `use-appearance` (light / dark / system); no `data-theme`.
+- **Header/nav** read `auth.user` from shared props (guest vs authed variants, no flash). Sidebar badges only from data present (BCR-12).
+- **Forms:** Inertia `useForm`/`<Form>` + Wayfinder helpers; Field primitive wires `aria-describedby`/`aria-invalid`; success via Sonner toasts using the mockup copy.
+- **Seg/tabs:** state segs (`role=tablist`) for in-page switches (Contact, admin filters); route navs are `<Link aria-current="page">` (sidebar, settings sub-nav).
+- **Dialogs:** shadcn AlertDialog/Dialog (replace native `<dialog>`), focus trap + restore.
 - **Downloads:** plain `<a href>` (not Inertia) so the browser follows the 302 to the signed URL.
-- **Copy button:** `navigator.clipboard.writeText`; label "Copied" for 2 s.
-- **Dates:** native `<input type="date">` (observed). Send `YYYY-MM-DD`.
-- **Reveal animation:** `<Reveal>` with IntersectionObserver; honors `prefers-reduced-motion`; content visible when JS/SSR-hydration absent.
-- **SSR:** enabled for all public pages; guard browser-only APIs (`window`, `IntersectionObserver`) inside effects.
-- **Metadata:** Inertia `<Head>` per page (title template `"{Page} | Okojie Online"`, description, OG, JSON-LD scripts). `noindex` meta on auth/portal/admin plus `X-Robots-Tag` middleware.
-
----
+- **Copy button:** `navigator.clipboard.writeText`, label "Copied" for 2s + toast.
+- **Dates:** native `<input type="date">`; send `YYYY-MM-DD`.
+- **SSR:** public pages server-rendered; browser-only APIs inside effects; no hydration mismatch in either theme.
+- **Metadata:** Inertia `<Head>` per page (title template `"{Page} | Okojie Online"`, description, OG, JSON-LD); `noindex` on auth/portal/admin/settings.
 
 ## 8. Security & compliance spec
 
@@ -358,11 +368,11 @@ These support the site's **[CLAIMED]** statements; they are not a certification.
 
 **Authentication & sessions** — Fortify with bcrypt/argon2id (`config/hashing.php` → argon2id), generic error messages, login throttling, session regeneration, idle timeout 20 min (`SESSION_LIFETIME=20`) plus absolute 12 h via middleware, `Secure`/`HttpOnly`/`SameSite=Lax` cookies, **Fortify two-factor (TOTP) + 8 recovery codes**, `confirmPassword` before sensitive changes.
 
-**Authorization** — Policies on every portal/admin resource; tests for IDOR across all five portal tabs.
+**Authorization** — Policies on every portal/admin resource; tests for IDOR across every portal page.
 
 **Data protection** — TLS + HSTS; DB encryption at rest at the provider; S3 SSE-KMS; private disk only, random keys, **temporary URLs ≤ 60 s**; ClamAV scanning; EXIF stripping for images; if SSN/TIN fields are ever stored use `encrypted` Eloquent casts and masking (avoid storing if possible). Encrypted backups with tested restores and a retention schedule set with counsel (IRS preparers generally retain returns at least 3 years).
 
-**Application security** — Laravel CSRF (Inertia sends the XSRF cookie/header automatically); CSP + security headers middleware (`default-src 'self'`; allow Stripe, Cloudflare Turnstile; nonce for inline JSON-LD), `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` minimal; rate limiting; Eloquent mass-assignment guarded (`$fillable`); never output unescaped user HTML; `composer audit` + `npm audit` in CI; secrets only in env.
+**Application security** — Fonts are self-hosted (Fontsource), so the CSP needs no Google Fonts allowance; Laravel CSRF (Inertia sends the XSRF cookie/header automatically); CSP + security headers middleware (`default-src 'self'`; allow Stripe, Cloudflare Turnstile; nonce for inline JSON-LD), `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` minimal; rate limiting; Eloquent mass-assignment guarded (`$fillable`); never output unescaped user HTML; `composer audit` + `npm audit` in CI; secrets only in env.
 
 **Compliance artifacts outside code** — WISP (IRS Pub 4557 / FTC Safeguards Rule: coordinator, risk assessment, safeguards, vendor oversight, incident response, annual review); Form 7216 consent language and Form 8879 handling reviewed by counsel (IRS Pub 1345 if an Authorized e-file Provider); privacy policy and terms; CAN-SPAM unsubscribe; PA/MD breach-notification procedure.
 
@@ -370,15 +380,15 @@ These support the site's **[CLAIMED]** statements; they are not a certification.
 
 ## 9. Accessibility spec
 
-- Body text contrast ≥ 4.5:1 on dark surfaces (muted text never below ~#9ea1b3 on #1c1d2a).
-- Every input has a programmatic label (use shadcn `Label`; `aria-label` where the design shows none).
-- Focus ring: 2px indigo (`--ring`) with 2px offset on all interactive elements.
-- shadcn Accordion/Dialog/Sheet/Carousel supply ARIA semantics — keep their roles; label prev/next buttons and play buttons (`aria-label="Play: {title}"`).
-- Portal tabs: `aria-current="page"`.
-- Errors linked via `aria-describedby`, announced in `aria-live="polite"`.
-- Reduced motion: disable reveal/transform transitions.
+See `DESIGN_SYSTEM.md` §8. Summary:
 
----
+- Skip link first in every layout; landmarks labelled; sections `aria-labelledby`.
+- Body and tertiary text ≥ 4.5:1 in **both** themes (verify the `--fg-3` token on shell/sunken surfaces with axe; adjust the token if it fails).
+- Every input has a visible label (v1's unlabeled login is gone).
+- Focus ring: `:focus-visible` 2px `--primary` outline with 2px offset on all interactive elements.
+- shadcn Accordion/Dialog/Sheet semantics kept; stepper `role=list` + `aria-current="step"`; state tabs `role=tablist/tab`; route navs `aria-current="page"`; `role=status`/`alert` for feedback.
+- Errors linked via `aria-describedby`, announced politely.
+- Reduced motion: `prefers-reduced-motion` and Settings → Appearance "Reduce motion".
 
 ## 10. SEO & metadata
 
@@ -404,13 +414,13 @@ Seeders (`database/seeders`):
 
 ---
 
-## 12. Testing plan (Pest 4)
+## 12. Testing plan (Pest 5)
 
 - **Unit:** referral-code generator, `ReturnStatus` transitions/next-step text, currency/date formatters, validators (`SafeUpload`, `TurnstileRule` with `Http::fake`).
 - **Feature (HTTP + Inertia assertions `assertInertia`):** each page returns the right component and props; lead forms persist and email (`Mail::fake`/`Notification::fake`); register creates User+TaxReturn+Invoice+referral code and applies `tier`/`ref`; login throttling; 2FA enforcement redirect; documents upload/download/delete rules; appointments; referrals (self/duplicate rejection); invoice checkout (Stripe faked); webhook idempotency; **policy tests: user A cannot view/download/delete user B's documents, appointments, messages, referrals**.
-- **Browser (Pest browser plugin):** journeys J1–J5 from PRD; nav state swap; auth mode toggle; FAQ expand; carousel arrows; each portal tab's empty-state copy equals `CONTENT.md`; upload rejects bad files; copy button.
+- **Manual checklist (no browser plugin installed — DR-06):** journeys J1–J5 from the PRD; nav state swap; auth mode toggle; FAQ expand; carousel arrows; each portal page's empty-state copy matches `CONTENT.md`; upload rejects bad files; copy button. Record in `docs/ui-migration/pages/*.md`.
 - **Visual:** screenshots at 1440/1024/768/390 per page vs. provided screenshots.
-- **A11y:** axe-core run in browser tests; keyboard-only pass.
+- **A11y:** manual axe/Lighthouse by the owner + keyboard-only pass (no browser-test tooling is installed — DR-06).
 - **Static analysis / style:** Larastan (high level), Pint, `tsc --noEmit`, ESLint, Prettier. CI runs `composer test` + `npm run lint && npm run types && npm run build`.
 
 ---

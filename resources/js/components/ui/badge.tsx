@@ -5,30 +5,34 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-colors",
+  "inline-flex h-[22px] w-fit shrink-0 items-center justify-center gap-1.5 rounded-full px-2 text-xs font-medium whitespace-nowrap transition-colors [&>svg]:pointer-events-none [&>svg]:size-3",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-white shadow-xs",
-        secondary:
-          "border-border bg-secondary text-secondary-foreground",
-        destructive:
-          "border-transparent bg-destructive text-white shadow-xs",
-        outline:
-          "border-border text-foreground",
-        hero:
-          "border-primary/30 bg-primary/15 text-primary text-[13px] px-3.5 py-1 font-medium",
-        portalTier:
-          "border-border bg-card text-muted-foreground text-xs px-2.5 py-0.5 font-medium",
-        warning:
-          "border-warning/30 bg-warning/15 text-warning text-xs px-2.5 py-0.5 font-medium",
-        success:
-          "border-success/30 bg-success/15 text-success text-xs px-2.5 py-0.5 font-medium",
+          "bg-brand-soft text-brand",
         accent:
-          "border-primary/30 bg-primary/15 text-primary text-xs px-2.5 py-0.5 font-medium",
+          "bg-brand-soft text-brand",
+        secondary:
+          "bg-sunken text-fg-2 shadow-[inset_0_0_0_1px_var(--border)]",
+        neutral:
+          "bg-sunken text-fg-2 shadow-[inset_0_0_0_1px_var(--border)]",
         muted:
-          "border-border bg-secondary text-muted-foreground text-xs px-2.5 py-0.5 font-medium",
+          "bg-sunken text-fg-2 shadow-[inset_0_0_0_1px_var(--border)]",
+        outline:
+          "bg-card text-fg-2 shadow-[inset_0_0_0_1px_var(--border)]",
+        success:
+          "bg-success-soft text-success",
+        warning:
+          "bg-warning-soft text-warning",
+        danger:
+          "bg-danger-soft text-danger",
+        destructive:
+          "bg-danger-soft text-danger",
+        hero:
+          "h-auto bg-brand-soft px-3 py-1 text-xs font-medium text-brand shadow-chip",
+        portalTier:
+          "bg-sunken text-fg-2 shadow-[inset_0_0_0_1px_var(--border)]",
       },
     },
     defaultVariants: {
@@ -40,18 +44,43 @@ const badgeVariants = cva(
 function Badge({
   className,
   variant,
+  dot = false,
   asChild = false,
+  children,
   ...props
 }: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+  VariantProps<typeof badgeVariants> & {
+    asChild?: boolean
+    dot?: boolean
+  }) {
   const Comp = asChild ? Slot : "span"
+
+  if (asChild) {
+    return (
+      <Comp
+        data-slot="badge"
+        className={cn(badgeVariants({ variant }), className)}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
 
   return (
     <Comp
       data-slot="badge"
       className={cn(badgeVariants({ variant }), className)}
       {...props}
-    />
+    >
+      {dot && (
+        <span
+          className="size-1.5 shrink-0 rounded-full bg-current"
+          aria-hidden="true"
+        />
+      )}
+      {children}
+    </Comp>
   )
 }
 

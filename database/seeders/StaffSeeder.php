@@ -15,7 +15,7 @@ class StaffSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
+        $preparer = User::firstOrCreate(
             ['email' => 'preparer@example.com'],
             [
                 'name' => 'Staff Preparer',
@@ -27,8 +27,11 @@ class StaffSeeder extends Seeder
                 'referral_code' => UserFactory::generateReferralCode(),
             ]
         );
+        if (! $preparer->hasVerifiedEmail()) {
+            $preparer->markEmailAsVerified();
+        }
 
-        User::firstOrCreate(
+        $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'System Admin',
@@ -40,5 +43,8 @@ class StaffSeeder extends Seeder
                 'referral_code' => UserFactory::generateReferralCode(),
             ]
         );
+        if (! $admin->hasVerifiedEmail()) {
+            $admin->markEmailAsVerified();
+        }
     }
 }

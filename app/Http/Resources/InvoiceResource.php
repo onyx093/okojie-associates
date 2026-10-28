@@ -34,6 +34,8 @@ class InvoiceResource extends JsonResource
             'currency' => $this->currency,
             'status' => $this->status->value,
             'paid_at' => $this->paid_at?->toIso8601String(),
+            'receipt_number' => $this->receipt_number,
+            'payment_method' => $this->paymentMethodSummary(),
         ];
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\AppearanceController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -10,6 +11,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('settings/profile/avatar', [ProfileController::class, 'storeAvatar'])->name('profile.avatar.store');
+    Route::delete('settings/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -19,11 +22,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware(RequirePassword::class)
         ->name('security.edit');
 
+    Route::delete('settings/security/sessions', [SecurityController::class, 'destroyOtherSessions'])
+        ->middleware(RequirePassword::class)
+        ->name('settings.security.sessions.destroy');
+
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('settings.password.update');
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
+    Route::patch('settings/appearance/preferences', [AppearanceController::class, 'update'])
+        ->name('appearance.preferences.update');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

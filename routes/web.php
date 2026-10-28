@@ -17,6 +17,7 @@ use App\Http\Controllers\Portal\SecurityController as PortalSecurityController;
 use App\Http\Controllers\Portal\SignController;
 use App\Http\Controllers\Portal\TierController;
 use App\Http\Controllers\PricingController;
+use App\Http\Controllers\ReferralRedirectController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,9 @@ Route::get('/services', ServicesController::class)->name('services');
 Route::get('/pricing', PricingController::class)->name('pricing');
 Route::get('/about', AboutController::class)->name('about');
 Route::get('/contact', ContactController::class)->name('contact');
+Route::get('/r/{code}', ReferralRedirectController::class)
+    ->middleware('throttle:60,1')
+    ->name('referral.redirect');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::inertia('/security', 'legal/security')->name('security');
 Route::inertia('/privacy', 'legal/privacy')->name('privacy');
@@ -37,10 +41,6 @@ Route::middleware(['throttle:public-forms', ProtectAgainstSpam::class])->group(f
     Route::post('/leads/quote', [LeadController::class, 'quote'])->name('leads.quote');
     Route::post('/leads/consult', [LeadController::class, 'consult'])->name('leads.consult');
     Route::post('/newsletter/subscribe', [NewsletterController::class, 'store'])->name('newsletter.subscribe');
-});
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
 });
 
 Route::redirect('portal', '/portal/overview')->name('portal');
@@ -68,6 +68,7 @@ Route::middleware(['auth', 'verified', 'portal.2fa'])->prefix('portal')->name('p
     // Messages
     Route::get('messages', [MessageController::class, 'index'])->name('messages');
     Route::post('messages/read', [MessageController::class, 'markRead'])->name('messages.read');
+    Route::get('messages/attachments/{attachment}/download', [MessageController::class, 'downloadAttachment'])->name('messages.attachments.download');
 
     // Invoices & Checkout
     Route::post('invoices/{invoice}/checkout', [App\Http\Controllers\Portal\InvoiceController::class, 'checkout'])->name('invoices.checkout');
@@ -86,18 +87,22 @@ Route::middleware(['auth', 'verified', 'portal.2fa', 'can:access-admin'])
 
         // Leads inbox
         Route::get('leads', [App\Http\Controllers\Admin\LeadController::class, 'index'])->name('leads.index');
+        Route::get('leads/export', [App\Http\Controllers\Admin\LeadController::class, 'export'])->name('leads.export');
         Route::patch('leads/{lead}/status', [App\Http\Controllers\Admin\LeadController::class, 'updateStatus'])->name('leads.status');
         Route::patch('leads/{lead}/notes', [App\Http\Controllers\Admin\LeadController::class, 'updateNotes'])->name('leads.notes');
         Route::post('leads/{lead}/convert', [App\Http\Controllers\Admin\LeadController::class, 'convert'])->name('leads.convert');
 
         // Clients
         Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+        Route::get('clients/export', [ClientController::class, 'export'])->name('clients.export');
+        Route::post('clients/invite', [ClientController::class, 'invite'])->name('clients.invite');
         Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show');
         Route::patch('clients/{client}/tier', [ClientController::class, 'updateTier'])->name('clients.tier');
         Route::patch('clients/{client}/preparer', [ClientController::class, 'assignPreparer'])->name('clients.preparer');
 
-        // Tax return status & invoice
+        // Tax return status, summary & invoice
         Route::patch('tax-returns/{taxReturn}/status', [TaxReturnController::class, 'updateStatus'])->name('returns.status');
+        Route::patch('tax-returns/{taxReturn}/summary', [TaxReturnController::class, 'updateSummary'])->name('returns.summary');
         Route::patch('tax-returns/{taxReturn}/invoice', [InvoiceController::class, 'update'])->name('invoices.update');
 
         // Appointments
@@ -105,6 +110,7 @@ Route::middleware(['auth', 'verified', 'portal.2fa', 'can:access-admin'])
 
         // Messages to client
         Route::post('clients/{client}/messages', [App\Http\Controllers\Admin\MessageController::class, 'store'])->name('clients.messages.store');
+        Route::get('messages/attachments/{attachment}/download', [App\Http\Controllers\Admin\MessageController::class, 'downloadAttachment'])->name('messages.attachments.download');
 
         // Referrals
         Route::get('referrals', [App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals.index');
