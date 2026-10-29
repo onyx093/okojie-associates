@@ -6,6 +6,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
+import { cn } from '@/lib/utils';
 import { overview } from '@/routes/portal';
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
     label?: string;
     loadingLabel?: string;
     separator?: string;
+    variant?: 'default' | 'below';
+    className?: string;
 };
 
 export default function PasskeyVerify({
@@ -23,6 +26,8 @@ export default function PasskeyVerify({
     label,
     loadingLabel,
     separator,
+    variant = 'default',
+    className,
 }: Props = {}) {
     const { verify, isLoading, error, isSupported } = usePasskeyVerify({
         ...(routes && {
@@ -40,9 +45,39 @@ export default function PasskeyVerify({
         return null;
     }
 
+    if (variant === 'below') {
+        return (
+            <div className={cn('grid gap-2', className)}>
+                <div className="my-1 flex items-center gap-3 text-[12.5px] text-muted-foreground before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+                    {separator ?? 'or'}
+                </div>
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="lg"
+                    className="h-11 w-full gap-2 text-sm font-medium"
+                    onClick={verify}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <Spinner className="size-4" />
+                    ) : (
+                        <KeyRound className="size-4" />
+                    )}
+                    {isLoading
+                        ? (loadingLabel ?? 'Authenticating...')
+                        : (label ?? 'Sign in with a passkey')}
+                </Button>
+                {error && (
+                    <InputError message={error} className="text-center" />
+                )}
+            </div>
+        );
+    }
+
     return (
         <>
-            <div className="grid gap-2">
+            <div className={cn('grid gap-2', className)}>
                 <Button
                     type="button"
                     variant="outline"

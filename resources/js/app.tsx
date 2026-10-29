@@ -6,7 +6,6 @@ import AppLayout from '@/layouts/app-layout';
 import AppShellLayout from '@/layouts/app-shell-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import AuthScreenLayout from '@/layouts/auth-screen-layout';
-import MarketingLayout from '@/layouts/marketing-layout';
 import SettingsShellLayout from '@/layouts/settings-shell-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import SiteLayout from '@/layouts/site-layout';
@@ -47,8 +46,13 @@ void createInertiaApp({
         switch (true) {
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];
-            case name === 'auth/access':
-                return MarketingLayout;
+            case name === 'auth/access' ||
+                name === 'auth/verify-email' ||
+                name === 'auth/two-factor-challenge' ||
+                name === 'auth/forgot-password' ||
+                name === 'auth/reset-password' ||
+                name === 'auth/confirm-password':
+                return null;
             case name.startsWith('auth/'):
                 return AuthLayout;
             default:

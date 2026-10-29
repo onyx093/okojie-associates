@@ -1,133 +1,208 @@
-import { Form, Head, setLayoutProps } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
-import { useMemo, useState } from 'react';
-import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
+import { ShieldCheck } from 'lucide-react';
+import * as React from 'react';
+
+import { Button, Field } from '@/components/primitives';
 import { Input } from '@/components/ui/input';
 import {
     InputOTP,
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
+import { Spinner } from '@/components/ui/spinner';
+import { AuthScreenLayout } from '@/layouts/auth-screen-layout';
 import { store } from '@/routes/two-factor/login';
 
-export default function TwoFactorChallenge() {
-    const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
-    const [code, setCode] = useState<string>('');
+export interface TwoFactorChallengeProps {
+    initialRecovery?: boolean;
+    initialCode?: string;
+    initialRecoveryCode?: string;
+    initialErrors?: {
+        code?: string;
+        recovery_code?: string;
+    };
+    isSubmitting?: boolean;
+}
 
-    const authConfigContent = useMemo<{
-        title: string;
-        description: string;
-        toggleText: string;
-    }>(() => {
-        if (showRecoveryInput) {
-            return {
-                title: 'Recovery code',
-                description:
-                    'Please confirm access to your account by entering one of your emergency recovery codes.',
-                toggleText: 'login using an authentication code',
-            };
-        }
+export default function TwoFactorChallenge({
+    initialRecovery = false,
+    initialCode = '',
+    initialRecoveryCode = '',
+    initialErrors,
+    isSubmitting,
+}: TwoFactorChallengeProps) {
+    const [isRecovery, setIsRecovery] =
+        React.useState<boolean>(initialRecovery);
 
-        return {
-            title: 'Authentication code',
-            description:
-                'Enter the authentication code provided by your authenticator application.',
-            toggleText: 'login using a recovery code',
-        };
-    }, [showRecoveryInput]);
-
-    setLayoutProps({
-        title: authConfigContent.title,
-        description: authConfigContent.description,
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        errors,
+        clearErrors,
+        reset,
+        transform,
+    } = useForm({
+        code: initialCode,
+        recovery_code: initialRecoveryCode,
     });
 
-    const toggleRecoveryMode = (clearErrors: () => void): void => {
-        setShowRecoveryInput(!showRecoveryInput);
+    const effectiveProcessing = processing || Boolean(isSubmitting);
+    const activeErrors = React.useMemo(
+        () => ({
+            ...errors,
+            ...initialErrors,
+        }),
+        [errors, initialErrors],
+    );
+
+    const switchToRecovery = () => {
+        setIsRecovery(true);
         clearErrors();
-        setCode('');
+        setData({ code: '', recovery_code: '' });
+    };
+
+    const switchToCode = () => {
+        setIsRecovery(false);
+        clearErrors();
+        setData({ code: '', recovery_code: '' });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        transform((formData) =>
+            isRecovery
+                ? { recovery_code: formData.recovery_code }
+                : { code: formData.code },
+        );
+
+        post(store.url(), {
+            onFinish: () => {
+                if (isRecovery) {
+                    reset('recovery_code');
+                } else {
+                    reset('code');
+                }
+            },
+        });
     };
 
     return (
-        <>
-            <Head title="Two-factor authentication" />
-
-            <div className="space-y-6">
-                <Form
-                    {...store.form()}
-                    className="space-y-4"
-                    resetOnError
-                    resetOnSuccess={!showRecoveryInput}
-                >
-                    {({ errors, processing, clearErrors }) => (
-                        <>
-                            {showRecoveryInput ? (
-                                <>
-                                    <Input
-                                        name="recovery_code"
-                                        type="text"
-                                        placeholder="Enter recovery code"
-                                        autoFocus={showRecoveryInput}
-                                        required
-                                    />
-                                    <InputError
-                                        message={errors.recovery_code}
-                                    />
-                                </>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center space-y-3 text-center">
-                                    <div className="flex w-full items-center justify-center">
-                                        <InputOTP
-                                            name="code"
-                                            maxLength={OTP_MAX_LENGTH}
-                                            value={code}
-                                            onChange={(value) => setCode(value)}
-                                            disabled={processing}
-                                            pattern={REGEXP_ONLY_DIGITS}
-                                            autoFocus
-                                        >
-                                            <InputOTPGroup>
-                                                {Array.from(
-                                                    { length: OTP_MAX_LENGTH },
-                                                    (_, index) => (
-                                                        <InputOTPSlot
-                                                            key={index}
-                                                            index={index}
-                                                        />
-                                                    ),
-                                                )}
-                                            </InputOTPGroup>
-                                        </InputOTP>
-                                    </div>
-                                    <InputError message={errors.code} />
-                                </div>
-                            )}
-
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={processing}
+        <AuthScreenLayout
+            headTitle="Two-factor authentication — Okojie Online"
+            iconTile={<ShieldCheck className="size-5" />}
+            title={
+                isRecovery ? 'Use a recovery code' : 'Enter your 6-digit code'
+            }
+            lead={
+                isRecovery
+                    ? 'Enter one of the recovery codes you saved when you set up two-factor authentication. Each code works once.'
+                    : 'Open your authenticator app and type the code for Okojie Online.'
+            }
+            switchLine={
+                isRecovery ? (
+                    <button
+                        type="button"
+                        onClick={switchToCode}
+                        className="cursor-pointer font-medium text-brand hover:underline"
+                    >
+                        Use your authenticator app instead
+                    </button>
+                ) : (
+                    <span>
+                        Lost your phone?{' '}
+                        <button
+                            type="button"
+                            onClick={switchToRecovery}
+                            className="cursor-pointer font-medium text-brand hover:underline"
+                        >
+                            Use a recovery code
+                        </button>
+                    </span>
+                )
+            }
+        >
+            <form onSubmit={handleSubmit} className="grid gap-4" noValidate>
+                {isRecovery ? (
+                    <Field
+                        label="Recovery code"
+                        htmlFor="recovery_code"
+                        error={activeErrors.recovery_code}
+                    >
+                        <Input
+                            id="recovery_code"
+                            name="recovery_code"
+                            type="text"
+                            autoComplete="one-time-code"
+                            placeholder="XXXX-XXXX"
+                            value={data.recovery_code}
+                            onChange={(e) =>
+                                setData('recovery_code', e.target.value)
+                            }
+                            required
+                            autoFocus
+                            className="h-11 font-mono tracking-[0.06em]"
+                            aria-invalid={Boolean(activeErrors.recovery_code)}
+                            aria-describedby={
+                                activeErrors.recovery_code
+                                    ? 'recovery_code-error'
+                                    : undefined
+                            }
+                        />
+                    </Field>
+                ) : (
+                    <div className="flex flex-col items-center justify-center gap-2">
+                        <InputOTP
+                            id="code"
+                            name="code"
+                            maxLength={6}
+                            value={data.code}
+                            onChange={(val) => setData('code', val)}
+                            disabled={effectiveProcessing}
+                            pattern={REGEXP_ONLY_DIGITS}
+                            autoFocus
+                            aria-label="Six-digit authentication code"
+                            aria-invalid={Boolean(activeErrors.code)}
+                            aria-describedby={
+                                activeErrors.code ? 'code-error' : undefined
+                            }
+                        >
+                            <InputOTPGroup className="justify-center gap-2">
+                                {Array.from({ length: 6 }, (_, index) => (
+                                    <InputOTPSlot key={index} index={index} />
+                                ))}
+                            </InputOTPGroup>
+                        </InputOTP>
+                        {activeErrors.code && (
+                            <div
+                                id="code-error"
+                                role="alert"
+                                aria-live="polite"
+                                className="w-full text-center"
                             >
-                                Continue
-                            </Button>
-
-                            <div className="text-center text-sm text-muted-foreground">
-                                <span>or you can </span>
-                                <button
-                                    type="button"
-                                    className="cursor-pointer text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                                    onClick={() =>
-                                        toggleRecoveryMode(clearErrors)
-                                    }
-                                >
-                                    {authConfigContent.toggleText}
-                                </button>
+                                <p className="text-[13px] text-danger">
+                                    {activeErrors.code}
+                                </p>
                             </div>
-                        </>
-                    )}
-                </Form>
-            </div>
-        </>
+                        )}
+                    </div>
+                )}
+
+                <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    block
+                    disabled={effectiveProcessing}
+                    className="mt-1 h-11 text-sm font-medium"
+                >
+                    {effectiveProcessing && <Spinner className="mr-2 size-4" />}
+                    {effectiveProcessing ? 'Verifying…' : 'Continue'}
+                </Button>
+            </form>
+        </AuthScreenLayout>
     );
 }
