@@ -73,7 +73,12 @@ export function SignInForm({
             )}
 
             {errorMessage && (
-                <Note tone="warn" role="alert" className="mb-2">
+                <Note
+                    id="signin-error"
+                    tone="warn"
+                    role="alert"
+                    className="mb-2"
+                >
                     {errorMessage}
                 </Note>
             )}
@@ -92,6 +97,7 @@ export function SignInForm({
                     required
                     className="h-11"
                     aria-invalid={Boolean(activeErrors.email)}
+                    aria-describedby={errorMessage ? 'signin-error' : undefined}
                 />
             </Field>
 
@@ -121,6 +127,7 @@ export function SignInForm({
                     aria-invalid={Boolean(
                         activeErrors.password || activeErrors.email,
                     )}
+                    aria-describedby={errorMessage ? 'signin-error' : undefined}
                 />
             </Field>
 

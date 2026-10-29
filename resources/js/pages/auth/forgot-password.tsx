@@ -55,6 +55,9 @@ export default function ForgotPassword({
         }));
         post(passwordEmail.url(), {
             preserveScroll: true,
+            onFinish: () => {
+                transform((currentData) => currentData);
+            },
         });
     };
 

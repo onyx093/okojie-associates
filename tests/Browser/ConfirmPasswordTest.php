@@ -66,7 +66,9 @@ it('confirms password successfully for authenticated user', function () {
         ->on()->desktop()
         ->assertNoSmoke()
         ->fill('#password', 'CorrectHorseBattery99!')
-        ->click('button[type="submit"]:has-text("Confirm password")');
+        ->click('button[type="submit"]:has-text("Confirm password")')
+        ->assertMissing('#password-error')
+        ->assertNoSmoke();
 });
 
 it('renders styleguide page-confirm-password fixture states cleanly', function () {

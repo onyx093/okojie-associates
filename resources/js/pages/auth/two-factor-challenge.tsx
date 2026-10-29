@@ -164,6 +164,7 @@ export default function TwoFactorChallenge({
                             disabled={effectiveProcessing}
                             pattern={REGEXP_ONLY_DIGITS}
                             autoFocus
+                            aria-label="Six-digit authentication code"
                             aria-invalid={Boolean(activeErrors.code)}
                             aria-describedby={
                                 activeErrors.code ? 'code-error' : undefined

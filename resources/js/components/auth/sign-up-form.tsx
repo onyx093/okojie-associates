@@ -228,6 +228,9 @@ export function SignUpForm({
                             }
                         }}
                         aria-invalid={Boolean(activeErrors.terms)}
+                        aria-describedby={
+                            activeErrors.terms ? 'terms-error' : undefined
+                        }
                         className="mt-0.5"
                     />
                     <span className="leading-snug">
