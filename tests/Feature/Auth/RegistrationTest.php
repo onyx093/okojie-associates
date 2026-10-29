@@ -148,3 +148,37 @@ test('registration rejects password shorter than 12 characters', function () {
         'password' => 'Password must be at least 12 characters.',
     ]);
 });
+
+test('new users can register with full name', function () {
+    Notification::fake();
+
+    $response = $this->post(route('register.store'), [
+        'name' => 'Denise Richardson',
+        'email' => 'denise.richardson@example.com',
+        'password' => 'CorrectHorseBattery99!',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('portal.overview'));
+
+    $user = User::where('email', 'denise.richardson@example.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->name)->toBe('Denise Richardson');
+});
+
+test('new users can register without full name because backend allows nullable name', function () {
+    Notification::fake();
+
+    $response = $this->post(route('register.store'), [
+        'name' => null,
+        'email' => 'noname@example.com',
+        'password' => 'CorrectHorseBattery99!',
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(route('portal.overview'));
+
+    $user = User::where('email', 'noname@example.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->name)->toBeNull();
+});
