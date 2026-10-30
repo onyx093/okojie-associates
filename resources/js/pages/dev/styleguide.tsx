@@ -145,6 +145,7 @@ import '@/dev/fixtures/pages/portal-appointments';
 import '@/dev/fixtures/pages/portal-messages';
 import '@/dev/fixtures/pages/portal-referrals';
 import '@/dev/fixtures/pages/portal-security';
+import '@/dev/fixtures/pages/portal-sign';
 import { useAppearance, type Appearance } from '@/hooks/use-appearance';
 import { MarketingLayout } from '@/layouts/marketing-layout';
 import { cn } from '@/lib/utils';
