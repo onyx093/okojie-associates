@@ -1,12 +1,12 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import {
-    AlertTriangle,
     Check,
     Copy,
+    Key,
     KeyRound,
     RefreshCw,
-    ShieldAlert,
+    Shield,
     ShieldCheck,
 } from 'lucide-react';
 import * as React from 'react';
@@ -14,18 +14,20 @@ import { toast } from 'sonner';
 
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/primitives/button';
+import { Chip } from '@/components/primitives/chip';
+import { Note } from '@/components/primitives/empty-state';
+import { Inner, Shell, ShellHead } from '@/components/primitives/shell';
 import {
     InputOTP,
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
-import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH, useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
-import { PortalLayout } from '@/layouts/portal-layout';
+import { AppShellLayout } from '@/layouts/app-shell-layout';
 import {
     confirm as confirmTwoFactor,
     disable as disableTwoFactor,
@@ -34,20 +36,473 @@ import {
 } from '@/routes/two-factor';
 import { update as updatePassword } from '@/routes/user-password';
 
-interface SecurityProps {
+export interface SecurityProps {
     twoFactorEnabled: boolean;
     twoFactorConfirmed: boolean;
     hasSecret: boolean;
     passwordRules: string;
+    passwordChangedAt?: string | null;
     status?: string | null;
     error?: string | null;
 }
 
+function formatRelativeTime(dateString?: string | null): string | null {
+    if (!dateString) {
+        return null;
+    }
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+        return null;
+    }
+    const now = new Date();
+    const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (diffSeconds < 60) {
+        return 'Changed just now';
+    }
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) {
+        return `Changed ${diffMinutes}m ago`;
+    }
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+        return `Changed ${diffHours}h ago`;
+    }
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) {
+        return `Changed ${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+    }
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths < 12) {
+        return `Changed ${diffMonths} ${diffMonths === 1 ? 'month' : 'months'} ago`;
+    }
+    const diffYears = Math.floor(diffMonths / 12);
+    return `Changed ${diffYears} ${diffYears === 1 ? 'year' : 'years'} ago`;
+}
+
+interface TwoFactorOffProps {
+    onSetup: () => void;
+    processing?: boolean;
+}
+
+function TwoFactorOff({ onSetup, processing }: TwoFactorOffProps) {
+    return (
+        <div>
+            <p className="text-[14.5px] leading-relaxed text-fg-2">
+                Each time you sign in, you’ll enter a 6-digit code from an
+                authenticator app on your phone, so nobody can get in with just
+                your password.
+            </p>
+            <div className="mt-3.5 flex flex-wrap gap-2">
+                <Chip tone="neutral">Google Authenticator</Chip>
+                <Chip tone="neutral">Microsoft Authenticator</Chip>
+                <Chip tone="neutral">1Password</Chip>
+                <Chip tone="neutral">Apple Passwords</Chip>
+            </div>
+            <Button
+                type="button"
+                variant="primary"
+                onClick={onSetup}
+                disabled={processing}
+                className="mt-5"
+            >
+                {processing
+                    ? 'Initiating…'
+                    : 'Set up two-factor authentication'}
+            </Button>
+        </div>
+    );
+}
+
+interface TwoFactorSetupProps {
+    qrCodeSvg: string | null;
+    manualSetupKey: string | null;
+    otpCode: string;
+    onOtpChange: (val: string) => void;
+    onSubmitOtp: (e: React.FormEvent) => void;
+    onCancel: () => void;
+    processing: boolean;
+    errorMessage?: string;
+}
+
+function TwoFactorSetup({
+    qrCodeSvg,
+    manualSetupKey,
+    otpCode,
+    onOtpChange,
+    onSubmitOtp,
+    onCancel,
+    processing,
+    errorMessage,
+}: TwoFactorSetupProps) {
+    const [, copy] = useClipboard();
+    const [copiedKey, setCopiedKey] = React.useState(false);
+
+    const handleCopyKey = async () => {
+        if (!manualSetupKey) {
+            return;
+        }
+        const ok = await copy(manualSetupKey);
+        if (ok) {
+            setCopiedKey(true);
+            toast.success('Setup key copied');
+            setTimeout(() => setCopiedKey(false), 2000);
+        }
+    };
+
+    const formattedKey = React.useMemo(() => {
+        if (!manualSetupKey) {
+            return '';
+        }
+        return manualSetupKey.match(/.{1,4}/g)?.join(' ') ?? manualSetupKey;
+    }, [manualSetupKey]);
+
+    return (
+        <div className="grid grid-cols-[176px_1fr] items-start gap-6 max-sm:grid-cols-1">
+            {/* QR Box */}
+            <div
+                className="grid size-[176px] place-items-center rounded-[14px] bg-white p-3 shadow-chip max-sm:mx-auto"
+                aria-label="QR code for your authenticator app"
+                role="img"
+            >
+                {qrCodeSvg ? (
+                    <div
+                        className="size-full [&_svg]:size-full"
+                        dangerouslySetInnerHTML={{ __html: qrCodeSvg }}
+                    />
+                ) : (
+                    <Spinner />
+                )}
+            </div>
+
+            {/* Steps & Inputs */}
+            <div>
+                <p className="text-[14.5px] font-medium text-foreground">
+                    1. Scan the QR code
+                </p>
+                <p className="mt-0.5 text-[13.5px] text-fg-3">
+                    Open your authenticator app and scan it. Can’t scan? Enter
+                    this key instead.
+                </p>
+
+                {/* Key box */}
+                <div className="mt-2.5 flex items-center gap-2 rounded-[10px] bg-sunken py-1.5 pr-1.5 pl-3 font-mono text-[13px] tracking-wide text-foreground shadow-[inset_0_0_0_1px_var(--border)]">
+                    <span className="min-w-0 flex-1 truncate select-all">
+                        {formattedKey || 'Loading setup key…'}
+                    </span>
+                    {manualSetupKey && (
+                        <button
+                            type="button"
+                            onClick={handleCopyKey}
+                            aria-label="Copy setup key"
+                            className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-fg-3 transition-colors hover:bg-card hover:text-foreground active:scale-95"
+                        >
+                            {copiedKey ? (
+                                <Check className="size-3.5 text-emerald-600" />
+                            ) : (
+                                <Copy className="size-3.5" />
+                            )}
+                        </button>
+                    )}
+                </div>
+
+                <p className="mt-5 text-[14.5px] font-medium text-foreground">
+                    2. Enter the 6-digit code
+                </p>
+                <p className="mt-0.5 text-[13.5px] text-fg-3">
+                    Type the code your app shows right now.
+                </p>
+
+                <form onSubmit={onSubmitOtp} className="mt-2.5 space-y-4">
+                    <div className="flex justify-start">
+                        <InputOTP
+                            name="code"
+                            maxLength={OTP_MAX_LENGTH}
+                            value={otpCode}
+                            onChange={onOtpChange}
+                            disabled={processing}
+                            pattern={REGEXP_ONLY_DIGITS}
+                            autoFocus
+                        >
+                            <InputOTPGroup className="gap-2">
+                                {Array.from(
+                                    { length: OTP_MAX_LENGTH },
+                                    (_, index) => (
+                                        <InputOTPSlot
+                                            key={index}
+                                            index={index}
+                                            className="h-[52px] w-[46px] font-mono text-xl max-sm:h-[48px] max-sm:w-[40px]"
+                                        />
+                                    ),
+                                )}
+                            </InputOTPGroup>
+                        </InputOTP>
+                    </div>
+
+                    {errorMessage && (
+                        <p className="text-xs text-danger">{errorMessage}</p>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            disabled={
+                                processing || otpCode.length < OTP_MAX_LENGTH
+                            }
+                        >
+                            {processing ? (
+                                <>
+                                    <Spinner className="mr-1.5 size-4" />
+                                    <span>Activating…</span>
+                                </>
+                            ) : (
+                                'Turn on 2FA'
+                            )}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={onCancel}
+                            disabled={processing}
+                            className="text-fg-3 hover:text-foreground"
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+interface TwoFactorOnProps {
+    recoveryCodesList: string[];
+    onCopyCodes: () => void;
+    copiedCodes: boolean;
+    onRegenerateCodes: () => void;
+    onViewCodes: () => void;
+    isFetchingCodes: boolean;
+    onDisable: () => void;
+}
+
+function TwoFactorOn({
+    recoveryCodesList,
+    onCopyCodes,
+    copiedCodes,
+    onRegenerateCodes,
+    onViewCodes,
+    isFetchingCodes,
+    onDisable,
+}: TwoFactorOnProps) {
+    return (
+        <div>
+            {/* Success header */}
+            <div className="flex items-center gap-3.5">
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-success-soft text-success shadow-chip">
+                    <ShieldCheck className="size-5" strokeWidth={1.9} />
+                </span>
+                <div>
+                    <b className="block text-[15px] font-medium text-foreground">
+                        Two-factor authentication is on
+                    </b>
+                    <small className="mt-0.5 block text-[13.5px] text-fg-3">
+                        You’ll enter a code from your authenticator app each
+                        time you sign in.
+                    </small>
+                </div>
+            </div>
+
+            <Separator className="my-5" />
+
+            {/* Recovery codes */}
+            <p className="text-[14.5px] font-medium text-foreground">
+                Recovery codes
+            </p>
+            <p className="mt-0.5 text-[13.5px] text-fg-3">
+                If you lose your phone, each code signs you in once. Keep them
+                in a password manager.
+            </p>
+
+            {recoveryCodesList.length > 0 ? (
+                <>
+                    <div
+                        className="mt-3.5 grid grid-cols-2 gap-1.5 rounded-xl bg-sunken p-3.5 font-mono text-[13.5px] tracking-wide text-foreground shadow-[inset_0_0_0_1px_var(--border)] max-sm:grid-cols-1"
+                        role="list"
+                        aria-label="Recovery codes"
+                    >
+                        {recoveryCodesList.map((code) => (
+                            <span key={code} className="select-all">
+                                {code}
+                            </span>
+                        ))}
+                    </div>
+
+                    <div className="mt-3.5 flex flex-wrap gap-2">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={onCopyCodes}
+                            className="gap-1.5"
+                        >
+                            {copiedCodes ? (
+                                <Check className="size-4 text-emerald-600" />
+                            ) : (
+                                <Copy className="size-4 text-fg-3" />
+                            )}
+                            <span>{copiedCodes ? 'Copied' : 'Copy codes'}</span>
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={onRegenerateCodes}
+                            className="gap-1.5 text-fg-3 hover:text-foreground"
+                        >
+                            <RefreshCw className="size-4" />
+                            <span>Create new codes</span>
+                        </Button>
+                    </div>
+                </>
+            ) : (
+                <div className="mt-3.5">
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={onViewCodes}
+                        disabled={isFetchingCodes}
+                        className="gap-1.5"
+                    >
+                        {isFetchingCodes ? (
+                            <Spinner className="size-4" />
+                        ) : (
+                            <KeyRound className="size-4 text-fg-3" />
+                        )}
+                        <span>View recovery codes</span>
+                    </Button>
+                </div>
+            )}
+
+            <Separator className="my-5" />
+
+            {/* Turn off 2FA */}
+            <Button
+                type="button"
+                variant="danger-ghost"
+                onClick={onDisable}
+                className="-ml-2.5 px-2.5 text-danger hover:bg-danger-soft"
+            >
+                Turn off two-factor authentication
+            </Button>
+            <p className="mt-1 text-xs text-fg-3">
+                Client accounts need 2FA to use the portal, so you’ll be asked
+                to set it up again.
+            </p>
+        </div>
+    );
+}
+
+interface PasswordFormProps {
+    currentPasswordValue: string;
+    newPasswordValue: string;
+    confirmPasswordValue: string;
+    onCurrentPasswordChange: (val: string) => void;
+    onNewPasswordChange: (val: string) => void;
+    onConfirmPasswordChange: (val: string) => void;
+    onSubmit: (e: React.FormEvent) => void;
+    processing: boolean;
+    errors: {
+        current_password?: string;
+        password?: string;
+        password_confirmation?: string;
+    };
+}
+
+function PasswordForm({
+    currentPasswordValue,
+    newPasswordValue,
+    confirmPasswordValue,
+    onCurrentPasswordChange,
+    onNewPasswordChange,
+    onConfirmPasswordChange,
+    onSubmit,
+    processing,
+    errors,
+}: PasswordFormProps) {
+    return (
+        <form onSubmit={onSubmit} className="grid gap-4">
+            <p className="text-[14px] leading-relaxed text-fg-2">
+                Use a long password you don’t use anywhere else: at least 12
+                characters.
+            </p>
+
+            <div className="grid gap-1.5">
+                <label
+                    htmlFor="cur"
+                    className="text-[13px] font-medium text-foreground"
+                >
+                    Current password
+                </label>
+                <PasswordInput
+                    id="cur"
+                    name="current_password"
+                    autoComplete="current-password"
+                    value={currentPasswordValue}
+                    onChange={(e) => onCurrentPasswordChange(e.target.value)}
+                    required
+                />
+                <InputError message={errors.current_password} />
+            </div>
+
+            <div className="grid gap-1.5">
+                <label
+                    htmlFor="new"
+                    className="text-[13px] font-medium text-foreground"
+                >
+                    New password
+                </label>
+                <PasswordInput
+                    id="new"
+                    name="password"
+                    autoComplete="new-password"
+                    showStrengthMeter
+                    value={newPasswordValue}
+                    onChange={(e) => onNewPasswordChange(e.target.value)}
+                    required
+                />
+                <InputError message={errors.password} />
+            </div>
+
+            <div className="grid gap-1.5">
+                <label
+                    htmlFor="conf"
+                    className="text-[13px] font-medium text-foreground"
+                >
+                    Confirm new password
+                </label>
+                <PasswordInput
+                    id="conf"
+                    name="password_confirmation"
+                    autoComplete="new-password"
+                    value={confirmPasswordValue}
+                    onChange={(e) => onConfirmPasswordChange(e.target.value)}
+                    required
+                />
+                <InputError message={errors.password_confirmation} />
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+                <span />
+                <Button type="submit" variant="primary" disabled={processing}>
+                    {processing ? 'Updating…' : 'Update password'}
+                </Button>
+            </div>
+        </form>
+    );
+}
+
 export default function PortalSecurity({
-    twoFactorEnabled: _twoFactorEnabled,
     twoFactorConfirmed,
     hasSecret,
-    passwordRules: _passwordRules,
+    passwordChangedAt,
 }: SecurityProps) {
     const {
         qrCodeSvg,
@@ -58,12 +513,10 @@ export default function PortalSecurity({
         clearTwoFactorAuthData,
     } = useTwoFactorAuth();
 
-    const [copiedKey, copyKey] = useClipboard();
-    const [copiedCodes, copyCodes] = useClipboard();
-    const [showingRecoveryCodes, setShowingRecoveryCodes] =
-        React.useState<boolean>(false);
-    const [isFetchingCodes, setIsFetchingCodes] =
-        React.useState<boolean>(false);
+    const [, copyCodes] = useClipboard();
+    const [copiedCodesState, setCopiedCodesState] = React.useState(false);
+    const [isFetchingCodes, setIsFetchingCodes] = React.useState(false);
+    const [isEnabling, setIsEnabling] = React.useState(false);
 
     // Fetch QR code & secret key when setup is active but unconfirmed
     React.useEffect(() => {
@@ -71,6 +524,13 @@ export default function PortalSecurity({
             void fetchSetupData();
         }
     }, [hasSecret, twoFactorConfirmed, fetchSetupData]);
+
+    // Fetch recovery codes when 2FA is confirmed and codes are empty
+    React.useEffect(() => {
+        if (twoFactorConfirmed && recoveryCodesList.length === 0) {
+            void fetchRecoveryCodes();
+        }
+    }, [twoFactorConfirmed, recoveryCodesList.length, fetchRecoveryCodes]);
 
     // OTP confirmation form
     const otpForm = useForm({
@@ -85,6 +545,7 @@ export default function PortalSecurity({
     });
 
     const handleEnable2FA = () => {
+        setIsEnabling(true);
         router.post(
             enableTwoFactor.url(),
             {},
@@ -99,6 +560,9 @@ export default function PortalSecurity({
                 onError: () => {
                     toast.error('Failed to initiate two-factor setup.');
                 },
+                onFinish: () => {
+                    setIsEnabling(false);
+                },
             },
         );
     };
@@ -109,9 +573,7 @@ export default function PortalSecurity({
             preserveScroll: true,
             onSuccess: () => {
                 otpForm.reset();
-                toast.success(
-                    'Two-factor authentication confirmed and enabled!',
-                );
+                toast.success('Two-factor authentication is on');
                 clearTwoFactorAuthData();
             },
             onError: (errs) => {
@@ -143,7 +605,6 @@ export default function PortalSecurity({
                 preserveScroll: true,
                 onSuccess: () => {
                     clearTwoFactorAuthData();
-                    setShowingRecoveryCodes(false);
                     toast.info('Two-factor authentication disabled.');
                 },
             });
@@ -154,9 +615,20 @@ export default function PortalSecurity({
         setIsFetchingCodes(true);
         try {
             await fetchRecoveryCodes();
-            setShowingRecoveryCodes(true);
         } finally {
             setIsFetchingCodes(false);
+        }
+    };
+
+    const handleCopyCodes = async () => {
+        if (!recoveryCodesList.length) {
+            return;
+        }
+        const ok = await copyCodes(recoveryCodesList.join(' '));
+        if (ok) {
+            setCopiedCodesState(true);
+            toast.success('Recovery codes copied');
+            setTimeout(() => setCopiedCodesState(false), 2000);
         }
     };
 
@@ -168,7 +640,7 @@ export default function PortalSecurity({
                 preserveScroll: true,
                 onSuccess: () => {
                     void fetchRecoveryCodes();
-                    toast.success('Recovery codes regenerated.');
+                    toast.success('New recovery codes created');
                 },
             },
         );
@@ -180,458 +652,152 @@ export default function PortalSecurity({
             preserveScroll: true,
             onSuccess: () => {
                 passwordForm.reset();
-                toast.success('Password updated successfully.');
+                toast.success('Password updated');
             },
         });
     };
 
-    return (
-        <PortalLayout>
-            <Head title="Client Portal — Security & MFA | Okojie Online" />
+    const relativeTime = React.useMemo(() => {
+        return formatRelativeTime(passwordChangedAt);
+    }, [passwordChangedAt]);
 
-            <div className="mx-auto max-w-3xl space-y-8">
-                {/* Notice banner if 2FA is not yet active */}
+    return (
+        <AppShellLayout
+            area="portal"
+            activeKey="security"
+            headTitle="Client Portal — Security & 2FA | Okojie Online"
+            eyebrow="Account"
+            title="Security & 2FA"
+            sub="Keep your tax documents safe."
+        >
+            <Head>
+                <title>Client Portal — Security & 2FA | Okojie Online</title>
+            </Head>
+
+            <div id="page">
+                {/* Gate Alert when 2FA is not yet confirmed */}
                 {!twoFactorConfirmed && (
-                    <div className="text-warning-foreground flex items-start gap-3 rounded-[18px] border border-warning/40 bg-warning/10 p-5">
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
-                        <div>
-                            <h3 className="font-semibold text-foreground">
-                                Two-factor authentication required
-                            </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                To protect your sensitive tax documents, IRS
-                                guidance requires every client account to enable
-                                multi-factor authentication (MFA). Please
-                                complete enrollment below to access the full
-                                portal.
-                            </p>
-                        </div>
-                    </div>
+                    <Note
+                        tone="accent"
+                        role="alert"
+                        className="mb-4"
+                        icon={
+                            <Shield
+                                className="size-4 shrink-0"
+                                strokeWidth={1.7}
+                            />
+                        }
+                    >
+                        <b className="font-medium">
+                            Turn on two-factor authentication to continue.
+                        </b>{' '}
+                        IRS guidance requires it on every client account that
+                        holds tax documents. It takes about two minutes.
+                    </Note>
                 )}
 
-                {/* 2FA Management Card */}
-                <div className="rounded-[18px] border border-border bg-card p-6 sm:p-8">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                {twoFactorConfirmed ? (
-                                    <ShieldCheck className="h-5 w-5 text-success" />
+                <div className="grid grid-cols-2 items-start gap-4 max-shell:grid-cols-1">
+                    {/* Left Column: 2FA */}
+                    <Shell aria-labelledby="mfa-title">
+                        <ShellHead
+                            headingId="mfa-title"
+                            icon={<Shield className="size-[18px]" />}
+                            title="Two-factor authentication"
+                            right={
+                                twoFactorConfirmed ? (
+                                    <Chip tone="success" dot>
+                                        On
+                                    </Chip>
+                                ) : hasSecret ? (
+                                    <Chip tone="accent">Step 2 of 2</Chip>
                                 ) : (
-                                    <ShieldAlert className="h-5 w-5 text-primary" />
-                                )}
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold tracking-tight text-foreground">
-                                    Two-Factor Authentication
-                                </h2>
-                                <p className="text-sm text-muted-foreground">
-                                    Secure your account using a time-based
-                                    one-time password (TOTP).
-                                </p>
-                            </div>
-                        </div>
-                        <div>
+                                    <Chip tone="warning" dot>
+                                        Required
+                                    </Chip>
+                                )
+                            }
+                        />
+                        <Inner>
                             {twoFactorConfirmed ? (
-                                <Badge variant="success" className="px-3 py-1">
-                                    Active & Enforced
-                                </Badge>
+                                <TwoFactorOn
+                                    recoveryCodesList={recoveryCodesList}
+                                    onCopyCodes={handleCopyCodes}
+                                    copiedCodes={copiedCodesState}
+                                    onRegenerateCodes={
+                                        handleRegenerateRecoveryCodes
+                                    }
+                                    onViewCodes={handleViewRecoveryCodes}
+                                    isFetchingCodes={isFetchingCodes}
+                                    onDisable={handleDisable2FA}
+                                />
+                            ) : hasSecret ? (
+                                <TwoFactorSetup
+                                    qrCodeSvg={qrCodeSvg}
+                                    manualSetupKey={manualSetupKey}
+                                    otpCode={otpForm.data.code}
+                                    onOtpChange={(val) =>
+                                        otpForm.setData('code', val)
+                                    }
+                                    onSubmitOtp={handleConfirmOTP}
+                                    onCancel={handleCancelSetup}
+                                    processing={otpForm.processing}
+                                    errorMessage={otpForm.errors.code}
+                                />
                             ) : (
-                                <Badge variant="warning" className="px-3 py-1">
-                                    Setup Required
-                                </Badge>
+                                <TwoFactorOff
+                                    onSetup={handleEnable2FA}
+                                    processing={isEnabling}
+                                />
                             )}
-                        </div>
-                    </div>
+                        </Inner>
+                    </Shell>
 
-                    <div className="mt-6 border-t border-border pt-6">
-                        {twoFactorConfirmed ? (
-                            /* State 1: 2FA is active */
-                            <div className="space-y-6">
-                                <p className="text-sm text-muted-foreground">
-                                    Two-factor authentication is active on your
-                                    account. You will be prompted for a 6-digit
-                                    code from your authenticator app whenever
-                                    you sign in.
-                                </p>
-
-                                {/* Recovery Codes Section */}
-                                <div className="rounded-[14px] border border-border bg-secondary/40 p-5">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <KeyRound className="h-5 w-5 text-primary" />
-                                            <h3 className="font-semibold text-foreground">
-                                                Emergency Recovery Codes
-                                            </h3>
-                                        </div>
-                                    </div>
-                                    <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                                        Keep these recovery codes in a secure
-                                        password manager. If you lose access to
-                                        your authenticator app, each code can be
-                                        used once to sign in.
-                                    </p>
-
-                                    {showingRecoveryCodes &&
-                                    recoveryCodesList.length > 0 ? (
-                                        <div className="mt-4 space-y-4">
-                                            <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-background p-4 sm:grid-cols-4">
-                                                {recoveryCodesList.map(
-                                                    (code) => (
-                                                        <span
-                                                            key={code}
-                                                            className="font-mono text-xs text-foreground select-all"
-                                                        >
-                                                            {code}
-                                                        </span>
-                                                    ),
-                                                )}
-                                            </div>
-
-                                            <div className="flex flex-wrap items-center gap-3">
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        copyCodes(
-                                                            recoveryCodesList.join(
-                                                                '\n',
-                                                            ),
-                                                        )
-                                                    }
-                                                    className="rounded-full text-xs"
-                                                >
-                                                    {copiedCodes ===
-                                                    recoveryCodesList.join(
-                                                        '\n',
-                                                    ) ? (
-                                                        <>
-                                                            <Check className="mr-1.5 h-3.5 w-3.5 text-success" />
-                                                            Copied!
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Copy className="mr-1.5 h-3.5 w-3.5" />
-                                                            Copy all codes
-                                                        </>
-                                                    )}
-                                                </Button>
-
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={
-                                                        handleRegenerateRecoveryCodes
-                                                    }
-                                                    className="rounded-full text-xs text-muted-foreground hover:text-foreground"
-                                                >
-                                                    <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-                                                    Regenerate codes
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="mt-4">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                disabled={isFetchingCodes}
-                                                onClick={
-                                                    handleViewRecoveryCodes
-                                                }
-                                                className="rounded-full text-xs"
-                                            >
-                                                {isFetchingCodes ? (
-                                                    <Spinner className="mr-1.5 h-3.5 w-3.5" />
-                                                ) : (
-                                                    <KeyRound className="mr-1.5 h-3.5 w-3.5" />
-                                                )}
-                                                View recovery codes
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="pt-2">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={handleDisable2FA}
-                                        className="rounded-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                    >
-                                        Disable two-factor authentication
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : !hasSecret ? (
-                            /* State 2: 2FA not yet initiated */
-                            <div className="space-y-4">
-                                <p className="text-sm text-muted-foreground">
-                                    When you enable two-factor authentication,
-                                    you will scan a QR code using an
-                                    authenticator app (such as Google
-                                    Authenticator, Microsoft Authenticator,
-                                    1Password, or Apple Passwords).
-                                </p>
-                                <div>
-                                    <Button
-                                        type="button"
-                                        onClick={handleEnable2FA}
-                                        className="rounded-full px-6 py-2.5 font-semibold"
-                                    >
-                                        <ShieldCheck className="mr-2 h-4 w-4" />
-                                        Enable Two-Factor Authentication
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : (
-                            /* State 3: Secret initiated, awaiting confirmation code */
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <h3 className="font-semibold text-foreground">
-                                        Step 1: Scan QR code
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Open your authenticator app and scan the
-                                        QR code below, or manually enter the
-                                        setup key.
-                                    </p>
-                                </div>
-
-                                {/* QR Code box */}
-                                <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-border bg-secondary/30 p-6 sm:flex-row sm:items-start sm:justify-start">
-                                    <div className="flex h-44 w-44 shrink-0 items-center justify-center rounded-lg border border-border bg-white p-2">
-                                        {qrCodeSvg ? (
-                                            <div
-                                                className="h-full w-full [&_svg]:h-full [&_svg]:w-full"
-                                                dangerouslySetInnerHTML={{
-                                                    __html: qrCodeSvg,
-                                                }}
-                                            />
-                                        ) : (
-                                            <Spinner />
-                                        )}
-                                    </div>
-
-                                    <div className="flex-1 space-y-2 text-center sm:text-left">
-                                        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                                            Manual setup key
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <code className="rounded-md border border-border bg-secondary px-3 py-1.5 font-mono text-xs text-foreground select-all">
-                                                {manualSetupKey ||
-                                                    'Loading setup key...'}
-                                            </code>
-                                            {manualSetupKey && (
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        copyKey(manualSetupKey)
-                                                    }
-                                                    className="h-8 rounded-full px-2.5 text-xs"
-                                                >
-                                                    {copiedKey ===
-                                                    manualSetupKey ? (
-                                                        <Check className="h-3.5 w-3.5 text-success" />
-                                                    ) : (
-                                                        <Copy className="h-3.5 w-3.5" />
-                                                    )}
-                                                </Button>
-                                            )}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            If your device cannot scan the code,
-                                            enter this key manually into your
-                                            authenticator app.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3 pt-2">
-                                    <h3 className="font-semibold text-foreground">
-                                        Step 2: Enter 6-digit confirmation code
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Enter the 6-digit code shown in your
-                                        authenticator app to complete setup.
-                                    </p>
-
-                                    <form
-                                        onSubmit={handleConfirmOTP}
-                                        className="space-y-4"
-                                    >
-                                        <div className="flex justify-center sm:justify-start">
-                                            <InputOTP
-                                                name="code"
-                                                maxLength={OTP_MAX_LENGTH}
-                                                value={otpForm.data.code}
-                                                onChange={(val) =>
-                                                    otpForm.setData('code', val)
-                                                }
-                                                disabled={otpForm.processing}
-                                                pattern={REGEXP_ONLY_DIGITS}
-                                                autoFocus
-                                            >
-                                                <InputOTPGroup>
-                                                    {Array.from(
-                                                        {
-                                                            length: OTP_MAX_LENGTH,
-                                                        },
-                                                        (_, i) => (
-                                                            <InputOTPSlot
-                                                                key={i}
-                                                                index={i}
-                                                            />
-                                                        ),
-                                                    )}
-                                                </InputOTPGroup>
-                                            </InputOTP>
-                                        </div>
-
-                                        <InputError
-                                            message={otpForm.errors.code}
-                                        />
-
-                                        <div className="flex items-center gap-3 pt-2">
-                                            <Button
-                                                type="submit"
-                                                disabled={
-                                                    otpForm.processing ||
-                                                    otpForm.data.code.length !==
-                                                        OTP_MAX_LENGTH
-                                                }
-                                                className="rounded-full px-6 py-2.5 font-semibold"
-                                            >
-                                                {otpForm.processing ? (
-                                                    <Spinner className="mr-2 h-4 w-4" />
-                                                ) : (
-                                                    <Check className="mr-2 h-4 w-4" />
-                                                )}
-                                                Confirm & Activate MFA
-                                            </Button>
-
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                onClick={handleCancelSetup}
-                                                disabled={otpForm.processing}
-                                                className="rounded-full text-xs text-muted-foreground hover:text-foreground"
-                                            >
-                                                Cancel
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Password Change Card */}
-                <div className="rounded-[18px] border border-border bg-card p-6 sm:p-8">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-tight text-foreground">
-                            Update Password
-                        </h2>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Ensure your account is using a long, random password
-                            (at least 12 characters) to stay secure.
-                        </p>
-                    </div>
-
-                    <form
-                        onSubmit={handleUpdatePassword}
-                        className="mt-6 space-y-4"
-                    >
-                        <div className="space-y-1.5">
-                            <Label htmlFor="current_password">
-                                Current password
-                            </Label>
-                            <PasswordInput
-                                id="current_password"
-                                name="current_password"
-                                value={passwordForm.data.current_password}
-                                onChange={(e) =>
+                    {/* Right Column: Password */}
+                    <Shell aria-labelledby="pw-title">
+                        <ShellHead
+                            headingId="pw-title"
+                            icon={<Key className="size-[18px]" />}
+                            title="Password"
+                            right={
+                                relativeTime ? (
+                                    <span className="text-xs text-fg-3">
+                                        {relativeTime}
+                                    </span>
+                                ) : null
+                            }
+                        />
+                        <Inner>
+                            <PasswordForm
+                                currentPasswordValue={
+                                    passwordForm.data.current_password
+                                }
+                                newPasswordValue={passwordForm.data.password}
+                                confirmPasswordValue={
+                                    passwordForm.data.password_confirmation
+                                }
+                                onCurrentPasswordChange={(val) =>
                                     passwordForm.setData(
                                         'current_password',
-                                        e.target.value,
+                                        val,
                                     )
                                 }
-                                autoComplete="current-password"
-                                placeholder="Current password"
-                                className="bg-secondary/50"
-                            />
-                            <InputError
-                                message={passwordForm.errors.current_password}
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="new_password">New password</Label>
-                            <PasswordInput
-                                id="new_password"
-                                name="password"
-                                value={passwordForm.data.password}
-                                onChange={(e) =>
-                                    passwordForm.setData(
-                                        'password',
-                                        e.target.value,
-                                    )
+                                onNewPasswordChange={(val) =>
+                                    passwordForm.setData('password', val)
                                 }
-                                autoComplete="new-password"
-                                placeholder="New password (min 12 characters)"
-                                className="bg-secondary/50"
-                            />
-                            <InputError
-                                message={passwordForm.errors.password}
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <Label htmlFor="password_confirmation">
-                                Confirm password
-                            </Label>
-                            <PasswordInput
-                                id="password_confirmation"
-                                name="password_confirmation"
-                                value={passwordForm.data.password_confirmation}
-                                onChange={(e) =>
+                                onConfirmPasswordChange={(val) =>
                                     passwordForm.setData(
                                         'password_confirmation',
-                                        e.target.value,
+                                        val,
                                     )
                                 }
-                                autoComplete="new-password"
-                                placeholder="Confirm new password"
-                                className="bg-secondary/50"
+                                onSubmit={handleUpdatePassword}
+                                processing={passwordForm.processing}
+                                errors={passwordForm.errors}
                             />
-                            <InputError
-                                message={
-                                    passwordForm.errors.password_confirmation
-                                }
-                            />
-                        </div>
-
-                        <div className="pt-2">
-                            <Button
-                                type="submit"
-                                disabled={passwordForm.processing}
-                                className="rounded-full px-6 py-2.5 font-semibold"
-                            >
-                                {passwordForm.processing ? (
-                                    <Spinner className="mr-2 h-4 w-4" />
-                                ) : null}
-                                Update Password
-                            </Button>
-                        </div>
-                    </form>
+                        </Inner>
+                    </Shell>
                 </div>
             </div>
-        </PortalLayout>
+        </AppShellLayout>
     );
 }
