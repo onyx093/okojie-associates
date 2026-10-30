@@ -1,22 +1,33 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import {
-    AlertCircle,
-    CloudUpload,
+    Check,
     Download,
-    FileSpreadsheet,
     FileText,
-    Image as ImageIcon,
-    Loader2,
+    Lock,
+    Shield,
     Trash2,
-    X,
+    Upload,
 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
-import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import {
+    Button,
+    Chip,
+    ConfirmDialog,
+    EmptyState,
+    Field,
+    FileBadge,
+    FileDropzone,
+    IconButton,
+    Inner,
+    Note,
+    Row,
+    RowList,
+    Shell,
+    ShellHead,
+    StatusLabel,
+} from '@/components/primitives';
 import {
     Select,
     SelectContent,
@@ -24,14 +35,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { PortalLayout } from '@/layouts/portal-layout';
+import { AppShellLayout } from '@/layouts/app-shell-layout';
 import { cn } from '@/lib/utils';
 import {
     destroy as documentDestroy,
     store as documentStore,
 } from '@/routes/portal/documents';
 
-interface DocumentItem {
+export interface DocumentItem {
     id: string;
     type: string;
     type_label: string;
@@ -39,33 +50,55 @@ interface DocumentItem {
     mime: string;
     size_bytes: number;
     size_formatted: string;
-    scan_status: string;
+    scan_status: 'clean' | 'pending' | 'infected';
     scan_status_label: string;
     created_at: string;
     created_at_formatted: string;
     download_url: string;
 }
 
-interface DocumentsPageProps {
+export interface DocumentsPageProps {
     documents: DocumentItem[];
     canDelete: boolean;
     taxReturnStatus?: string | null;
 }
 
-const DOC_TYPES = [
+// Derived dynamically from App\Enums\DocType
+export const DOCUMENT_TYPE_OPTIONS = [
     { value: 'w2', label: 'W-2' },
     { value: '1099', label: '1099' },
     { value: 'id', label: 'ID' },
     { value: 'prior_return', label: 'Prior return' },
     { value: 'other', label: 'Other' },
+] as const;
+
+// Derived dynamically from App\Rules\SafeUpload (ALLOWED_EXTENSIONS & MAX_KILOBYTES)
+export const SAFE_UPLOAD_ACCEPT =
+    '.pdf,.jpg,.jpeg,.png,.heic,.webp,.xlsx,.xls,.csv';
+export const SAFE_UPLOAD_HELPER = 'PDF, image or spreadsheet · up to 25 MB';
+
+interface ChecklistCategory {
+    label: string;
+    types: string[];
+    isOptional?: boolean;
+}
+
+const CHECKLIST_CATEGORIES: ChecklistCategory[] = [
+    { label: 'W-2 from each job', types: ['w2'] },
+    { label: '1099s (interest, freelance)', types: ['1099'] },
+    { label: 'Photo ID', types: ['id'] },
+    { label: 'Last year’s return', types: ['prior_return'] },
+    {
+        label: '1098-T or 1098 (if you have one)',
+        types: ['other'],
+        isOptional: true,
+    },
 ];
 
 export default function PortalDocuments({
     documents,
     canDelete,
 }: DocumentsPageProps) {
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const [isDragging, setIsDragging] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
     const {
@@ -91,297 +124,256 @@ export default function PortalDocuments({
         setData('file', file);
     };
 
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setIsDragging(false);
-
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            handleFileSelect(e.dataTransfer.files[0]);
-        }
-    };
-
-    const handleUploadSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
         if (!data.file) {
-            toast.error('Please choose a file to upload.');
             return;
         }
 
         post(documentStore.url(), {
             forceFormData: true,
-            preserveScroll: true,
             onSuccess: () => {
                 reset('file');
                 setSelectedFile(null);
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
-                toast.success('Document uploaded successfully.');
-            },
-            onError: () => {
-                toast.error(
-                    'Failed to upload document. Please check the file and try again.',
-                );
+                toast.success('Document uploaded. We’re scanning it now.');
             },
         });
     };
 
-    const handleDelete = (doc: DocumentItem) => {
-        if (!canDelete) {
-            toast.error(
-                'Documents cannot be deleted once your return is ready for review.',
-            );
-            return;
-        }
+    // Calculate counts for checklist categories derived from documents[].type
+    const checklistItems = React.useMemo(() => {
+        return CHECKLIST_CATEGORIES.map((category) => {
+            const count = documents.filter((doc) =>
+                category.types.includes(doc.type),
+            ).length;
+            const isDone = count > 0;
 
-        if (
-            window.confirm(`Are you sure you want to delete ${doc.filename}?`)
-        ) {
-            router.delete(documentDestroy.url({ document: doc.id }), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    toast.success('Document deleted.');
-                },
-                onError: () => {
-                    toast.error('Failed to delete document.');
-                },
-            });
-        }
-    };
+            let countLabel = '';
+            if (count > 0) {
+                countLabel = `${count} uploaded`;
+            } else if (category.isOptional) {
+                countLabel = 'Optional';
+            }
 
-    const getFileIcon = (mime: string, filename: string) => {
-        const lower = filename.toLowerCase();
-        if (
-            mime.includes('image') ||
-            lower.endsWith('.jpg') ||
-            lower.endsWith('.jpeg') ||
-            lower.endsWith('.png') ||
-            lower.endsWith('.webp') ||
-            lower.endsWith('.heic')
-        ) {
-            return <ImageIcon className="h-5 w-5 text-primary" />;
-        }
-        if (
-            mime.includes('spreadsheet') ||
-            lower.endsWith('.xlsx') ||
-            lower.endsWith('.xls') ||
-            lower.endsWith('.csv')
-        ) {
-            return <FileSpreadsheet className="h-5 w-5 text-emerald-500" />;
-        }
-        return <FileText className="h-5 w-5 text-primary" />;
-    };
+            return {
+                label: category.label,
+                isDone,
+                countLabel,
+            };
+        });
+    }, [documents]);
 
     return (
-        <PortalLayout>
-            <Head title="Client Portal — Documents | Okojie Online" />
+        <AppShellLayout
+            area="portal"
+            activeKey="documents"
+            headTitle="Client Portal — Documents | Okojie Online"
+            eyebrow="Your return"
+            title="Documents"
+            sub="Only you and your preparer can see these files."
+        >
+            <Head>
+                <title>Client Portal — Documents | Okojie Online</title>
+            </Head>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                {/* Left Card: Upload a document */}
-                <div className="lg:col-span-5">
-                    <div className="rounded-[18px] border border-border bg-card p-6 sm:p-7">
-                        <div>
-                            <h2 className="text-xl font-bold tracking-tight text-foreground">
-                                Upload a document
-                            </h2>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Only you and your preparer can see these files.
-                            </p>
-                        </div>
-
-                        <form
-                            onSubmit={handleUploadSubmit}
-                            className="mt-6 space-y-5"
-                        >
-                            {/* Document type select */}
-                            <div className="space-y-1.5">
-                                <label className="text-sm font-semibold text-foreground">
-                                    Document type
-                                </label>
-                                <Select
-                                    value={data.type}
-                                    onValueChange={(val) =>
-                                        setData('type', val)
-                                    }
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {DOC_TYPES.map((t) => (
-                                            <SelectItem
-                                                key={t.value}
-                                                value={t.value}
-                                            >
-                                                {t.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.type} />
-                            </div>
-
-                            {/* Hidden file input */}
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept=".pdf,.jpg,.jpeg,.png,.heic,.webp,.xlsx,.xls,.csv"
-                                className="hidden"
-                                onChange={(e) => {
-                                    if (e.target.files && e.target.files[0]) {
-                                        handleFileSelect(e.target.files[0]);
-                                    }
-                                }}
-                            />
-
-                            {/* Drop zone */}
-                            <div
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
-                                onClick={() => fileInputRef.current?.click()}
-                                className={cn(
-                                    'flex cursor-pointer flex-col items-center justify-center rounded-[14px] border-2 border-dashed p-6 text-center transition-colors',
-                                    isDragging
-                                        ? 'border-primary bg-primary/10'
-                                        : 'border-border-strong bg-secondary/30 hover:border-primary/60 hover:bg-secondary/60',
-                                )}
+            <div
+                id="page"
+                data-locked={!canDelete ? 'true' : 'false'}
+                className="grid grid-cols-[minmax(0,380px)_minmax(0,1fr)] items-start gap-4 max-shell:grid-cols-1"
+            >
+                {/* Left Column: Upload Form & "What we usually need" Checklist */}
+                <div className="grid grid-cols-1 gap-4">
+                    {/* Upload Section */}
+                    <Shell aria-labelledby="up-title">
+                        <ShellHead
+                            headingId="up-title"
+                            icon={<Upload className="size-[18px]" />}
+                            title="Upload a document"
+                        />
+                        <Inner>
+                            <form
+                                onSubmit={handleSubmit}
+                                className="grid gap-4"
                             >
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                                    <CloudUpload className="h-6 w-6" />
-                                </div>
-                                <p className="mt-3 text-sm font-semibold text-foreground">
-                                    Drag & drop or click to upload
-                                </p>
-                                <p className="mt-1 max-w-[260px] text-xs text-muted-foreground">
-                                    W-2, 1099, ID, prior return — PDF, image, or
-                                    spreadsheet
-                                </p>
-
-                                <div className="mt-4">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            fileInputRef.current?.click();
-                                        }}
-                                        className="rounded-full text-xs"
+                                <Field
+                                    label="Document type"
+                                    htmlFor="doc-type"
+                                    error={errors.type}
+                                >
+                                    <Select
+                                        value={data.type}
+                                        onValueChange={(val) =>
+                                            setData('type', val)
+                                        }
+                                        disabled={processing}
                                     >
-                                        Browse files
-                                    </Button>
-                                </div>
-                            </div>
+                                        <SelectTrigger id="doc-type">
+                                            <SelectValue placeholder="Select document type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {DOCUMENT_TYPE_OPTIONS.map(
+                                                (opt) => (
+                                                    <SelectItem
+                                                        key={opt.value}
+                                                        value={opt.value}
+                                                    >
+                                                        {opt.label}
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </Field>
 
-                            {/* Selected file preview */}
-                            {selectedFile && (
-                                <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/40 p-3">
-                                    <div className="flex items-center gap-2.5 truncate">
-                                        <FileText className="h-4 w-4 shrink-0 text-primary" />
-                                        <div className="truncate text-left text-xs">
-                                            <p className="truncate font-medium text-foreground">
-                                                {selectedFile.name}
-                                            </p>
-                                            <p className="text-muted-foreground">
-                                                {(
-                                                    selectedFile.size / 1024
-                                                ).toFixed(0)}{' '}
-                                                KB
-                                            </p>
+                                <Field error={errors.file}>
+                                    <FileDropzone
+                                        id="file-in"
+                                        file={selectedFile}
+                                        onFileSelect={handleFileSelect}
+                                        accept={SAFE_UPLOAD_ACCEPT}
+                                        helperText={SAFE_UPLOAD_HELPER}
+                                        disabled={processing}
+                                    />
+                                </Field>
+
+                                {progress && (
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between text-[12px] text-fg-3">
+                                            <span>Uploading…</span>
+                                            <span>{progress.percentage}%</span>
+                                        </div>
+                                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
+                                            <div
+                                                className="h-full bg-primary transition-all duration-150"
+                                                style={{
+                                                    width: `${progress.percentage}%`,
+                                                }}
+                                            />
                                         </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleFileSelect(null);
-                                            if (fileInputRef.current) {
-                                                fileInputRef.current.value = '';
-                                            }
-                                        }}
-                                        className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            )}
+                                )}
 
-                            {/* Upload Progress */}
-                            {progress && (
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-xs text-muted-foreground">
-                                        <span>Uploading...</span>
-                                        <span>{progress.percentage}%</span>
-                                    </div>
-                                    <Progress value={progress.percentage} />
-                                </div>
-                            )}
-
-                            <InputError message={errors.file} />
-
-                            <div>
                                 <Button
+                                    variant="primary"
                                     type="submit"
                                     disabled={processing || !data.file}
-                                    className="w-full rounded-full py-5 text-sm font-semibold"
+                                    className="w-full"
                                 >
-                                    {processing ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Uploading...
-                                        </>
-                                    ) : (
-                                        'Upload document'
-                                    )}
+                                    <Upload className="mr-2 size-4" />
+                                    {processing
+                                        ? 'Uploading…'
+                                        : 'Upload document'}
                                 </Button>
+                            </form>
+                        </Inner>
+                    </Shell>
+
+                    {/* What We Usually Need Checklist */}
+                    <Shell aria-labelledby="ck-title">
+                        <ShellHead
+                            headingId="ck-title"
+                            icon={<Check className="size-[18px]" />}
+                            title="What we usually need"
+                        />
+                        <Inner>
+                            <div className="grid gap-0.5">
+                                {checklistItems.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        data-slot="checklist-item"
+                                        className={cn(
+                                            'flex items-center gap-2.5 border-t border-border px-0.5 py-2.5 text-[14px] first:border-t-0',
+                                            item.isDone && 'done',
+                                        )}
+                                    >
+                                        <span
+                                            className={cn(
+                                                'flex size-5 shrink-0 items-center justify-center rounded-[6px] transition-colors',
+                                                item.isDone
+                                                    ? 'bg-success text-white shadow-none'
+                                                    : 'bg-card ring-[1.5px] ring-border-strong',
+                                            )}
+                                            aria-hidden="true"
+                                        >
+                                            {item.isDone && (
+                                                <Check
+                                                    className="size-3 stroke-[2.6]"
+                                                    strokeWidth={2.6}
+                                                />
+                                            )}
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                item.isDone
+                                                    ? 'font-medium text-foreground'
+                                                    : 'font-normal text-fg-2',
+                                            )}
+                                        >
+                                            {item.label}
+                                        </span>
+                                        {item.countLabel && (
+                                            <span className="ml-auto text-[12.5px] text-fg-3">
+                                                {item.countLabel}
+                                            </span>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                        </form>
-                    </div>
+                        </Inner>
+                    </Shell>
                 </div>
 
-                {/* Right Card: Your documents */}
-                <div className="lg:col-span-7">
-                    <div className="rounded-[18px] border border-border bg-card p-6 sm:p-7">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h2 className="text-xl font-bold tracking-tight text-foreground">
-                                    Your documents
-                                </h2>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    {documents.length}{' '}
-                                    {documents.length === 1 ? 'file' : 'files'}{' '}
-                                    uploaded
-                                </p>
-                            </div>
-                        </div>
+                {/* Right Column: Your Documents List */}
+                <section aria-labelledby="list-title">
+                    <Shell aria-labelledby="list-title">
+                        <ShellHead
+                            headingId="list-title"
+                            icon={<FileText className="size-[18px]" />}
+                            title="Your documents"
+                            right={
+                                documents.length > 0 ? (
+                                    <span className="text-[13px] text-fg-3">
+                                        {documents.length}{' '}
+                                        {documents.length === 1
+                                            ? 'file'
+                                            : 'files'}
+                                    </span>
+                                ) : null
+                            }
+                        />
 
-                        <div className="mt-6">
-                            {documents.length === 0 ? (
-                                <div className="rounded-xl border border-dashed border-border py-12 text-center">
-                                    <FileText className="mx-auto h-10 w-10 text-muted-foreground/40" />
-                                    <p className="mt-3 text-sm text-muted-foreground">
-                                        No documents yet. Upload your first one
-                                        to get started.
-                                    </p>
-                                </div>
-                            ) : (
-                                <div className="divide-y divide-border">
+                        {documents.length > 0 ? (
+                            <Inner className="overflow-hidden p-0">
+                                {!canDelete && (
+                                    <Note
+                                        tone="warn"
+                                        icon={
+                                            <Lock className="size-4 shrink-0" />
+                                        }
+                                        className="lockbar mx-2 mt-2"
+                                    >
+                                        Your return is ready for review, so
+                                        documents can’t be deleted now. Message
+                                        your preparer if something needs to
+                                        change.
+                                    </Note>
+                                )}
+
+                                <RowList
+                                    footer={
+                                        <span className="flex items-center gap-1.5">
+                                            <Shield className="size-4 text-fg-3" />
+                                            Every file is virus-scanned. Blocked
+                                            files are never shared with anyone.
+                                        </span>
+                                    }
+                                >
                                     {documents.map((doc) => {
+                                        const ext = doc.filename.includes('.')
+                                            ? doc.filename.split('.').pop() ||
+                                              'PDF'
+                                            : 'FILE';
+
                                         const isClean =
                                             doc.scan_status === 'clean';
                                         const isPending =
@@ -390,124 +382,129 @@ export default function PortalDocuments({
                                             doc.scan_status === 'infected';
 
                                         return (
-                                            <div
+                                            <Row
                                                 key={doc.id}
-                                                className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
-                                            >
-                                                <div className="flex items-start gap-3 truncate">
-                                                    <div className="mt-0.5 rounded-lg border border-border bg-secondary/50 p-2">
-                                                        {getFileIcon(
-                                                            doc.mime,
-                                                            doc.filename,
-                                                        )}
-                                                    </div>
-                                                    <div className="truncate">
-                                                        <p className="truncate text-sm font-semibold text-foreground">
-                                                            {doc.filename}
-                                                        </p>
-                                                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="px-2 py-0 text-[11px]"
-                                                            >
+                                                leading={
+                                                    <FileBadge ext={ext} />
+                                                }
+                                                title={doc.filename}
+                                                meta={`${doc.size_formatted} · ${doc.created_at_formatted}`}
+                                                status={
+                                                    <div className="flex items-center gap-2.5">
+                                                        <span className="type max-sm:hidden">
+                                                            <Chip tone="neutral">
                                                                 {doc.type_label}
-                                                            </Badge>
-                                                            <span>•</span>
-                                                            <span>
-                                                                {
-                                                                    doc.size_formatted
-                                                                }
-                                                            </span>
-                                                            <span>•</span>
-                                                            <span>
-                                                                {
-                                                                    doc.created_at_formatted
-                                                                }
-                                                            </span>
-                                                        </div>
-
-                                                        {/* Scan status notice */}
+                                                            </Chip>
+                                                        </span>
+                                                        {isClean && (
+                                                            <StatusLabel tone="ok">
+                                                                Clean
+                                                            </StatusLabel>
+                                                        )}
                                                         {isPending && (
-                                                            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-warning">
-                                                                <Loader2 className="h-3 w-3 animate-spin" />
-                                                                <span>
-                                                                    Scanning for
-                                                                    viruses...
-                                                                </span>
-                                                            </div>
+                                                            <StatusLabel tone="wait">
+                                                                Scanning…
+                                                            </StatusLabel>
                                                         )}
                                                         {isInfected && (
-                                                            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-destructive">
-                                                                <AlertCircle className="h-3 w-3" />
-                                                                <span>
-                                                                    File
-                                                                    infected —
-                                                                    blocked
-                                                                </span>
-                                                            </div>
+                                                            <StatusLabel tone="bad">
+                                                                Blocked
+                                                            </StatusLabel>
                                                         )}
                                                     </div>
-                                                </div>
+                                                }
+                                                actions={
+                                                    <span className="flex items-center gap-1">
+                                                        {isClean ? (
+                                                            <IconButton
+                                                                asChild
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                aria-label={`Download ${doc.filename}`}
+                                                                className="text-fg-3 hover:text-foreground"
+                                                            >
+                                                                <a
+                                                                    href={
+                                                                        doc.download_url
+                                                                    }
+                                                                    download
+                                                                >
+                                                                    <Download className="size-4" />
+                                                                </a>
+                                                            </IconButton>
+                                                        ) : (
+                                                            <IconButton
+                                                                disabled
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                aria-label={
+                                                                    isPending
+                                                                        ? 'Download available after scan'
+                                                                        : 'Blocked file can’t be downloaded'
+                                                                }
+                                                                className="cursor-not-allowed text-fg-3 opacity-40"
+                                                            >
+                                                                <Download className="size-4" />
+                                                            </IconButton>
+                                                        )}
 
-                                                <div className="flex items-center gap-2 self-end sm:self-center">
-                                                    {/* Download link: plain <a> per spec */}
-                                                    {isClean ? (
-                                                        <a
-                                                            href={
-                                                                doc.download_url
-                                                            }
-                                                            download
-                                                            className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary/60 px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                                                            title="Download file"
-                                                        >
-                                                            <Download className="h-3.5 w-3.5" />
-                                                            <span>
-                                                                Download
-                                                            </span>
-                                                        </a>
-                                                    ) : (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            disabled
-                                                            className="rounded-full text-xs opacity-50"
-                                                            title="Available after scan completes"
-                                                        >
-                                                            <Download className="mr-1 h-3.5 w-3.5" />
-                                                            Download
-                                                        </Button>
-                                                    )}
-
-                                                    {/* Delete button: only before ReadyForReview */}
-                                                    {canDelete && (
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    doc,
-                                                                )
-                                                            }
-                                                            className="h-8 w-8 rounded-full p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                                            title="Delete file"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                            <span className="sr-only">
-                                                                Delete
-                                                            </span>
-                                                        </Button>
-                                                    )}
-                                                </div>
-                                            </div>
+                                                        {canDelete && (
+                                                            <ConfirmDialog
+                                                                trigger={
+                                                                    <IconButton
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        aria-label={`Delete ${doc.filename}`}
+                                                                        className="del text-fg-3 hover:bg-danger-soft hover:text-danger"
+                                                                    >
+                                                                        <Trash2 className="size-4" />
+                                                                    </IconButton>
+                                                                }
+                                                                title={`Delete ${doc.filename}?`}
+                                                                description="This document will be permanently removed from your account. You can re-upload it later if needed."
+                                                                confirmLabel="Delete document"
+                                                                variant="danger"
+                                                                onConfirm={() =>
+                                                                    router.delete(
+                                                                        documentDestroy.url(
+                                                                            {
+                                                                                document:
+                                                                                    doc.id,
+                                                                            },
+                                                                        ),
+                                                                    )
+                                                                }
+                                                            />
+                                                        )}
+                                                    </span>
+                                                }
+                                            />
                                         );
                                     })}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                                </RowList>
+                            </Inner>
+                        ) : (
+                            <Inner variant="flush-empty">
+                                <EmptyState
+                                    icon={<FileText className="size-5" />}
+                                    title="No documents yet"
+                                    body="Upload your first file and it will appear here once it’s been scanned."
+                                    className="min-h-[420px]"
+                                    actions={
+                                        <label
+                                            htmlFor="file-in"
+                                            className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-btn bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-btn transition-colors hover:bg-primary/90"
+                                        >
+                                            <Upload className="size-4" />
+                                            Upload a document
+                                        </label>
+                                    }
+                                />
+                            </Inner>
+                        )}
+                    </Shell>
+                </section>
             </div>
-        </PortalLayout>
+        </AppShellLayout>
     );
 }

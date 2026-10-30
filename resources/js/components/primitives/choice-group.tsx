@@ -20,6 +20,7 @@ export type ChoiceGroupProps = {
     name?: string;
     cols?: 1 | 2 | 3 | 4;
     className?: string;
+    itemClassName?: string;
     'aria-label'?: string;
 };
 
@@ -38,6 +39,7 @@ export function ChoiceGroup({
     name,
     cols = 3,
     className,
+    itemClassName,
     'aria-label': ariaLabel,
 }: ChoiceGroupProps) {
     const groupId = React.useId();
@@ -62,6 +64,7 @@ export function ChoiceGroup({
                             'has-data-[state=checked]:bg-brand-soft has-data-[state=checked]:text-brand has-data-[state=checked]:shadow-[inset_0_0_0_1.5px_var(--primary)]',
                             'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary',
                             option.disabled && 'pointer-events-none opacity-60',
+                            itemClassName,
                         )}
                     >
                         <RadioGroupItem

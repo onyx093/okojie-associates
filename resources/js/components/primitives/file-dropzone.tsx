@@ -30,8 +30,8 @@ export type FileDropzoneProps = {
 export function FileDropzone({
     file = null,
     onFileSelect,
-    accept = '.pdf,.png,.jpg,.jpeg,.webp',
-    helperText = 'PDF, JPG, PNG, or WEBP up to 25 MB · Virus-scanned on upload',
+    accept = '.pdf,.jpg,.jpeg,.png,.heic,.webp,.xlsx,.xls,.csv',
+    helperText = 'PDF, image or spreadsheet · up to 25 MB',
     disabled = false,
     id,
     name,
@@ -94,6 +94,14 @@ export function FileDropzone({
     return (
         <div
             data-slot="file-dropzone"
+            role="button"
+            tabIndex={disabled ? -1 : 0}
+            onKeyDown={(event) => {
+                if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    inputRef.current?.click();
+                }
+            }}
             onDragOver={(event) => {
                 event.preventDefault();
                 if (!disabled) {
@@ -109,7 +117,7 @@ export function FileDropzone({
                 }
             }}
             className={cn(
-                'relative flex flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-border-strong bg-sunken px-5 py-7 text-center transition-colors duration-150',
+                'relative flex flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-border-strong bg-sunken px-5 py-7 text-center transition-colors duration-150 outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-brand-soft',
                 !disabled &&
                     'cursor-pointer hov:border-primary hov:bg-brand-soft/60',
                 isDragging && 'border-primary bg-brand-soft',
