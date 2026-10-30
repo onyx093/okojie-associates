@@ -152,6 +152,7 @@ export type AppShellLayoutProps = {
     defaultDrawerOpen?: boolean;
     className?: string;
     mainClassName?: string;
+    headClassName?: string;
 };
 
 export function AppShellLayout(props: AppShellLayoutProps) {
@@ -175,6 +176,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
         defaultDrawerOpen = false,
         className,
         mainClassName,
+        headClassName,
     } = props;
 
     const page = usePage<Partial<SharedData>>();
@@ -399,6 +401,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
                     actions,
                     backHref,
                     backLabel,
+                    className: headClassName,
                 }
               : null;
 
@@ -412,7 +415,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
                 user?.preferences?.reduceMotion ? 'true' : undefined
             }
             className={cn(
-                'grid min-h-screen grid-cols-[248px_minmax(0,1fr)] bg-background text-foreground max-shell:grid-cols-1',
+                'grid min-h-screen grid-cols-[248px_minmax(0,1fr)] bg-background text-foreground max-shell:grid-cols-1 print:block print:bg-white',
                 className,
             )}
         >
@@ -430,7 +433,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
                     aria-hidden="true"
                     data-testid="app-shell-scrim"
                     onClick={() => setDrawerOpen(false)}
-                    className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[2px] shell:hidden"
+                    className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[2px] shell:hidden print:hidden"
                 />
             )}
 
@@ -445,7 +448,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
                 }
                 data-open={drawerOpen ? 'true' : 'false'}
                 className={cn(
-                    'sticky top-0 flex h-screen flex-col gap-5 overflow-y-auto border-r border-border bg-shell px-3.5 py-[18px] transition-transform duration-220 ease-out outline-none max-shell:fixed max-shell:inset-y-0 max-shell:left-0 max-shell:z-50 max-shell:w-[min(280px,86vw)]',
+                    'sticky top-0 flex h-screen flex-col gap-5 overflow-y-auto border-r border-border bg-shell px-3.5 py-[18px] transition-transform duration-220 ease-out outline-none max-shell:fixed max-shell:inset-y-0 max-shell:left-0 max-shell:z-50 max-shell:w-[min(280px,86vw)] print:hidden',
                     drawerOpen
                         ? 'max-shell:shadow-float max-shell:translate-x-0'
                         : 'max-shell:-translate-x-full',
@@ -577,7 +580,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
             </aside>
 
             <div className="min-w-0">
-                <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-shell px-4 py-3 shell:hidden">
+                <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-shell px-4 py-3 shell:hidden print:hidden">
                     <IconButton
                         ref={triggerRef}
                         aria-label="Open navigation"
@@ -614,7 +617,7 @@ export function AppShellLayout(props: AppShellLayoutProps) {
                 <main
                     id="main"
                     className={cn(
-                        'max-w-page mx-auto w-full min-w-0 px-9 pt-7 pb-16 max-sm:px-4 max-sm:pt-5 max-sm:pb-12',
+                        'max-w-page mx-auto w-full min-w-0 px-9 pt-7 pb-16 max-sm:px-4 max-sm:pt-5 max-sm:pb-12 print:max-w-none print:p-0',
                         mainClassName,
                     )}
                 >
